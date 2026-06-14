@@ -3,6 +3,9 @@ import { POSTS } from "@/lib/blog";
 import { TEMPLATES } from "@/templates/registry";
 import { SITE_URL } from "@/lib/seo";
 
+// Required for `output: export` — emit a static sitemap.xml at build time.
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 

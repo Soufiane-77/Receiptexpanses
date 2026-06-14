@@ -7,9 +7,9 @@ import JsonLd from "@/components/JsonLd";
 import { CmsPostView } from "@/components/CmsPosts";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
-// Statically render the known posts; render unknown slugs on demand so that
-// browser-published CMS posts (client-side) can resolve via the CMS fallback.
-export const dynamicParams = true;
+// Static export: only the known posts are prerendered. Unknown slugs resolve
+// client-side via the CMS fallback (CmsPostView) inside the rendered page.
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));

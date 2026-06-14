@@ -28,10 +28,13 @@ function withDefaults(receipt: Receipt): Receipt {
   };
 }
 
-export default function CreateClient({ template }: { template?: string }) {
+export default function CreateClient() {
   const [initial, setInitial] = useState<Receipt | null>(null);
 
   useEffect(() => {
+    // Read the requested template from the URL query (`?template=`) on the
+    // client, so the page can be statically exported.
+    const template = new URLSearchParams(window.location.search).get("template");
     // If a template is explicitly requested, start fresh from its preset
     // (with admin defaults applied). Otherwise restore the saved draft.
     if (template) {
@@ -39,7 +42,7 @@ export default function CreateClient({ template }: { template?: string }) {
       return;
     }
     setInitial(loadDraft() ?? withDefaults(presetFor(DEFAULT_TEMPLATE_ID)));
-  }, [template]);
+  }, []);
 
   if (!initial) {
     return (

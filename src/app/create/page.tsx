@@ -1,10 +1,7 @@
 import CreateClient from "./CreateClient";
 
-export default async function CreatePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ template?: string }>;
-}) {
-  const { template } = await searchParams;
-  return <CreateClient template={template} />;
+// Statically exported; the `?template=` query param is read client-side
+// (see CreateClient) so this page needs no server-side searchParams.
+export default function CreatePage() {
+  return <CreateClient />;
 }
