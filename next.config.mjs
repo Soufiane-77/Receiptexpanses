@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Static HTML export — Cloudflare Pages serves the generated `out/` directory.
-  output: "export",
-  // next/image optimization needs a server; disable it for the static export.
-  images: { unoptimized: true },
 };
 
 export default nextConfig;
+
+// Provides Cloudflare bindings (D1, env) via getCloudflareContext() during
+// `next dev` only. Guarded so it never starts the Workers runtime at build time.
+// See https://opennext.js.org/cloudflare
+if (process.env.NODE_ENV === "development") {
+  const { initOpenNextCloudflareForDev } = await import("@opennextjs/cloudflare");
+  await initOpenNextCloudflareForDev();
+}

@@ -1,7 +1,25 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "receiptexpanses",
+  "main": ".open-next/worker.js",
   "compatibility_date": "2025-03-25",
-  // Cloudflare Pages: serve the Next.js static export output directory.
-  "pages_build_output_dir": "out"
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  // Cloudflare D1 (SQLite) database. Create it once with:
+  //   npx wrangler d1 create receiptexpanses-db
+  // then paste the printed database_id below (replace REPLACE_WITH_D1_DATABASE_ID).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "receiptexpanses-db",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ]
 }

@@ -1,0 +1,18 @@
+/// <reference types="@cloudflare/workers-types" />
+
+// Cloudflare Worker bindings + env vars available via getCloudflareContext().env.
+// Keep in sync with wrangler.jsonc bindings and any secrets/vars you set.
+interface CloudflareEnv {
+  /** D1 database binding (see wrangler.jsonc d1_databases). */
+  DB: D1Database;
+
+  // --- Stripe (set as Worker secrets / vars; optional until billing is wired) ---
+  /** Stripe secret key (sk_...). Set via `wrangler secret put STRIPE_SECRET_KEY`. */
+  STRIPE_SECRET_KEY?: string;
+  /** Stripe webhook signing secret (whsec_...). */
+  STRIPE_WEBHOOK_SECRET?: string;
+  /** Stripe Price ID for the Pro plan (price_...). */
+  STRIPE_PRICE_PRO?: string;
+  /** Public base URL of the app, e.g. https://receiptexpanses.workers.dev */
+  APP_URL?: string;
+}
