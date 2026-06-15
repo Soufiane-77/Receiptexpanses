@@ -50,14 +50,29 @@ export function useIsPro(): boolean {
   return user?.plan === "pro";
 }
 
-/** Simulate a successful checkout — upgrade the current user to Pro. */
-export function subscribePro(): void {
-  updateCurrentUser({ plan: "pro", proSince: new Date().toISOString() });
+async function postBilling(url: string): Promise<void> {
+  const res = await fetch(url, { method: "POST", credentials: "same-origin" });
+  let data: { url?: string; error?: string } = {};
+  try {
+    data = (await res.json()) as { url?: string; error?: string };
+  } catch {
+    /* empty */
+  }
+  if (data.url) {
+    window.location.href = data.url;
+  } else {
+    window.alert(data.error ?? "Something went wrong. Please try again.");
+  }
 }
 
-/** Downgrade back to Free. */
-export function cancelPro(): void {
-  updateCurrentUser({ plan: "free", proSince: undefined });
+/** Start Stripe Checkout for the Pro plan (redirects to Stripe). */
+export function subscribePro(): Promise<void> {
+  return postBilling("/api/billing/checkout");
+}
+
+/** Open the Stripe Billing portal to manage or cancel the subscription. */
+export function cancelPro(): Promise<void> {
+  return postBilling("/api/billing/portal");
 }
 
 // --- Blog newsletter ---

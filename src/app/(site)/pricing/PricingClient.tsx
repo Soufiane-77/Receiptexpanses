@@ -18,12 +18,12 @@ export default function PricingClient() {
       return;
     }
     if (planId === "pro" && user.plan !== "pro") {
-      subscribePro();
-      setNotice("🎉 You're on Pro now — exports no longer carry a watermark.");
+      setNotice("Redirecting to secure checkout…");
+      void subscribePro();
     }
     if (planId === "free" && user.plan === "pro") {
-      cancelPro();
-      setNotice("Your plan was changed back to Free.");
+      setNotice("Opening your billing portal…");
+      void cancelPro();
     }
   };
 
@@ -99,8 +99,7 @@ export default function PricingClient() {
       </div>
 
       <p className="mx-auto mt-8 max-w-xl text-center text-xs text-slate-400">
-        This is a demo checkout — no payment is taken and the “subscription” lives in your browser.
-        Wire it to Stripe (or any processor) for real billing.
+        Secure payments are processed by Stripe. Cancel anytime from your billing portal.
       </p>
     </main>
   );
