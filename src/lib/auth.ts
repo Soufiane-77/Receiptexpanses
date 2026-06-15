@@ -1,100 +1,61 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { newId } from "./id";
+import type { AccountPatch, Plan, PublicUser } from "./account-types";
 
 /**
- * Client-side account simulation. Accounts + sessions live in the browser's
- * storage — there is no backend and this is NOT real security. It exists to
- * drive the dashboard / subscription UX and can be swapped for a real auth
- * provider later without touching the components that use these hooks.
+ * Client auth: thin wrapper over the server session endpoints
+ * (/api/auth/*, /api/account). The current user is fetched from /api/auth/me
+ * and cached in a module-level store so hooks re-render on change.
+ *
+ * The exported surface (useCurrentUser, signUp, logIn, logOut,
+ * updateCurrentUser) is unchanged from the previous localStorage simulation,
+ * except the imperative calls are now async.
  */
 
-export type Plan = "free" | "pro";
+export type { Plan, PublicUser } from "./account-types";
+export type AuthResult = { ok: true } | { ok: false; error: string };
 
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  passHash: string;
-  plan: Plan;
-  proSince?: string;
-  blogSubscribed: boolean;
-  createdAt: string;
-};
-
-export type PublicUser = Omit<User, "passHash">;
-
-const USERS_KEY = "receiptforge:users";
-const SESSION_KEY = "receiptforge:session";
-
-// --- tiny non-cryptographic hash (demo only) ---
-function hash(input: string): string {
-  let h = 5381;
-  for (let i = 0; i < input.length; i++) {
-    h = (h * 33) ^ input.charCodeAt(i);
-  }
-  return (h >>> 0).toString(16);
-}
-
-function readUsers(): User[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return (JSON.parse(window.localStorage.getItem(USERS_KEY) ?? "[]") as User[]) ?? [];
-  } catch {
-    return [];
-  }
-}
-
-function writeUsers(users: User[]): void {
-  window.localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function toPublic(u: User): PublicUser {
-  const { passHash: _passHash, ...pub } = u;
-  return pub;
-}
-
-// --- external store wiring (so hooks re-render on change) ---
+// --- external store ---
 const listeners = new Set<() => void>();
 let snapshot: PublicUser | null = null;
-let initialized = false;
-
-function compute(): PublicUser | null {
-  if (typeof window === "undefined") return null;
-  const sessionId = window.localStorage.getItem(SESSION_KEY);
-  if (!sessionId) return null;
-  const user = readUsers().find((u) => u.id === sessionId);
-  return user ? toPublic(user) : null;
-}
-
-function refresh(): void {
-  snapshot = compute();
-}
+let loaded = false;
+let inFlight: Promise<void> | null = null;
 
 function emit(): void {
-  refresh();
   listeners.forEach((l) => l());
 }
 
-function subscribe(cb: () => void): () => void {
-  if (!initialized) {
-    refresh();
-    initialized = true;
-    if (typeof window !== "undefined") {
-      // Sync across tabs.
-      window.addEventListener("storage", emit);
-    }
+async function fetchMe(): Promise<void> {
+  try {
+    const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+    const data = (await res.json()) as { user: PublicUser | null };
+    snapshot = data.user ?? null;
+  } catch {
+    snapshot = null;
+  } finally {
+    loaded = true;
+    emit();
   }
+}
+
+/** Force a refresh of the cached current user. */
+export function refreshCurrentUser(): Promise<void> {
+  inFlight = fetchMe();
+  return inFlight;
+}
+
+function subscribe(cb: () => void): () => void {
   listeners.add(cb);
-  return () => listeners.delete(cb);
+  if (!loaded && !inFlight) {
+    inFlight = fetchMe();
+  }
+  return () => {
+    listeners.delete(cb);
+  };
 }
 
 function getSnapshot(): PublicUser | null {
-  if (!initialized) {
-    refresh();
-    initialized = true;
-  }
   return snapshot;
 }
 
@@ -102,65 +63,63 @@ function getServerSnapshot(): PublicUser | null {
   return null;
 }
 
-/** Reactive current-user hook. Returns null when signed out. */
+/** Reactive current-user hook. Returns null when signed out or still loading. */
 export function useCurrentUser(): PublicUser | null {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
+function getLoadedSnapshot(): boolean {
+  return loaded;
+}
+
+/**
+ * True once the current-user fetch has resolved at least once. Use this to
+ * avoid acting on a transient `null` (loading) — e.g. before redirecting a
+ * signed-out user to /login.
+ */
+export function useAuthLoaded(): boolean {
+  return useSyncExternalStore(subscribe, getLoadedSnapshot, () => false);
+}
+
 // --- imperative API ---
 
-export type AuthResult = { ok: true } | { ok: false; error: string };
+async function postJson(url: string, body: unknown): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify(body),
+  });
+  let data: { ok?: boolean; error?: string } = {};
+  try {
+    data = (await res.json()) as { ok?: boolean; error?: string };
+  } catch {
+    /* empty body */
+  }
+  return { ok: res.ok && data.ok !== false, error: data.error };
+}
 
-export function signUp(name: string, email: string, password: string): AuthResult {
-  const normalized = email.trim().toLowerCase();
-  if (!name.trim()) return { ok: false, error: "Please enter your name." };
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalized))
-    return { ok: false, error: "Enter a valid email address." };
-  if (password.length < 6) return { ok: false, error: "Password must be at least 6 characters." };
-
-  const users = readUsers();
-  if (users.some((u) => u.email === normalized))
-    return { ok: false, error: "An account with that email already exists." };
-
-  const user: User = {
-    id: newId(),
-    name: name.trim(),
-    email: normalized,
-    passHash: hash(password),
-    plan: "free",
-    blogSubscribed: false,
-    createdAt: new Date().toISOString(),
-  };
-  writeUsers([...users, user]);
-  window.localStorage.setItem(SESSION_KEY, user.id);
-  emit();
+export async function signUp(name: string, email: string, password: string): Promise<AuthResult> {
+  const res = await postJson("/api/auth/signup", { name, email, password });
+  if (!res.ok) return { ok: false, error: res.error ?? "Could not create account." };
+  await refreshCurrentUser();
   return { ok: true };
 }
 
-export function logIn(email: string, password: string): AuthResult {
-  const normalized = email.trim().toLowerCase();
-  const user = readUsers().find((u) => u.email === normalized);
-  if (!user || user.passHash !== hash(password))
-    return { ok: false, error: "Incorrect email or password." };
-  window.localStorage.setItem(SESSION_KEY, user.id);
-  emit();
+export async function logIn(email: string, password: string): Promise<AuthResult> {
+  const res = await postJson("/api/auth/login", { email, password });
+  if (!res.ok) return { ok: false, error: res.error ?? "Incorrect email or password." };
+  await refreshCurrentUser();
   return { ok: true };
 }
 
-export function logOut(): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(SESSION_KEY);
-  emit();
+export async function logOut(): Promise<void> {
+  await postJson("/api/auth/logout", {});
+  await refreshCurrentUser();
 }
 
-/** Patch the currently signed-in user and notify subscribers. */
-export function updateCurrentUser(patch: Partial<Omit<User, "id" | "passHash">>): void {
-  const sessionId = window.localStorage.getItem(SESSION_KEY);
-  if (!sessionId) return;
-  const users = readUsers();
-  const idx = users.findIndex((u) => u.id === sessionId);
-  if (idx < 0) return;
-  users[idx] = { ...users[idx]!, ...patch };
-  writeUsers(users);
-  emit();
+/** Patch the signed-in user (name, newsletter opt-in, plan) and refresh. */
+export async function updateCurrentUser(patch: AccountPatch): Promise<void> {
+  await postJson("/api/account", patch);
+  await refreshCurrentUser();
 }

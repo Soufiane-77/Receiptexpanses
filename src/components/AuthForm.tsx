@@ -15,11 +15,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const res = mode === "signup" ? signUp(name, email, password) : logIn(email, password);
+    setSubmitting(true);
+    const res = mode === "signup" ? await signUp(name, email, password) : await logIn(email, password);
+    setSubmitting(false);
     if (res.ok) {
       router.push(next);
     } else {
@@ -78,8 +81,11 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
         {error ? <p className="mt-3 text-sm text-red-500">{error}</p> : null}
 
-        <button className="mt-5 w-full rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
-          {mode === "signup" ? "Create account" : "Log in"}
+        <button
+          disabled={submitting}
+          className="mt-5 w-full rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+        >
+          {submitting ? "Please wait…" : mode === "signup" ? "Create account" : "Log in"}
         </button>
 
         <p className="mt-4 text-center text-sm text-slate-500">
@@ -100,7 +106,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           )}
         </p>
         <p className="mt-4 text-center text-xs text-slate-400">
-          Demo accounts are stored in your browser only.
+          Your account is secured with an encrypted session.
         </p>
       </form>
     </main>

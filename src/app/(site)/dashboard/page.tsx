@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCurrentUser } from "@/lib/auth";
+import { useCurrentUser, useAuthLoaded } from "@/lib/auth";
 import { cancelPro, subscribePro, FREE_SAVE_LIMIT } from "@/lib/subscription";
 import { computeTotals, formatMoney } from "@/lib/calc";
 import { loadSaved, removeSaved, saveDraft, type SavedReceipt } from "@/lib/storage";
@@ -14,6 +14,7 @@ import { PlusIcon, SparklesIcon, TrashIcon } from "@/components/icons";
 
 export default function DashboardPage() {
   const user = useCurrentUser();
+  const authLoaded = useAuthLoaded();
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [saved, setSaved] = useState<SavedReceipt[]>([]);
@@ -23,10 +24,11 @@ export default function DashboardPage() {
     setSaved(loadSaved());
   }, []);
 
-  // Redirect to login once we know there's no session.
+  // Redirect to login only once the session check has resolved (avoids
+  // bouncing a logged-in user during the initial /api/auth/me fetch).
   useEffect(() => {
-    if (ready && !user) router.replace("/login?next=/dashboard");
-  }, [ready, user, router]);
+    if (authLoaded && !user) router.replace("/login?next=/dashboard");
+  }, [authLoaded, user, router]);
 
   const stats = useMemo(() => {
     const total = saved.reduce((sum, s) => sum + computeTotals(s.receipt).total, 0);
@@ -36,7 +38,7 @@ export default function DashboardPage() {
     return { count: saved.length, totalDisplay: display };
   }, [saved]);
 
-  if (!ready || !user) {
+  if (!ready || !authLoaded || !user) {
     return <div className="flex min-h-[60vh] items-center justify-center text-slate-400">…</div>;
   }
 

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,                -- base64 PBKDF2 derived key
   password_salt TEXT NOT NULL,                -- base64 random salt
   plan          TEXT NOT NULL DEFAULT 'free', -- 'free' | 'pro'
+  pro_since     INTEGER,                      -- unix ms, set when plan -> pro
+  blog_subscribed INTEGER NOT NULL DEFAULT 0, -- 0/1 newsletter opt-in
   created_at    INTEGER NOT NULL,             -- unix ms
   updated_at    INTEGER NOT NULL
 );
