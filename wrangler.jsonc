@@ -18,7 +18,7 @@
     {
       "binding": "DB",
       "database_name": "receiptexpanses-db",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "123ebbc3-8f2d-42c9-915f-8e7593715265",
       "migrations_dir": "migrations"
     }
   ]
