@@ -1,0 +1,34 @@
+# ReceiptExpenses
+
+> ReceiptExpenses (https://receiptexpenses.com) is a privacy-first online receipt maker. You pick a template, fill in a live form, and a receipt builds in real time in your browser — then you can download it as a PDF or PNG, or print it. Building and previewing are free; downloading, printing and saving require a Pro subscription ($6/month, cancel anytime). Receipt content is generated in the browser and is not uploaded.
+
+## What it is for
+
+ReceiptExpenses helps people and small businesses create receipts for their **own** business, freelancing or personal record-keeping — for example issuing proof of payment to a customer, or reconstructing a lost receipt for their own records. Templates are generic and brandable: users supply their own business name and upload their own logo. It must not be used to impersonate real companies or to forge receipts intended to deceive others.
+
+## Key pages
+
+- [Create a receipt](https://receiptexpenses.com/create): The live editor — choose a template, fill in details, preview, and (with Pro) download or print.
+- [Receipt types](https://receiptexpenses.com/receipts): Browse every receipt category — sales, restaurant, café, grocery, fuel, taxi, parking, hotel, vacation rental, pharmacy, electronics, online order and more.
+- [Pricing](https://receiptexpenses.com/pricing): Free preview; Pro subscription at $6/month to download, print and save.
+- [FAQ](https://receiptexpenses.com/faq): Common questions about cost, privacy, formats and customization.
+- [About](https://receiptexpenses.com/about): What the product is and the privacy-first philosophy behind it.
+
+## How it works
+
+1. Choose a template that matches your situation.
+2. Fill in your business, items, currency, tax and tip — and upload your own logo.
+3. Watch the live preview update with every change.
+4. Subscribe to Pro to download a pixel-perfect PDF or PNG, or print.
+
+## Policies
+
+- [Privacy Policy](https://receiptexpenses.com/privacy): How data is handled (receipt content stays in the browser).
+- [Cookie Policy](https://receiptexpenses.com/cookies): The minimal cookies and local storage used.
+- [Terms of Use](https://receiptexpenses.com/terms): Acceptable use, including no impersonation or fraud.
+- [Refund & Cancellation Policy](https://receiptexpenses.com/refund): Billing, cancelling, and refund eligibility.
+- [Contact](https://receiptexpenses.com/contact): support@receiptexpenses.com
+
+## Support
+
+An in-app AI chat assistant is available in the corner of every page to answer questions about templates, pricing, downloads and accounts.

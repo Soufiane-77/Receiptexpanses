@@ -30,6 +30,30 @@ export default function GenericTemplate({ receipt, totals }: TemplateProps) {
             <span>{receipt.meta.cashier}</span>
           </div>
         ) : null}
+        {receipt.extras.nikeOrderNo ? (
+          <div className="flex justify-between">
+            <span>Order Number</span>
+            <span>{receipt.extras.nikeOrderNo}</span>
+          </div>
+        ) : null}
+        {receipt.extras.adidasOrderNo ? (
+          <div className="flex justify-between">
+            <span>Order Number</span>
+            <span>{receipt.extras.adidasOrderNo}</span>
+          </div>
+        ) : null}
+        {receipt.extras.appleOrderNo ? (
+          <div className="flex justify-between">
+            <span>Order Number</span>
+            <span>{receipt.extras.appleOrderNo}</span>
+          </div>
+        ) : null}
+        {receipt.extras.jordanOrderNo ? (
+          <div className="flex justify-between">
+            <span>Order Number</span>
+            <span>{receipt.extras.jordanOrderNo}</span>
+          </div>
+        ) : null}
       </div>
 
       <Divider />

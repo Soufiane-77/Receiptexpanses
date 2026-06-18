@@ -302,6 +302,61 @@ export const PRESETS: Record<string, () => Receipt> = {
       starbucksStarsEarned: "18",
     },
   }),
+  nike: () => ({
+    ...genericSample(),
+    templateId: "nike",
+    business: { name: "Nike Store", address: "1 Bowerman Drive", phone: "1-800-806-6453" },
+    items: [
+      { id: "nk1", qty: 1, name: "Air Force 1 '07", unitPrice: 115 },
+      { id: "nk2", qty: 2, name: "Everyday Plus Cushioned Socks", unitPrice: 18 },
+    ],
+    taxRatePct: 8.5,
+    accentColor: "#111111",
+    extras: {
+      nikeOrderNo: "C0100938472",
+    },
+  }),
+  adidas: () => ({
+    ...genericSample(),
+    templateId: "adidas",
+    business: { name: "Adidas", address: "5055 N Greeley Ave", phone: "1-800-982-9337" },
+    items: [
+      { id: "ad1", qty: 1, name: "Samba OG Shoes", unitPrice: 100 },
+      { id: "ad2", qty: 1, name: "Trefoil Tee", unitPrice: 30 },
+    ],
+    taxRatePct: 8.5,
+    accentColor: "#000000",
+    extras: {
+      adidasOrderNo: "ADU10984729",
+    },
+  }),
+  apple: () => ({
+    ...genericSample(),
+    templateId: "apple",
+    business: { name: "Apple Store", address: "One Apple Park Way", phone: "1-800-MY-APPLE" },
+    items: [
+      { id: "ap1", qty: 1, name: "AirPods Pro (2nd gen)", unitPrice: 249 },
+      { id: "ap2", qty: 1, name: "AppleCare+ for AirPods", unitPrice: 29 },
+    ],
+    taxRatePct: 9.0,
+    accentColor: "#000000",
+    extras: {
+      appleOrderNo: "W983472910",
+    },
+  }),
+  jordan: () => ({
+    ...genericSample(),
+    templateId: "jordan",
+    business: { name: "Jordan Store", address: "State Street, Chicago", phone: "1-800-806-6453" },
+    items: [
+      { id: "jd1", qty: 1, name: "Air Jordan 1 Retro High", unitPrice: 180 },
+    ],
+    taxRatePct: 10.25,
+    accentColor: "#E32636",
+    extras: {
+      jordanOrderNo: "JD9983472",
+    },
+  }),
 };
 
 export function presetFor(templateId: string): Receipt {

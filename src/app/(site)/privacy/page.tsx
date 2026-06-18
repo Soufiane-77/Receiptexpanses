@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: { absolute: "Privacy Policy — ReceiptExpenses" },
@@ -29,9 +30,37 @@ export default function PrivacyPage() {
 
         <h2 className="mt-4 text-xl font-bold text-slate-900">Accounts</h2>
         <p>
-          In this version, accounts and subscription state are stored locally in your browser for
-          demonstration purposes. No payment information is collected. If you deploy ReceiptExpenses
-          with a real backend, this section should be updated to describe that service.
+          When you create an account we store your name, email address and a securely hashed
+          password in our database (Cloudflare D1). A single secure, http-only session cookie keeps
+          you signed in. We do not sell your personal data.
+        </p>
+
+        <h2 className="mt-4 text-xl font-bold text-slate-900">Payments</h2>
+        <p>
+          Subscriptions are processed by Stripe. Your card details are entered on Stripe&apos;s secure
+          checkout and are never seen or stored by us — we only receive your subscription status. See
+          the{" "}
+          <Link href="/refund" className="font-medium text-brand-600 hover:underline">
+            Refund &amp; Cancellation Policy
+          </Link>{" "}
+          for billing details.
+        </p>
+
+        <h2 className="mt-4 text-xl font-bold text-slate-900">Chat assistant</h2>
+        <p>
+          If you use the in-app chat assistant, the messages you send are processed by our AI
+          provider to generate a reply. Please don&apos;t include sensitive personal information in
+          chat messages.
+        </p>
+
+        <h2 className="mt-4 text-xl font-bold text-slate-900">Cookies</h2>
+        <p>
+          We use only an essential session cookie for sign-in, and store your drafts in your
+          browser&apos;s local storage. Full details are in our{" "}
+          <Link href="/cookies" className="font-medium text-brand-600 hover:underline">
+            Cookie Policy
+          </Link>
+          .
         </p>
 
         <h2 className="mt-4 text-xl font-bold text-slate-900">Logos and images</h2>
@@ -42,8 +71,19 @@ export default function PrivacyPage() {
 
         <h2 className="mt-4 text-xl font-bold text-slate-900">Contact</h2>
         <p>
-          Questions about privacy can be directed to the site operator. This is a template policy —
-          adapt it to your jurisdiction and actual data practices before going live.
+          Questions about privacy can be sent to{" "}
+          <a
+            href="mailto:support@receiptexpenses.com"
+            className="font-medium text-brand-600 hover:underline"
+          >
+            support@receiptexpenses.com
+          </a>{" "}
+          or via our{" "}
+          <Link href="/contact" className="font-medium text-brand-600 hover:underline">
+            contact page
+          </Link>
+          . Please review this policy against the laws of your jurisdiction before relying on it
+          commercially.
         </p>
       </div>
     </main>

@@ -22,14 +22,14 @@ export async function generateMetadata({
   const { slug } = await params;
   if (!KNOWN.has(slug)) return { title: "Receipt type not found" };
   const t = getTemplate(slug);
-  const title = `${t.name} Maker — Free Online ${titleCase(t.seo.keyword)} Generator`;
+  const title = `${t.name} Maker — Online ${titleCase(t.seo.keyword)} Generator`;
   return {
     title,
     description: t.seo.blurb,
     keywords: [
       `${t.seo.keyword} maker`,
       `${t.seo.keyword} generator`,
-      `free ${t.seo.keyword}`,
+      `${t.seo.keyword} template`,
       `online ${t.seo.keyword}`,
       "receipt maker",
     ],
@@ -39,6 +39,7 @@ export async function generateMetadata({
       description: t.seo.blurb,
       url: `${SITE_URL}/receipts/${t.id}`,
       type: "website",
+      images: ["/og.png"],
     },
   };
 }
@@ -130,7 +131,7 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
             ) : null}
           </span>
           <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-900">
-            Free {t.name} Maker
+            {t.name} Maker
           </h1>
           <p className="mt-4 max-w-xl text-lg text-slate-600">{t.seo.blurb}</p>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -228,7 +229,7 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
       {/* Bottom CTA */}
       <section className="mt-14 rounded-2xl bg-slate-900 p-8 text-center text-white">
         <h2 className="text-2xl font-bold">Make your {t.seo.keyword} now</h2>
-        <p className="mt-2 text-slate-300">Free, private, and ready in under a minute.</p>
+        <p className="mt-2 text-slate-300">Private, and ready in under a minute — preview free, subscribe to download.</p>
         <ButtonLink href={`/create?template=${t.id}`} className="mt-4 px-6 py-3 text-base">
           Start creating
           <ArrowRightIcon className="h-5 w-5" />

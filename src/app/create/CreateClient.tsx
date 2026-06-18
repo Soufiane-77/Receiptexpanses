@@ -5,6 +5,7 @@ import type { Receipt } from "@/lib/types";
 import { presetFor } from "@/lib/samples";
 import { loadDraft } from "@/lib/storage";
 import { loadSettings } from "@/lib/adminSettings";
+import { applyTemplateCustomization } from "@/lib/templateCustomize";
 import { localeForCurrency } from "@/lib/currencies";
 import { DEFAULT_TEMPLATE_ID } from "@/templates/registry";
 import Editor from "@/components/Editor";
@@ -38,10 +39,16 @@ export default function CreateClient() {
     // If a template is explicitly requested, start fresh from its preset
     // (with admin defaults applied). Otherwise restore the saved draft.
     if (template) {
-      setInitial(withDefaults(presetFor(template)));
+      setInitial(applyTemplateCustomization(withDefaults(presetFor(template)), template));
       return;
     }
-    setInitial(loadDraft() ?? withDefaults(presetFor(DEFAULT_TEMPLATE_ID)));
+    setInitial(
+      loadDraft() ??
+        applyTemplateCustomization(
+          withDefaults(presetFor(DEFAULT_TEMPLATE_ID)),
+          DEFAULT_TEMPLATE_ID,
+        ),
+    );
   }, []);
 
   if (!initial) {

@@ -5,7 +5,7 @@ import { ArrowRightIcon } from "@/components/icons";
 export const metadata: Metadata = {
   title: { absolute: "About ReceiptExpenses — A Private, Modern Receipt Maker" },
   description:
-    "ReceiptExpenses is a free, privacy-first online receipt maker that runs entirely in your browser. Learn what it's for and how it's different.",
+    "ReceiptExpenses is a privacy-first online receipt maker that runs entirely in your browser. Learn what it's for and how it's different.",
   alternates: { canonical: "/about" },
 };
 
@@ -15,7 +15,7 @@ export default function AboutPage() {
       <h1 className="text-4xl font-bold tracking-tight text-slate-900">About ReceiptExpenses</h1>
       <div className="mt-6 flex flex-col gap-4 leading-relaxed text-slate-700">
         <p>
-          ReceiptExpenses is a free online receipt maker built around two ideas: it should be{" "}
+          ReceiptExpenses is an online receipt maker built around two ideas: it should be{" "}
           <strong>fast</strong> and it should be <strong>private</strong>. You pick a template, fill
           in your details, and watch the receipt build live — then download a PDF or PNG, or print.
         </p>
@@ -33,10 +33,11 @@ export default function AboutPage() {
           generic and brandable so you supply your own business identity. Please don't use it to
           impersonate real named retailers.
         </p>
-        <h2 className="mt-4 text-xl font-bold text-slate-900">Free and Pro</h2>
+        <h2 className="mt-4 text-xl font-bold text-slate-900">Pricing</h2>
         <p>
-          Creating, previewing and downloading receipts is free. A Pro plan removes the small export
-          watermark and unlocks unlimited saved receipts on your dashboard.
+          Building and previewing receipts is free. A Pro subscription ($6/month, cancel anytime)
+          lets you download them as PDF or PNG, print, and save unlimited receipts to your
+          dashboard — with no watermark.
         </p>
       </div>
       <div className="mt-10">

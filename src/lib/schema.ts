@@ -71,6 +71,10 @@ export const receiptSchema = z.object({
     uberTripDuration: z.string().optional(),
     starbucksStarsEarned: z.string().optional(),
     starbucksCheckNo: z.string().optional(),
+    nikeOrderNo: z.string().optional(),
+    adidasOrderNo: z.string().optional(),
+    appleOrderNo: z.string().optional(),
+    jordanOrderNo: z.string().optional(),
   }),
 });
 

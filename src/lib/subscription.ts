@@ -13,36 +13,21 @@ export type PlanDef = {
 
 export const PLANS: PlanDef[] = [
   {
-    id: "free",
-    name: "Free",
-    priceLabel: "$0",
-    tagline: "Everything you need to make a receipt.",
-    features: [
-      "All 6 receipt templates",
-      "Live preview & print",
-      "PNG & PDF export",
-      "Save up to 3 receipts",
-      "Small ReceiptExpenses watermark on exports",
-    ],
-  },
-  {
     id: "pro",
     name: "Pro",
     priceLabel: "$6/mo",
-    tagline: "For freelancers and small businesses.",
+    tagline: "Everything you need to create and download receipts.",
     highlighted: true,
     features: [
-      "Everything in Free",
-      "No watermark on exports",
+      "All receipt templates",
+      "Unlimited PDF & PNG downloads",
+      "Print & unlimited live previews",
       "Unlimited saved receipts",
-      "Priority access to new templates",
-      "Support future development",
+      "No watermark on downloads",
+      "Cancel anytime",
     ],
   },
 ];
-
-/** Free accounts (and signed-out users) can save at most this many receipts. */
-export const FREE_SAVE_LIMIT = 3;
 
 /** Reactive: is the current user on the Pro plan? */
 export function useIsPro(): boolean {

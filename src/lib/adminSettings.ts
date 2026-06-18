@@ -26,11 +26,31 @@ export type PaymentSettings = {
   proPriceId: string;
 };
 
+/**
+ * Per-template customization the admin can set: their own logo image and
+ * default branding. Applied as an overlay when a template is opened — the
+ * template component files are never modified. Upload only logos you own or
+ * are licensed to use; impersonating a real business you don't represent is
+ * against the Terms.
+ */
+export type TemplateCustomization = {
+  logoDataUrl?: string;
+  displayName?: string;
+  description?: string;
+  accentColor?: string;
+  businessName?: string;
+  businessAddress?: string;
+  businessPhone?: string;
+  footerNote?: string;
+};
+
 export type AdminSettings = {
   /** Template ids shown on the landing page (order preserved). */
   enabledTemplates: string[];
   defaults: AdminDefaults;
   payments: PaymentSettings;
+  /** Per-template logo/branding overrides, keyed by template id. */
+  templates: Record<string, TemplateCustomization>;
   /** Soft gate password (client-side only; this is not real security). */
   password: string;
 };
@@ -46,6 +66,7 @@ export function defaultSettings(): AdminSettings {
       business: { name: "", address: "", phone: "" },
     },
     payments: { provider: "none", publishableKey: "", proPriceId: "" },
+    templates: {},
     password: "admin",
   };
 }
@@ -68,6 +89,7 @@ export function loadSettings(): AdminSettings {
       enabledTemplates: allIds,
       defaults: { ...base.defaults, ...parsed.defaults },
       payments: { ...base.payments, ...parsed.payments },
+      templates: { ...base.templates, ...parsed.templates },
       password: parsed.password ?? base.password,
     };
   } catch {
@@ -86,6 +108,11 @@ export function enabledTemplateDefs() {
   return ids
     .map((id) => TEMPLATES.find((t) => t.id === id))
     .filter((t): t is (typeof TEMPLATES)[number] => Boolean(t));
+}
+
+/** The admin's per-template customization (logo, branding), or {} if none. */
+export function templateCustomization(id: string): TemplateCustomization {
+  return loadSettings().templates?.[id] ?? {};
 }
 
 // --- Soft auth (session-scoped) ---

@@ -22,11 +22,13 @@ import { ChevronUpIcon, ChevronDownIcon, SlidersIcon } from "@/components/icons"
 import AdminBlog from "@/components/admin/AdminBlog";
 import AdminPayments from "@/components/admin/AdminPayments";
 import AdminAutomation from "@/components/admin/AdminAutomation";
+import AdminTemplateCustomizer from "@/components/admin/AdminTemplateCustomizer";
 
 type Tab =
   | "overview"
   | "saved"
   | "templates"
+  | "customize"
   | "blog"
   | "automation"
   | "payments"
@@ -149,6 +151,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     { id: "overview", label: "Overview" },
     { id: "saved", label: `Saved (${saved.length})` },
     { id: "templates", label: "Templates" },
+    { id: "customize", label: "Customize" },
     { id: "blog", label: "Blog" },
     { id: "automation", label: "Automation" },
     { id: "payments", label: "Payments" },
@@ -290,6 +293,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             })}
           </Section>
         ) : null}
+
+        {tab === "customize" ? <AdminTemplateCustomizer /> : null}
 
         {tab === "defaults" ? (
           <Section title="Defaults applied to new receipts">

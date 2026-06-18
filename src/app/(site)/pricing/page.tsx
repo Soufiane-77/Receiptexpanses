@@ -3,7 +3,8 @@ import PricingClient from "./PricingClient";
 
 export const metadata: Metadata = {
   title: "Pricing · ReceiptExpenses",
-  description: "Free forever. Upgrade to Pro to remove watermarks and save unlimited receipts.",
+  description:
+    "Preview receipts for free. Subscribe to Pro to download, print and save them — watermark-free, cancel anytime.",
 };
 
 export default function PricingPage() {

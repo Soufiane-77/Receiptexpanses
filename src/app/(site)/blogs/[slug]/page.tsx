@@ -108,7 +108,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
       <div className="mt-12 rounded-2xl bg-slate-900 p-8 text-center text-white">
         <h3 className="text-xl font-bold">Ready to make your own receipt?</h3>
-        <p className="mt-2 text-slate-300">It's free and takes less than a minute.</p>
+        <p className="mt-2 text-slate-300">Preview it free — subscribe to download.</p>
         <Link
           href="/create"
           className="mt-4 inline-block rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold hover:bg-brand-700"

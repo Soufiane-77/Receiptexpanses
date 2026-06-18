@@ -1,5 +1,5 @@
 /** Central SEO constants and content. Update SITE_URL before deploying. */
-export const SITE_URL = "https://receiptexpenses.example.com";
+export const SITE_URL = "https://receiptexpenses.com";
 export const SITE_NAME = "ReceiptExpenses";
 
 export type Faq = { q: string; a: string };
@@ -7,8 +7,8 @@ export type Faq = { q: string; a: string };
 /** General FAQs — surfaced on the home page and /faq with FAQPage schema. */
 export const GENERAL_FAQS: Faq[] = [
   {
-    q: "Is ReceiptExpenses free?",
-    a: "Yes. You can create, preview, print and download receipts as PDF or PNG for free. A Pro plan removes the small export watermark and unlocks unlimited saved receipts.",
+    q: "How much does ReceiptExpenses cost?",
+    a: "Building and previewing a receipt is free. To download it as a PDF or PNG, print it, or save it to your dashboard you need a Pro subscription ($6/month, cancel anytime).",
   },
   {
     q: "Is my data private?",
@@ -28,7 +28,7 @@ export const GENERAL_FAQS: Faq[] = [
   },
   {
     q: "Do I need an account?",
-    a: "No account is needed to create and download receipts. Creating a free account lets you save receipts to a dashboard and manage a subscription.",
+    a: "You can build and preview a receipt without an account. To download, print or save it you'll create an account and start a Pro subscription, which you can manage or cancel anytime.",
   },
 ];
 
@@ -40,8 +40,8 @@ export function faqsForType(name: string, keyword: string): Faq[] {
       a: `Pick the ${name} template, fill in your business details and line items in the form on the left, and watch the receipt build live on the right. When it looks right, download it as a PDF or PNG.`,
     },
     {
-      q: `Is the ${keyword} maker free?`,
-      a: `Yes — creating, previewing and downloading a ${keyword} is free. Pro removes the small watermark and adds unlimited saved receipts.`,
+      q: `How much does the ${keyword} maker cost?`,
+      a: `Building and previewing a ${keyword} is free. Downloading it as a PDF or PNG, printing or saving it requires a Pro subscription ($6/month, cancel anytime).`,
     },
     {
       q: `Can I customise the ${keyword}?`,

@@ -7,7 +7,7 @@ type Props = {
   receipt: Receipt;
   /** Override which template renders; defaults to receipt.templateId. */
   templateId?: string;
-  /** When true, render a small "Made with ReceiptExpenses" watermark (Free plan). */
+  /** When true, render a small "Made with ReceiptExpenses" watermark (non-subscribers). */
   watermark?: boolean;
 };
 
@@ -28,7 +28,7 @@ const ReceiptPreview = forwardRef<HTMLDivElement, Props>(function ReceiptPreview
       <Component receipt={receipt} totals={totals} />
       {watermark ? (
         <div className="bg-white pb-3 text-center text-[10px] tracking-wide text-slate-400">
-          Made with ReceiptExpenses — upgrade to Pro to remove
+          Made with ReceiptExpenses — subscribe to Pro to remove
         </div>
       ) : null}
     </div>

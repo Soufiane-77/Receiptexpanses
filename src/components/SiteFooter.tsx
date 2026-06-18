@@ -17,6 +17,7 @@ const COLS: { heading: string; links: { href: string; label: string }[] }[] = [
       { href: "/blogs", label: "Blog" },
       { href: "/faq", label: "FAQ" },
       { href: "/about", label: "About" },
+      { href: "/contact", label: "Contact" },
     ],
   },
   {
@@ -24,6 +25,8 @@ const COLS: { heading: string; links: { href: string; label: string }[] }[] = [
     links: [
       { href: "/privacy", label: "Privacy" },
       { href: "/terms", label: "Terms" },
+      { href: "/refund", label: "Refunds" },
+      { href: "/cookies", label: "Cookies" },
       { href: "/admin", label: "Admin" },
     ],
   },
@@ -38,7 +41,7 @@ export default function SiteFooter() {
             <Logo size="sm" />
           </span>
           <p className="mt-2 text-sm text-slate-500">
-            A free, private online receipt maker. Everything runs in your browser.
+            A private online receipt maker. Everything runs in your browser.
           </p>
         </div>
         {COLS.map((col) => (

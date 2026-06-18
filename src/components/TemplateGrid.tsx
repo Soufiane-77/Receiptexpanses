@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CATEGORIES, TEMPLATES, type TemplateCategory, type TemplateDef } from "@/templates/registry";
 import { enabledTemplateDefs } from "@/lib/adminSettings";
 import TemplateIcon from "./TemplateIcon";
+import { templateName, templateDescription, templateLogo } from "@/lib/templateCustomize";
 import { ArrowRightIcon } from "./icons";
 
 type Filter = "All" | TemplateCategory;
@@ -14,8 +15,10 @@ export default function TemplateGrid() {
   // admin-enabled subset once localStorage is available.
   const [templates, setTemplates] = useState<TemplateDef[]>(TEMPLATES);
   const [filter, setFilter] = useState<Filter>("All");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const enabled = enabledTemplateDefs();
     if (enabled.length > 0) setTemplates(enabled);
   }, []);
@@ -45,6 +48,9 @@ export default function TemplateGrid() {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((t) => {
           const isBrand = !!t.brandColor;
+          const name = mounted ? templateName(t.id, t.name) : t.name;
+          const description = mounted ? templateDescription(t.id, t.description) : t.description;
+          const logo = mounted ? templateLogo(t.id) : undefined;
           return (
             <Link
               key={t.id}
@@ -60,7 +66,16 @@ export default function TemplateGrid() {
                 }`}
                 style={isBrand ? { backgroundColor: `${t.brandColor}18`, color: t.brandColor } : undefined}
               >
-                <TemplateIcon id={t.id} className="h-14 w-14" />
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logo}
+                    alt={`${name} logo`}
+                    className="max-h-16 w-auto object-contain"
+                  />
+                ) : (
+                  <TemplateIcon id={t.id} className="h-14 w-14" />
+                )}
 
                 {/* Brand badge */}
                 {t.brandLabel ? (
@@ -77,9 +92,9 @@ export default function TemplateGrid() {
                 {t.category}
               </span>
               <h3 className="mt-1 text-lg font-semibold text-slate-900 transition-colors group-hover:text-brand-600">
-                {t.name}
+                {name}
               </h3>
-              <p className="mt-1 text-sm text-slate-500">{t.description}</p>
+              <p className="mt-1 text-sm text-slate-500">{description}</p>
               <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600">
                 Use this template
                 <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />

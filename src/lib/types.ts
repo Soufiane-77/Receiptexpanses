@@ -70,6 +70,14 @@ export type TemplateExtras = {
   // Starbucks
   starbucksStarsEarned?: string;
   starbucksCheckNo?: string;
+  // Nike
+  nikeOrderNo?: string;
+  // Adidas
+  adidasOrderNo?: string;
+  // Apple
+  appleOrderNo?: string;
+  // Jordan
+  jordanOrderNo?: string;
 };
 
 export type FontSize = "sm" | "base" | "lg";

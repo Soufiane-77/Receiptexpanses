@@ -21,6 +21,10 @@ import {
   AmazonLogoIcon,
   UberLogoIcon,
   StarbucksLogoIcon,
+  NikeLogoIcon,
+  AdidasLogoIcon,
+  AppleLogoIcon,
+  JordanLogoIcon,
 } from "./icons";
 
 const MAP: Record<string, ComponentType<SVGProps<SVGSVGElement> & { className?: string }>> = {
@@ -44,6 +48,10 @@ const MAP: Record<string, ComponentType<SVGProps<SVGSVGElement> & { className?: 
   amazon: AmazonLogoIcon,
   uber: UberLogoIcon,
   starbucks: StarbucksLogoIcon,
+  nike: NikeLogoIcon,
+  adidas: AdidasLogoIcon,
+  apple: AppleLogoIcon,
+  jordan: JordanLogoIcon,
 };
 
 /** Renders the SVG icon registered for a template id (falls back to a receipt). */

@@ -6,6 +6,9 @@ interface CloudflareEnv {
   /** D1 database binding (see wrangler.jsonc d1_databases). */
   DB: D1Database;
 
+  /** Workers AI binding (see wrangler.jsonc "ai") — powers the support chat. */
+  AI: Ai;
+
   // --- Stripe (set as Worker secrets / vars; optional until billing is wired) ---
   /** Stripe secret key (sk_...). Set via `wrangler secret put STRIPE_SECRET_KEY`. */
   STRIPE_SECRET_KEY?: string;

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCurrentUser, useAuthLoaded } from "@/lib/auth";
-import { cancelPro, subscribePro, FREE_SAVE_LIMIT } from "@/lib/subscription";
+import { cancelPro, subscribePro } from "@/lib/subscription";
 import { computeTotals, formatMoney } from "@/lib/calc";
 import { loadSaved, removeSaved, saveDraft, type SavedReceipt } from "@/lib/storage";
 import { getTemplate } from "@/templates/registry";
@@ -72,7 +72,7 @@ export default function DashboardPage() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Saved receipts" value={String(stats.count)} />
         <StatCard label="Total value" value={stats.totalDisplay} />
-        <StatCard label="Plan" value={isPro ? "Pro" : "Free"} />
+        <StatCard label="Plan" value={isPro ? "Pro" : "Preview"} />
       </div>
 
       {/* Subscription panel */}
@@ -91,8 +91,8 @@ export default function DashboardPage() {
                 </>
               ) : (
                 <>
-                  You're on the Free plan. You've used {stats.count}/{FREE_SAVE_LIMIT} saves and
-                  exports carry a small watermark.
+                  You're previewing for free. Subscribe to Pro to download, print and save your
+                  receipts — watermark-free.
                 </>
               )}
             </p>
@@ -104,7 +104,7 @@ export default function DashboardPage() {
           ) : (
             <Button onClick={() => subscribePro()}>
               <SparklesIcon className="h-4 w-4" />
-              Upgrade to Pro
+              Subscribe to Pro
             </Button>
           )}
         </div>

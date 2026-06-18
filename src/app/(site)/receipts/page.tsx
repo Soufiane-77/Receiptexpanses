@@ -6,14 +6,15 @@ import { ArrowRightIcon } from "@/components/icons";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Receipt Types — Free Receipt Maker for Every Kind of Receipt",
+  title: "Receipt Types — Receipt Maker for Every Kind of Receipt",
   description:
-    "Browse every receipt type ReceiptExpenses can make: sales, restaurant, café, grocery, fuel, taxi, parking, hotel and more. Pick one and generate a free PDF or PNG receipt.",
+    "Browse every receipt type ReceiptExpenses can make: sales, restaurant, café, grocery, fuel, taxi, parking, hotel and more. Pick one, preview it free, and subscribe to download a PDF or PNG.",
   alternates: { canonical: "/receipts" },
   openGraph: {
     title: "Receipt Types — ReceiptExpenses",
-    description: "Free receipt makers for sales, restaurant, fuel, taxi, parking, hotel and more.",
+    description: "Receipt makers for sales, restaurant, fuel, taxi, parking, hotel and more.",
     url: `${SITE_URL}/receipts`,
+    images: ["/og.png"],
   },
 };
 
@@ -22,7 +23,7 @@ export default function ReceiptsIndex() {
     <main className="mx-auto max-w-6xl px-4 py-12">
       <header className="mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-          Every kind of receipt, made free
+          Every kind of receipt
         </h1>
         <p className="mt-3 max-w-2xl text-lg text-slate-600">
           Choose a receipt type below to learn how it works and generate one in seconds — itemized,

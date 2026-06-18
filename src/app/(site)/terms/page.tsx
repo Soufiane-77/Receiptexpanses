@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: { absolute: "Terms of Use — ReceiptExpenses" },
-  description: "The terms governing your use of ReceiptExpenses, the free online receipt maker.",
+  description: "The terms governing your use of ReceiptExpenses, the online receipt maker.",
   alternates: { canonical: "/terms" },
 };
 

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCurrentUser } from "@/lib/auth";
-import { PLANS, cancelPro, subscribePro } from "@/lib/subscription";
+import { useCurrentUser, type Plan } from "@/lib/auth";
+import { PLANS, subscribePro } from "@/lib/subscription";
 import { Button } from "@/components/Button";
 import { CheckIcon, SparklesIcon } from "@/components/icons";
 
@@ -12,7 +12,7 @@ export default function PricingClient() {
   const router = useRouter();
   const [notice, setNotice] = useState("");
 
-  const onChoose = (planId: "free" | "pro") => {
+  const onChoose = (planId: Plan) => {
     if (!user) {
       router.push(`/signup?next=/pricing`);
       return;
@@ -20,10 +20,6 @@ export default function PricingClient() {
     if (planId === "pro" && user.plan !== "pro") {
       setNotice("Redirecting to secure checkout…");
       void subscribePro();
-    }
-    if (planId === "free" && user.plan === "pro") {
-      setNotice("Opening your billing portal…");
-      void cancelPro();
     }
   };
 
@@ -34,8 +30,8 @@ export default function PricingClient() {
           Simple, honest pricing
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-slate-600">
-          Make receipts free forever. Upgrade to Pro to drop the watermark and save unlimited
-          receipts.
+          Build and preview any receipt for free. Subscribe to Pro to download, print and save your
+          receipts — watermark-free, cancel anytime.
         </p>
       </div>
 
@@ -45,7 +41,7 @@ export default function PricingClient() {
         </div>
       ) : null}
 
-      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-6">
         {PLANS.map((plan) => {
           const isCurrent = user?.plan === plan.id;
           return (
@@ -83,15 +79,7 @@ export default function PricingClient() {
                 className="mt-8 w-full"
               >
                 {plan.id === "pro" && !isCurrent ? <SparklesIcon className="h-4 w-4" /> : null}
-                {isCurrent
-                  ? "Current plan"
-                  : plan.id === "pro"
-                    ? user
-                      ? "Upgrade to Pro"
-                      : "Sign up for Pro"
-                    : user?.plan === "pro"
-                      ? "Switch to Free"
-                      : "Get started"}
+                {isCurrent ? "Current plan" : user ? "Subscribe to Pro" : "Sign up for Pro"}
               </Button>
             </div>
           );

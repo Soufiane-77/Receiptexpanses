@@ -11,6 +11,9 @@
   "observability": {
     "enabled": true
   },
+  "ai": {
+    "binding": "AI"
+  },
   // Cloudflare D1 (SQLite) database. Create it once with:
   //   npx wrangler d1 create receiptexpanses-db
   // then paste the printed database_id below (replace REPLACE_WITH_D1_DATABASE_ID).

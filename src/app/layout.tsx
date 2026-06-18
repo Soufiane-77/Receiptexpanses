@@ -16,13 +16,13 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://receiptexpenses.example.com"),
+  metadataBase: new URL("https://receiptexpenses.com"),
   title: {
     default: "ReceiptExpenses — Make a receipt in seconds",
     template: "%s · ReceiptExpenses",
   },
   description:
-    "Free online receipt generator. Pick a template, fill in your details, preview live, and download as PDF or PNG. Everything runs in your browser.",
+    "Online receipt generator — pick a template, fill in details, preview free, then subscribe to download a PDF or PNG. Everything runs in your browser.",
   keywords: [
     "receipt generator",
     "make a receipt",
@@ -34,14 +34,24 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ReceiptExpenses — Make a receipt in seconds",
     description:
-      "Pick a template, fill in your details, preview live, and download as PDF or PNG. Free and private.",
+      "Pick a template, fill in your details, and preview live. Subscribe to download as PDF or PNG. Private by design.",
     type: "website",
     siteName: "ReceiptExpenses",
+    url: "/",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "ReceiptExpenses — online receipt maker",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "ReceiptExpenses — Make a receipt in seconds",
-    description: "Free, private, browser-based receipt generator.",
+    description: "Private, browser-based receipt generator. Preview free, subscribe to download.",
+    images: ["/og.png"],
   },
 };
 
