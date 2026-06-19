@@ -1,122 +1,178 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  buildQueue,
-  clearQueue,
-  defaultConfig,
-  loadConfig,
-  loadQueue,
-  parseKeywords,
-  processDueJobs,
-  saveConfig,
-  type AutomationConfig,
-  type QueueJob,
-} from "@/lib/automation";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { loadSettings } from "@/lib/adminSettings";
 import { Field, Section, inputCls } from "@/components/fields";
 import { Button } from "@/components/Button";
 
-function toLocalInput(iso: string): string {
-  // yyyy-MM-ddThh:mm for <input type="datetime-local">
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
-    d.getMinutes(),
-  )}`;
+type ServerConfig = {
+  keywords: string[];
+  intervalHours: number;
+  author: string;
+  cover: string;
+  running: boolean;
+  lastRunAt: number | null;
+  lastKeyword: string | null;
+};
+
+type PostSummary = {
+  slug: string;
+  title: string;
+  date: string;
+  source: string;
+  keyword?: string;
+};
+
+function parseKeywords(text: string): string[] {
+  return text
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export default function AdminAutomation() {
-  const [config, setConfig] = useState<AutomationConfig>(() => defaultConfig());
+  const [token, setToken] = useState("");
   const [keywordsText, setKeywordsText] = useState("");
-  const [queue, setQueue] = useState<QueueJob[]>([]);
+  const [intervalHours, setIntervalHours] = useState(24);
+  const [author, setAuthor] = useState("The ReceiptExpenses Team");
+  const [cover, setCover] = useState("📝");
   const [running, setRunning] = useState(false);
-  const [lastRun, setLastRun] = useState<string>("");
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [lastRunAt, setLastRunAt] = useState<number | null>(null);
+  const [posts, setPosts] = useState<PostSummary[]>([]);
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  // Load persisted state on mount.
-  useEffect(() => {
-    const c = loadConfig();
-    setConfig(c);
-    setKeywordsText(c.keywords.join("\n"));
-    setQueue(loadQueue());
-    setRunning(c.running);
-  }, []);
+  const headers = useCallback(
+    (json = false): HeadersInit => ({
+      ...(json ? { "Content-Type": "application/json" } : {}),
+      "x-admin-token": token,
+    }),
+    [token]
+  );
 
-  // Scheduler: while "running", poll for due jobs every 15s (and once immediately).
-  useEffect(() => {
-    if (!running) {
-      if (timer.current) clearInterval(timer.current);
-      return;
-    }
-    const tick = () => {
-      const published = processDueJobs();
-      if (published.length) {
-        setQueue(loadQueue());
-        setLastRun(`Published ${published.length} post(s) at ${new Date().toLocaleTimeString()}`);
+  const applyConfig = (config: ServerConfig, postsList?: PostSummary[]) => {
+    setKeywordsText(config.keywords.join("\n"));
+    setIntervalHours(config.intervalHours);
+    setAuthor(config.author);
+    setCover(config.cover);
+    setRunning(config.running);
+    setLastRunAt(config.lastRunAt);
+    if (postsList) setPosts(postsList);
+  };
+
+  const refresh = useCallback(
+    async (tok: string) => {
+      if (!tok) {
+        setStatus("Set the automation token in the Security tab first.");
+        setLoaded(true);
+        return;
       }
-    };
-    tick();
-    timer.current = setInterval(tick, 15_000);
-    return () => {
-      if (timer.current) clearInterval(timer.current);
-    };
-  }, [running]);
+      setBusy(true);
+      try {
+        const res = await fetch("/api/admin/automation", {
+          headers: { "x-admin-token": tok },
+          credentials: "same-origin",
+        });
+        if (res.status === 401) {
+          setStatus("Unauthorized — token doesn't match the Worker secret BLOG_ADMIN_TOKEN.");
+          return;
+        }
+        if (!res.ok) {
+          setStatus(`Server error (${res.status}). Has the migration been applied?`);
+          return;
+        }
+        const data = (await res.json()) as { config: ServerConfig; posts: PostSummary[] };
+        applyConfig(data.config, data.posts);
+        setStatus("");
+      } catch {
+        setStatus("Network error talking to the server.");
+      } finally {
+        setBusy(false);
+        setLoaded(true);
+      }
+    },
+    []
+  );
 
-  const persist = (patch: Partial<AutomationConfig>) => {
-    const next = { ...config, ...patch };
-    setConfig(next);
-    saveConfig(next);
-  };
+  useEffect(() => {
+    const tok = loadSettings().automationToken;
+    setToken(tok);
+    void refresh(tok);
+  }, [refresh]);
 
-  const pending = queue.filter((j) => j.status === "pending").length;
-  const publishedCount = queue.filter((j) => j.status === "published").length;
-
-  const schedule = () => {
-    const keywords = parseKeywords(keywordsText);
-    if (keywords.length === 0) {
-      window.alert("Add at least one keyword.");
-      return;
+  const save = async () => {
+    setBusy(true);
+    setStatus("");
+    try {
+      const res = await fetch("/api/admin/automation", {
+        method: "PUT",
+        headers: headers(true),
+        credentials: "same-origin",
+        body: JSON.stringify({
+          keywords: parseKeywords(keywordsText),
+          intervalHours,
+          author,
+          cover,
+          running,
+        }),
+      });
+      if (!res.ok) {
+        setStatus(res.status === 401 ? "Unauthorized — check the token." : `Save failed (${res.status}).`);
+        return;
+      }
+      const data = (await res.json()) as { config: ServerConfig };
+      applyConfig(data.config);
+      setStatus("Saved.");
+    } catch {
+      setStatus("Network error while saving.");
+    } finally {
+      setBusy(false);
     }
-    const next = { ...config, keywords };
-    saveConfig(next);
-    setConfig(next);
-    buildQueue(next);
-    setQueue(loadQueue());
   };
 
-  const toggleRun = () => {
-    const next = !running;
-    setRunning(next);
-    persist({ running: next });
-  };
-
-  const runNow = () => {
-    const published = processDueJobs();
-    setQueue(loadQueue());
-    setLastRun(
-      published.length
-        ? `Published ${published.length} post(s) now.`
-        : "Nothing was due yet.",
-    );
+  const generateNow = async () => {
+    setBusy(true);
+    setStatus("Generating with Workers AI…");
+    try {
+      const res = await fetch("/api/admin/automation/run", {
+        method: "POST",
+        headers: headers(),
+        credentials: "same-origin",
+      });
+      const data = (await res.json()) as { published?: boolean; reason?: string };
+      setStatus(data.reason ?? (res.ok ? "Done." : `Failed (${res.status}).`));
+      await refresh(token);
+    } catch {
+      setStatus("Network error while generating.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-        <p className="font-semibold">How this works (and its limits)</p>
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+        <p className="font-semibold">Server-side automation (free)</p>
         <p className="mt-1">
-          The scheduler runs only while <strong>this admin tab is open</strong> — there’s no server
-          cron, so it can’t publish after you close the tab. Articles are generated from a built-in
-          template (not a live AI model). To run truly unattended with real AI generation, connect a
-          backend cron + an LLM API — the generator is a single function (<code className="rounded bg-amber-100 px-1">generateArticle</code>)
-          built to swap out.
+          Posts are generated by <strong>Cloudflare Workers AI</strong>, stored in your D1 database,
+          and published <strong>unattended</strong> by a scheduled job — even with this tab closed.
+          Add keywords below, set how often to publish, and turn the scheduler on. Use
+          <strong> Generate now</strong> to publish one immediately.
         </p>
       </div>
+
+      {status ? (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+          {status}
+        </div>
+      ) : null}
 
       <Section title="Keywords">
         <Field
           label="Keywords (one per line, or comma-separated)"
-          hint="The queue cycles through these to fill the requested quantity."
+          hint="The scheduler cycles through these — one post per interval."
         >
           <textarea
             className={`${inputCls} min-h-[120px]`}
@@ -129,105 +185,79 @@ export default function AdminAutomation() {
 
       <Section title="Schedule">
         <div className="grid grid-cols-2 gap-3">
-          <Field label="How many posts">
-            <input
-              type="number"
-              min={1}
-              max={200}
-              className={inputCls}
-              value={config.quantity}
-              onChange={(e) => persist({ quantity: Math.max(1, Number(e.target.value) || 1) })}
-            />
-          </Field>
-          <Field label="Every (minutes)">
+          <Field label="Publish every (hours)">
             <input
               type="number"
               min={1}
               className={inputCls}
-              value={config.intervalMinutes}
-              onChange={(e) => persist({ intervalMinutes: Math.max(1, Number(e.target.value) || 1) })}
+              value={intervalHours}
+              onChange={(e) => setIntervalHours(Math.max(1, Number(e.target.value) || 1))}
             />
           </Field>
-          <Field label="Start at">
-            <input
-              type="datetime-local"
-              className={inputCls}
-              value={toLocalInput(config.startAt)}
-              onChange={(e) => persist({ startAt: new Date(e.target.value).toISOString() })}
-            />
+          <Field label="Cover emoji">
+            <input className={inputCls} value={cover} onChange={(e) => setCover(e.target.value)} />
           </Field>
           <Field label="Author">
-            <input
-              className={inputCls}
-              value={config.author}
-              onChange={(e) => persist({ author: e.target.value })}
-            />
+            <input className={inputCls} value={author} onChange={(e) => setAuthor(e.target.value)} />
+          </Field>
+          <Field label="Scheduler">
+            <label className="flex h-10 items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={running}
+                onChange={(e) => setRunning(e.target.checked)}
+              />
+              {running ? "On — publishing on schedule" : "Off — paused"}
+            </label>
           </Field>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={schedule}>Schedule batch</Button>
-          <Button variant="secondary" onClick={runNow}>
-            Run due now
+        <div className="flex flex-wrap items-center gap-2">
+          <Button onClick={save} disabled={busy}>
+            Save settings
           </Button>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              if (window.confirm("Clear the entire queue?")) {
-                clearQueue();
-                setQueue([]);
-              }
-            }}
-          >
-            Clear queue
+          <Button variant="secondary" onClick={generateNow} disabled={busy}>
+            Generate now
           </Button>
+          <span className="text-xs text-slate-400">
+            {lastRunAt ? `Last published ${new Date(lastRunAt).toLocaleString()}` : "Nothing published yet"}
+          </span>
         </div>
       </Section>
 
-      <Section title="Scheduler">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-slate-600">
-            <span
-              className={`mr-2 inline-block h-2 w-2 rounded-full ${
-                running ? "animate-pulse bg-emerald-500" : "bg-slate-300"
-              }`}
-            />
-            {running ? "Running — publishing due posts" : "Paused"}
-            <div className="text-xs text-slate-400">
-              {pending} pending · {publishedCount} published{lastRun ? ` · ${lastRun}` : ""}
-            </div>
-          </div>
-          <Button onClick={toggleRun} variant={running ? "secondary" : "primary"}>
-            {running ? "Pause" : "Start scheduler"}
-          </Button>
-        </div>
-      </Section>
-
-      {queue.length > 0 ? (
-        <Section title={`Queue (${queue.length})`}>
-          <div className="flex flex-col divide-y divide-slate-100">
-            {queue
-              .slice()
-              .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt))
-              .map((job) => (
-                <div key={job.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                  <div>
-                    <span className="font-medium text-slate-800">{job.keyword}</span>
-                    <span className="ml-2 text-xs text-slate-400">
-                      {new Date(job.scheduledAt).toLocaleString()}
-                    </span>
+      {loaded ? (
+        <Section title={`Published posts (${posts.length})`}>
+          {posts.length === 0 ? (
+            <p className="text-sm text-slate-400">No posts yet. Add keywords and Generate now.</p>
+          ) : (
+            <div className="flex flex-col divide-y divide-slate-100">
+              {posts.map((p) => (
+                <div key={p.slug} className="flex items-center justify-between gap-3 py-2 text-sm">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/blogs/${p.slug}`}
+                      target="_blank"
+                      className="font-medium text-slate-800 hover:text-brand-600 hover:underline"
+                    >
+                      {p.title}
+                    </Link>
+                    <div className="text-xs text-slate-400">
+                      {p.date}
+                      {p.keyword ? ` · ${p.keyword}` : ""}
+                    </div>
                   </div>
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
-                      job.status === "published"
+                      p.source === "auto"
                         ? "bg-emerald-50 text-emerald-700"
                         : "bg-slate-100 text-slate-500"
                     }`}
                   >
-                    {job.status}
+                    {p.source}
                   </span>
                 </div>
               ))}
-          </div>
+            </div>
+          )}
         </Section>
       ) : null}
     </div>

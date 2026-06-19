@@ -18,4 +18,10 @@ interface CloudflareEnv {
   STRIPE_PRICE_PRO?: string;
   /** Public base URL of the app, e.g. https://receiptexpanses.workers.dev */
   APP_URL?: string;
+
+  /**
+   * Shared secret protecting the blog-automation admin + cron routes.
+   * Set via `wrangler secret put BLOG_ADMIN_TOKEN`. Routes fail closed if unset.
+   */
+  BLOG_ADMIN_TOKEN?: string;
 }

@@ -378,6 +378,17 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               This is a client-side soft gate for a no-backend app — it keeps the panel tidy, not
               secure. Add real auth before any multi-user deployment.
             </p>
+            <Field
+              label="Blog automation token"
+              hint="Must match the Worker secret BLOG_ADMIN_TOKEN. Used by the Automation tab to authorize the server."
+            >
+              <input
+                className={inputCls}
+                value={settings.automationToken}
+                onChange={(e) => update({ automationToken: e.target.value })}
+                placeholder="paste the same value you set via wrangler secret put"
+              />
+            </Field>
           </Section>
         ) : null}
       </div>

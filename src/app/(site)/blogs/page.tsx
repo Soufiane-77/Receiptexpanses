@@ -2,22 +2,64 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { POSTS } from "@/lib/blog";
 import NewsletterForm from "@/components/NewsletterForm";
-import { CmsPostList } from "@/components/CmsPosts";
+import { getDB } from "@/lib/server/db";
+import { listPublishedPosts } from "@/lib/server/blogStore";
+
+// Posts now live in D1 and are rendered per request so newly automated posts
+// appear immediately (and are crawlable). Cheap read; fine on the free tier.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Blog · ReceiptExpenses",
   description: "Receipt tips, freelancing how-tos, and product updates from ReceiptExpenses.",
 };
 
+type Card = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readMins: number;
+  cover: string;
+};
+
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
-export default function BlogIndex() {
+async function getCards(): Promise<Card[]> {
+  let dbPosts: Card[] = [];
+  try {
+    const db = await getDB();
+    dbPosts = (await listPublishedPosts(db, 100)).map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+      date: p.date,
+      readMins: p.readMins,
+      cover: p.cover,
+    }));
+  } catch {
+    // D1 unavailable (e.g. local build prerender) — fall back to static posts only.
+    dbPosts = [];
+  }
+  const statics: Card[] = POSTS.map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    date: p.date,
+    readMins: p.readMins,
+    cover: p.cover,
+  }));
+  // D1 posts win on slug collision; sort newest first.
+  const bySlug = new Map<string, Card>();
+  [...statics, ...dbPosts].forEach((c) => bySlug.set(c.slug, c));
+  return [...bySlug.values()].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export default async function BlogIndex() {
+  const cards = await getCards();
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
       <header className="mb-10">
@@ -29,7 +71,7 @@ export default function BlogIndex() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
-          {POSTS.map((post) => (
+          {cards.map((post) => (
             <Link
               key={post.slug}
               href={`/blogs/${post.slug}`}
@@ -49,7 +91,6 @@ export default function BlogIndex() {
               </div>
             </Link>
           ))}
-          <CmsPostList />
         </div>
 
         <aside className="lg:col-span-1">

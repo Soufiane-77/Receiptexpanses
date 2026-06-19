@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { POSTS, getPost } from "@/lib/blog";
+import { getPost, type Post } from "@/lib/blog";
 import NewsletterForm from "@/components/NewsletterForm";
 import JsonLd from "@/components/JsonLd";
-import { CmsPostView } from "@/components/CmsPosts";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { getDB } from "@/lib/server/db";
+import { getPublishedPost } from "@/lib/server/blogStore";
 
-// Static export: only the known posts are prerendered. Unknown slugs resolve
-// client-side via the CMS fallback (CmsPostView) inside the rendered page.
-export const dynamicParams = false;
+// Posts come from D1 (plus the original static set), rendered per request.
+export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return POSTS.map((p) => ({ slug: p.slug }));
+/** Resolve a post by slug: static set first, then D1. */
+async function resolvePost(slug: string): Promise<Post | null> {
+  const staticPost = getPost(slug);
+  if (staticPost) return staticPost;
+  try {
+    const db = await getDB();
+    return await getPublishedPost(db, slug);
+  } catch {
+    return null;
+  }
 }
 
 export async function generateMetadata({
@@ -21,7 +29,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await resolvePost(slug);
   if (!post) return { title: "Post not found · ReceiptExpenses" };
   return {
     title: `${post.title} · ReceiptExpenses`,
@@ -30,31 +38,14 @@ export async function generateMetadata({
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await resolvePost(slug);
 
-  // Unknown to the static set → try a browser-published CMS post (client-side).
-  if (!post) {
-    return (
-      <main className="mx-auto max-w-3xl px-4 py-12">
-        <Link href="/blogs" className="text-sm text-brand-600 hover:underline">
-          ← All posts
-        </Link>
-        <CmsPostView slug={slug} />
-        <div className="mt-10">
-          <NewsletterForm />
-        </div>
-      </main>
-    );
-  }
+  if (!post) notFound();
 
   const jsonLd = {
     "@context": "https://schema.org",

@@ -53,6 +53,12 @@ export type AdminSettings = {
   templates: Record<string, TemplateCustomization>;
   /** Soft gate password (client-side only; this is not real security). */
   password: string;
+  /**
+   * Blog-automation API token. Must match the Worker secret BLOG_ADMIN_TOKEN
+   * (set via `wrangler secret put BLOG_ADMIN_TOKEN`). Sent as a header from the
+   * Automation tab to authorize config saves and manual generation.
+   */
+  automationToken: string;
 };
 
 export function defaultSettings(): AdminSettings {
@@ -68,6 +74,7 @@ export function defaultSettings(): AdminSettings {
     payments: { provider: "none", publishableKey: "", proPriceId: "" },
     templates: {},
     password: "admin",
+    automationToken: "",
   };
 }
 
@@ -91,6 +98,7 @@ export function loadSettings(): AdminSettings {
       payments: { ...base.payments, ...parsed.payments },
       templates: { ...base.templates, ...parsed.templates },
       password: parsed.password ?? base.password,
+      automationToken: parsed.automationToken ?? base.automationToken,
     };
   } catch {
     return defaultSettings();
