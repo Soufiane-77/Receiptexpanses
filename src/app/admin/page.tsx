@@ -20,7 +20,7 @@ import TemplateIcon from "@/components/TemplateIcon";
 import Logo from "@/components/Logo";
 import { ChevronUpIcon, ChevronDownIcon, SlidersIcon } from "@/components/icons";
 import AdminPayments from "@/components/admin/AdminPayments";
-import AdminAutomation from "@/components/admin/AdminAutomation";
+import AutopilotBlog from "@/components/admin/AutopilotBlog";
 import AdminTemplateCustomizer from "@/components/admin/AdminTemplateCustomizer";
 
 type Tab =
@@ -28,7 +28,7 @@ type Tab =
   | "saved"
   | "templates"
   | "customize"
-  | "automation"
+  | "blog"
   | "payments"
   | "defaults"
   | "security";
@@ -150,7 +150,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     { id: "saved", label: `Saved (${saved.length})` },
     { id: "templates", label: "Templates" },
     { id: "customize", label: "Customize" },
-    { id: "automation", label: "Automation" },
+    { id: "blog", label: "Blog" },
     { id: "payments", label: "Payments" },
     { id: "defaults", label: "Defaults" },
     { id: "security", label: "Security" },
@@ -356,7 +356,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           </Section>
         ) : null}
 
-        {tab === "automation" ? <AdminAutomation /> : null}
+        {tab === "blog" ? <AutopilotBlog /> : null}
 
         {tab === "payments" ? <AdminPayments /> : null}
 
