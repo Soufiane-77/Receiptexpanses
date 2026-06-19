@@ -2,11 +2,14 @@ import type { MetadataRoute } from "next";
 import { POSTS } from "@/lib/blog";
 import { TEMPLATES } from "@/templates/registry";
 import { SITE_URL } from "@/lib/seo";
+import { getDB } from "@/lib/server/db";
+import { listPublishedPosts } from "@/lib/server/blogStore";
 
-// Required for `output: export` — emit a static sitemap.xml at build time.
-export const dynamic = "force-static";
+// Dynamic so newly published autopilot posts appear immediately with an
+// accurate lastmod (engines discover them on the next crawl / via GSC).
+export const dynamic = "force-dynamic";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const core = [
@@ -38,11 +41,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  const posts = POSTS.map((p) => ({
-    url: `${SITE_URL}/blogs/${p.slug}`,
+  // Merge static + D1 posts, D1 winning on slug collisions.
+  const bySlug = new Map<string, { url: string; date: string }>();
+  for (const p of POSTS) bySlug.set(p.slug, { url: `${SITE_URL}/blogs/${p.slug}`, date: p.date });
+  try {
+    const db = await getDB();
+    for (const p of await listPublishedPosts(db, 1000)) {
+      bySlug.set(p.slug, { url: `${SITE_URL}/blogs/${p.slug}`, date: p.date });
+    }
+  } catch {
+    // D1 unavailable (e.g. local prerender) — static posts only.
+  }
+  const posts = [...bySlug.values()].map((p) => ({
+    url: p.url,
     lastModified: new Date(p.date),
     changeFrequency: "monthly" as const,
-    priority: 0.5,
+    priority: 0.6,
   }));
 
   return [...core, ...receiptTypes, ...posts];
