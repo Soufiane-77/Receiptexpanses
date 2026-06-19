@@ -1,7 +1,17 @@
+export type FaqItem = { q: string; a: string };
+
 export type Block =
   | { type: "p"; text: string }
   | { type: "h2"; text: string }
-  | { type: "ul"; items: string[] };
+  | { type: "h3"; text: string }
+  | { type: "ul"; items: string[] }
+  | { type: "ol"; items: string[] }
+  | { type: "table"; headers: string[]; rows: string[][] }
+  | { type: "image"; src: string; alt: string; caption?: string }
+  | { type: "cta"; text: string; url: string; label: string }
+  | { type: "faq"; items: FaqItem[] };
+
+export type InternalLink = { slug: string; anchor: string };
 
 export type Post = {
   slug: string;
@@ -12,7 +22,48 @@ export type Post = {
   readMins: number;
   cover: string; // emoji
   body: Block[];
+  // Optional SEO/GEO metadata — present on autopilot-generated posts, absent on
+  // the hand-written static set below (which renders fine with sensible defaults).
+  metaTitle?: string;
+  metaDescription?: string;
+  coverImageUrl?: string;
+  coverImageAlt?: string;
+  wordCount?: number;
+  targetKeyword?: string;
+  secondaryKeywords?: string[];
+  internalLinks?: InternalLink[];
+  /** Pre-rendered JSON-LD string (Article + FAQPage + BreadcrumbList). */
+  schemaJson?: string;
 };
+
+/** Collect FAQ pairs from any `faq` blocks in a post body (for FAQPage schema). */
+export function faqsFromBody(body: Block[]): FaqItem[] {
+  return body.flatMap((b) => (b.type === "faq" ? b.items : []));
+}
+
+/** Plain-text word count across all renderable blocks. */
+export function countWords(body: Block[]): number {
+  const text = body
+    .map((b) => {
+      switch (b.type) {
+        case "ul":
+        case "ol":
+          return b.items.join(" ");
+        case "table":
+          return [...b.headers, ...b.rows.flat()].join(" ");
+        case "faq":
+          return b.items.map((i) => `${i.q} ${i.a}`).join(" ");
+        case "image":
+          return b.caption ?? "";
+        case "cta":
+          return b.text;
+        default:
+          return b.text;
+      }
+    })
+    .join(" ");
+  return text.split(/\s+/).filter(Boolean).length;
+}
 
 export const POSTS: Post[] = [
   {

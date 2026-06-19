@@ -1,4 +1,4 @@
-import type { Block } from "@/lib/blog";
+import { countWords, type Block } from "@/lib/blog";
 import { insertPost, slugExists, type NewBlogPost } from "./blogStore";
 
 /**
@@ -105,12 +105,7 @@ function titleCase(s: string): string {
 }
 
 function estimateReadMins(body: Block[]): number {
-  const words = body
-    .map((b) => (b.type === "ul" ? b.items.join(" ") : b.text))
-    .join(" ")
-    .split(/\s+/)
-    .filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
+  return Math.max(1, Math.round(countWords(body) / 200));
 }
 
 /** Deterministic, AI-free article — used as a fallback if Workers AI fails. */
