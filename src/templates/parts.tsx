@@ -1,5 +1,6 @@
 import type { Receipt } from "@/lib/types";
 import { formatMoney } from "@/lib/calc";
+import TemplateIcon from "@/components/TemplateIcon";
 
 /** Build a money formatter bound to a receipt's currency + locale. */
 export function moneyFmt(receipt: Receipt) {
@@ -37,6 +38,10 @@ export function BusinessHeader({
           alt="Business logo"
           className="mb-1 max-h-16 w-auto object-contain"
         />
+      ) : ["nike", "adidas", "apple", "jordan"].includes(receipt.templateId) ? (
+        <div className="mb-1 flex items-center justify-center" style={{ color: receipt.accentColor }}>
+          <TemplateIcon id={receipt.templateId} className="h-10 w-auto" />
+        </div>
       ) : null}
       <div className="text-lg font-bold leading-tight" style={{ color: receipt.accentColor }}>
         {business.name || "Your Business"}

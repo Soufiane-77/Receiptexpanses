@@ -1,6 +1,7 @@
 import { lineTotal } from "@/lib/calc";
 import type { TemplateProps } from "./TemplateProps";
 import { fontSizeClass, moneyFmt } from "./parts";
+import { AirbnbLogoIcon } from "@/components/icons";
 
 export default function AirbnbTemplate({ receipt, totals }: TemplateProps) {
   const money = moneyFmt(receipt);
@@ -25,10 +26,7 @@ export default function AirbnbTemplate({ receipt, totals }: TemplateProps) {
             />
           ) : (
             <div className="flex items-center gap-1.5 font-bold text-xl tracking-tight mb-2" style={{ color: accent }}>
-              {/* Simple inline SVG representative of Airbnb logo style */}
-              <svg className="h-6 w-6" viewBox="0 0 32 32" fill="currentColor">
-                <path d="M16 1c-2 0-3.7 1.1-4.6 2.8L2.7 20c-.9 1.6-.9 3.6 0 5.2.9 1.6 2.6 2.8 4.6 2.8h17.4c2 0 3.7-1.1 4.6-2.8.9-1.6.9-3.6 0-5.2L20.6 3.8C19.7 2.1 18 1 16 1zm0 4c1 0 1.9.5 2.4 1.3l8.7 16.2c.4.8.4 1.8 0 2.6-.4.8-1.3 1.3-2.4 1.3H7.3c-1.1 0-2-.5-2.4-1.3-.4-.8-.4-1.8 0-2.6L13.6 6.3C14.1 5.5 15 5 16 5zm0 6c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 2.5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5z" />
-              </svg>
+              <AirbnbLogoIcon className="h-6 w-auto" />
               <span>{receipt.business.name || "airbnb"}</span>
             </div>
           )}

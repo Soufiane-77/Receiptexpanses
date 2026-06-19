@@ -48,7 +48,7 @@ export type TemplateDef = {
  * (a layout component can be reused across several entries). The landing grid,
  * editor dropdown, SEO landing pages and sitemap all derive from this list.
  */
-export const TEMPLATES: TemplateDef[] = [
+const RAW_TEMPLATES: TemplateDef[] = [
   {
     id: "generic",
     name: "Generic Sales Receipt",
@@ -416,6 +416,12 @@ export const TEMPLATES: TemplateDef[] = [
     },
   },
 ];
+
+const BRANDS = ["airbnb", "walmart", "amazon", "uber", "starbucks", "nike", "adidas", "apple", "jordan"];
+const brandTemplates = RAW_TEMPLATES.filter((t) => BRANDS.includes(t.id));
+const genericTemplates = RAW_TEMPLATES.filter((t) => !BRANDS.includes(t.id));
+
+export const TEMPLATES: TemplateDef[] = [...brandTemplates, ...genericTemplates];
 
 const TEMPLATE_MAP = new Map(TEMPLATES.map((t) => [t.id, t]));
 

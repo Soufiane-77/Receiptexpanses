@@ -1,6 +1,7 @@
 import { lineTotal } from "@/lib/calc";
 import type { TemplateProps } from "./TemplateProps";
 import { FauxBarcode, moneyFmt } from "./parts";
+import { WalmartLogoIcon } from "@/components/icons";
 
 export default function WalmartTemplate({ receipt, totals }: TemplateProps) {
   const money = moneyFmt(receipt);
@@ -23,10 +24,7 @@ export default function WalmartTemplate({ receipt, totals }: TemplateProps) {
           />
         ) : (
           <div className="flex flex-col items-center mb-1">
-            {/* Walmart-like sunburst/spark icon */}
-            <svg className="h-5 w-5 text-black" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0h1v8h-1zm0 16h1v8h-1zm-6-2h8v1H6zm-4.24-6.42 5.66 5.66-.71.71-5.66-5.66zm15.56 15.56 5.66 5.66-.71.71-5.66-5.66zM2.05 17.66l5.66-5.66.71.71-5.66 5.66zm15.56-15.56 5.66-5.66.71.71-5.66 5.66z" />
-            </svg>
+            <WalmartLogoIcon className="h-6 w-auto text-black mb-1" />
             <div className="text-xs font-bold uppercase tracking-wider">WALMART</div>
           </div>
         )}

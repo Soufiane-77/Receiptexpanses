@@ -101,9 +101,13 @@ Requires **Node 18.18+** (developed on Node 24).
 | `/pricing` | Static | Free vs Pro plans |
 | `/dashboard` | Client | Auth-gated user dashboard |
 | `/login`, `/signup` | Static | Auth pages |
-| `/blogs`, `/blogs/[slug]` | Static/SSG | Blog index + posts |
+| `/blogs`, `/blogs/[slug]` | Dynamic | Blog index + posts (D1-backed + static set) |
 | `/faq`, `/about`, `/privacy`, `/terms` | Static | Content/trust pages |
 | `/admin` | Client | Admin panel (soft password gate) |
+| `/admin/blog` | Client | **Autopilot Blog** console (also a tab in `/admin`) |
+| `/api/admin/blog` | Dynamic | Autopilot config + keyword/post actions (token-gated) |
+| `/api/cron/run` | Dynamic | Scheduler tick for an external cron (token-gated) |
+| `/api/indexnow` | Dynamic | IndexNow key file (engine ownership check) |
 | `/sitemap.xml`, `/robots.txt`, `/icon.svg` | Generated | SEO/meta |
 
 `/create` and `/admin` live **outside** the `(site)` route group so they use their own
@@ -299,6 +303,31 @@ live in `localStorage`; the gate is convenience, not security.
 - `sitemap.ts` and `robots.ts` derive from `TEMPLATES`, `POSTS`, and `SITE_URL`.
 - Per-page metadata/canonicals; titles that already include the brand use `title.absolute`
   to avoid the root layout's `%s · ReceiptExpenses` template doubling.
+
+### 9b. Autopilot Blog engine
+
+A fully automated blog pipeline (Cloudflare Workers AI + D1). Paste keywords in
+**`/admin/blog`**, pick draft or auto-publish, and a scheduled tick turns each
+keyword into a complete SEO/GEO article — headings, a comparison table, a "Key
+takeaways" block, an FAQ (with `FAQPage` schema), validated internal links, a
+CTA, meta tags and `Article`/`BreadcrumbList` JSON-LD — then submits it for
+indexing.
+
+| Concern | File |
+|---|---|
+| Keyword queue + post/settings persistence | `src/lib/server/blogStore.ts` |
+| Global config (cadence, voice, CTA, toggles) | `src/lib/server/blogSettings.ts` |
+| Generation pipeline (outline → draft → self-edit → assemble) | `src/lib/server/blogPipeline.ts` |
+| Scheduler (one keyword/tick, cadence + daily cap) | `src/lib/server/blogScheduler.ts` |
+| Indexing (IndexNow + Google toggle) | `src/lib/server/blogIndexing.ts` |
+| Image provider seam (disabled until configured) | `src/lib/server/blogImages.ts` |
+| Token gate for the server routes | `src/lib/server/adminToken.ts` |
+| Admin console | `src/components/admin/AutopilotBlog.tsx` |
+
+The model is reached through a swappable `Completer` (Workers AI today, easy to
+point at the Anthropic API later). Setup, the `BLOG_ADMIN_TOKEN` secret, the
+external-cron URL, IndexNow, the Google toggle and the guardrails are documented
+in **[SETUP-CLOUDFLARE.md](./SETUP-CLOUDFLARE.md#6-autopilot-blog)**.
 
 ### 10. Design system & accessibility
 

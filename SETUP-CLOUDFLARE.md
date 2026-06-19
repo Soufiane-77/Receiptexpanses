@@ -30,7 +30,9 @@ npm run db:migrate:local      # local dev database
 npm run db:migrate            # remote (production) database
 ```
 
-This creates the `users`, `sessions`, and `subscriptions` tables.
+This applies all migrations: `users`/`sessions`/`subscriptions` (0001), the
+blog tables (0002), and the **Autopilot Blog** schema (0003 —
+`blog_keywords`, `blog_settings`, and the SEO columns on `blog_posts`).
 
 ## 4. Stripe (subscriptions)
 
@@ -71,6 +73,58 @@ select this repo, and set:
 - Deploy command: `npx wrangler deploy`
 
 Pushing to `main` then builds and deploys automatically.
+
+## 6. Autopilot Blog
+
+A fully automated blog: paste keywords in the admin, and a scheduled job
+generates an SEO/GEO article per keyword (Workers AI — free), publishes or
+saves a draft, and submits it for indexing.
+
+### Env / secret
+
+```bash
+# Shared secret protecting every /api/admin/blog and /api/cron/run call.
+# Use a long random value; the admin enters the same value in the panel.
+printf '%s' "$(openssl rand -hex 24)" | npx wrangler secret put BLOG_ADMIN_TOKEN
+```
+
+> Set it with `printf`/`echo -n` (no trailing newline). Workers AI (`AI`) and
+> D1 (`DB`) bindings are already in `wrangler.jsonc`.
+
+### Use it
+
+1. **Admin → Security:** paste the same `BLOG_ADMIN_TOKEN` value into "Blog
+   automation token".
+2. **Admin → Blog** (or visit `/admin/blog`): add keywords, set the cadence
+   (interval, daily cap, min spacing) and **Mode**. Mode defaults to **draft**
+   so you review the first batch before flipping to **auto-publish**.
+3. **Run one now** to test, then turn the **scheduler On**.
+4. **Unattended schedule:** create a free hourly job at e.g. cron-job.org
+   hitting (copy the exact URL from the admin panel):
+   ```
+   https://<your-domain>/api/cron/run?token=<BLOG_ADMIN_TOKEN>
+   ```
+   Each tick publishes at most one post and only when the cadence allows.
+
+### Indexing
+
+- **IndexNow** (Bing/Yandex/Naver/Seznam) is on by default. A key is generated
+  automatically and served at `/api/indexnow`; new URLs are POSTed on publish.
+  Per-engine results show in the admin Posts table. **Google does not support
+  IndexNow** — rely on the dynamic `/sitemap.xml` + internal links + Google
+  Search Console for Google.
+- **Google Indexing API** is **off by default**. Google officially restricts it
+  to `JobPosting`/`BroadcastEvent` pages and may reject/penalise other use
+  (~200/day quota). Only enable the toggle if you understand that; when enabled
+  it uses a service-account JWT (set `google_sa_json` in `blog_settings`).
+
+### Guardrails
+
+Default **draft** mode, a low **daily cap** (2/day), **min spacing**, a
+**word-count floor**, and a near-duplicate guard. "Submitted for indexing" is
+not "indexed" — engines still decide on quality. Auto-publishing thin, scaled
+content risks Google's scaled-content-abuse penalties, so review before going
+full auto.
 
 ## Local development
 

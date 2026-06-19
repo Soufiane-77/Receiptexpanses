@@ -1,6 +1,7 @@
 import { lineTotal } from "@/lib/calc";
 import type { TemplateProps } from "./TemplateProps";
 import { fontSizeClass, moneyFmt } from "./parts";
+import { AmazonLogoIcon } from "@/components/icons";
 
 export default function AmazonTemplate({ receipt, totals }: TemplateProps) {
   const money = moneyFmt(receipt);
@@ -21,20 +22,8 @@ export default function AmazonTemplate({ receipt, totals }: TemplateProps) {
               className="max-h-12 w-auto object-contain"
             />
           ) : (
-            <div className="flex flex-col select-none">
-              <span className="font-extrabold text-2xl tracking-tight text-slate-900 flex flex-col items-start leading-none">
-                <span>
-                  {receipt.business.name && receipt.business.name.toLowerCase().includes("amazon")
-                    ? "amazon"
-                    : (receipt.business.name || "amazon")}
-                  {!receipt.business.name || !receipt.business.name.toLowerCase().endsWith(".com")
-                    ? ".com"
-                    : ""}
-                </span>
-                <svg className="h-2 w-12 text-[#FF9900] mt-0.5" viewBox="0 0 40 8" fill="currentColor">
-                  <path d="M1 2 Q20 8 39 2 Q20 5 1 2" />
-                </svg>
-              </span>
+            <div className="flex flex-col select-none mb-1">
+              <AmazonLogoIcon className="h-8 w-auto text-[#FF9900]" />
               <span className="text-[10px] text-slate-500 uppercase tracking-widest pl-1 mt-1">invoice</span>
             </div>
           )}
