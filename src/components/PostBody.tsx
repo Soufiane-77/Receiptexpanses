@@ -1,8 +1,40 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import type { Block } from "@/lib/blog";
 
 function headingId(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 60);
+}
+
+/**
+ * Render inline markdown: `[text](/path)` links (internal via <Link>, external
+ * via <a>) and `**bold**`. Plain text otherwise. Keeps the block model simple
+ * while supporting contextual internal links inside paragraphs and lists.
+ */
+function inline(text: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  const re = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let k = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    if (m[1] && m[2]) {
+      const href = m[2];
+      nodes.push(
+        href.startsWith("/") ? (
+          <Link key={k++} href={href} className="text-brand-600 hover:underline">{m[1]}</Link>
+        ) : (
+          <a key={k++} href={href} rel="nofollow noopener" className="text-brand-600 hover:underline">{m[1]}</a>
+        )
+      );
+    } else if (m[3]) {
+      nodes.push(<strong key={k++}>{m[3]}</strong>);
+    }
+    last = re.lastIndex;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
 }
 
 /**
@@ -30,13 +62,13 @@ export default function PostBody({ body }: { body: Block[] }) {
           case "ul":
             return (
               <ul key={i} className="ml-5 flex list-disc flex-col gap-1">
-                {block.items.map((it, j) => <li key={j}>{it}</li>)}
+                {block.items.map((it, j) => <li key={j}>{inline(it)}</li>)}
               </ul>
             );
           case "ol":
             return (
               <ol key={i} className="ml-5 flex list-decimal flex-col gap-1">
-                {block.items.map((it, j) => <li key={j}>{it}</li>)}
+                {block.items.map((it, j) => <li key={j}>{inline(it)}</li>)}
               </ol>
             );
           case "table":
@@ -53,7 +85,7 @@ export default function PostBody({ body }: { body: Block[] }) {
                   <tbody>
                     {block.rows.map((row, r) => (
                       <tr key={r} className="border-b border-slate-100">
-                        {row.map((cell, c) => <td key={c} className="px-3 py-2 align-top">{cell}</td>)}
+                        {row.map((cell, c) => <td key={c} className="px-3 py-2 align-top">{inline(cell)}</td>)}
                       </tr>
                     ))}
                   </tbody>
@@ -91,13 +123,13 @@ export default function PostBody({ body }: { body: Block[] }) {
                 {block.items.map((f, j) => (
                   <div key={j}>
                     <h3 id={headingId(f.q)} className="scroll-mt-24 text-lg font-semibold text-slate-900">{f.q}</h3>
-                    <p className="mt-1">{f.a}</p>
+                    <p className="mt-1">{inline(f.a)}</p>
                   </div>
                 ))}
               </div>
             );
           default:
-            return <p key={i}>{(block as { text: string }).text}</p>;
+            return <p key={i}>{inline((block as { text: string }).text)}</p>;
         }
       })}
     </div>
