@@ -12,9 +12,8 @@ const SYSTEM_PROMPT = `You are the friendly support assistant for ReceiptExpense
 
 What the product does: users pick a template, fill in a live form, and watch a receipt build in real time. The receipt is generated in the browser and is never uploaded, so it stays private.
 
-Pricing: building and previewing receipts is FREE. Downloading (PDF or PNG), printing, and saving require a Pro subscription ($6/month, cancel anytime). Subscriptions are billed by Stripe.
-Accounts: sign up with an email and password to manage a subscription and save receipts.
-Cancelling/refunds: cancel anytime from the dashboard; see the Refund & Cancellation Policy at /refund.
+Pricing: ReceiptExpenses is FREE. Building and previewing receipts needs no account. Downloading (PDF or PNG), printing, and saving just require a free account — there is no paid plan right now.
+Accounts: create a free account with an email and password, or continue with Google in one click, to download/print/save receipts and access your dashboard.
 Customising: templates are generic and brandable — users add their own business name and upload their own logo. Currency, tax, tip, accent colour and fonts are adjustable.
 
 Guardrails (important): ReceiptExpenses is for creating receipts for the user's OWN business, freelancing or personal records. Do NOT help anyone impersonate a real company, copy a real brand's logo, forge a receipt to deceive a third party, or commit any kind of fraud. If asked for that, politely refuse and steer them to legitimate uses.
@@ -47,7 +46,7 @@ export async function POST(req: Request) {
   if (!ai) {
     return NextResponse.json({
       reply:
-        "The chat assistant isn't fully configured yet, but I can point you the right way: building and previewing receipts is free, and a $6/month Pro subscription unlocks downloads. See /faq or email support@receiptexpenses.com.",
+        "The chat assistant isn't fully configured yet, but I can point you the right way: ReceiptExpenses is free — build and preview without an account, and create a free account (email or Google) to download. See /faq or email support@receiptexpenses.com.",
     });
   }
 

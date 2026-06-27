@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCurrentUser, logOut } from "@/lib/auth";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 import Logo from "./Logo";
 
 const NAV = [
   { href: "/create", label: "Create" },
   { href: "/receipts", label: "Receipt types" },
-  { href: "/pricing", label: "Pricing" },
+  ...(PAYMENTS_ENABLED ? [{ href: "/pricing", label: "Pricing" }] : []),
   { href: "/blogs", label: "Blog" },
 ];
 
@@ -53,7 +54,7 @@ export default function SiteHeader() {
                 title={user.email}
               >
                 {user.name.split(" ")[0]}
-                {user.plan === "pro" ? " · Pro" : ""}
+                {PAYMENTS_ENABLED && user.plan === "pro" ? " · Pro" : ""}
               </Link>
               <button
                 onClick={() => logOut()}

@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { Receipt } from "@/lib/types";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 import { CURRENCIES, localeForCurrency } from "@/lib/currencies";
 import { newId } from "@/lib/id";
 import { TEMPLATES, getTemplate } from "@/templates/registry";
@@ -43,14 +44,22 @@ export default function Editor({ initial }: { initial: Receipt }) {
   const user = useCurrentUser();
   const isPro = useIsPro();
   const router = useRouter();
+  const pathname = usePathname();
 
-  // Preview is free; downloading, printing and saving require an active
-  // subscription. Non-subscribers are routed to checkout (or signup first).
-  const requireSubscription = useCallback((): boolean => {
-    if (isPro) return true;
-    router.push(user ? "/pricing" : "/signup?next=/pricing");
+  // Preview is always free. Downloading, printing and saving are gated:
+  // - payments on  → require an active Pro subscription (route to checkout)
+  // - payments off → require only a (free) account (route to signup)
+  // Returns true when access is granted; otherwise it redirects and returns false.
+  const requireAccess = useCallback((): boolean => {
+    if (PAYMENTS_ENABLED) {
+      if (isPro) return true;
+      router.push(user ? "/pricing" : `/signup?next=${encodeURIComponent(pathname)}`);
+      return false;
+    }
+    if (user) return true;
+    router.push(`/signup?next=${encodeURIComponent(pathname)}`);
     return false;
-  }, [isPro, user, router]);
+  }, [isPro, user, router, pathname]);
 
   // Persist draft to localStorage on every change (debounced).
   useEffect(() => {
@@ -87,7 +96,7 @@ export default function Editor({ initial }: { initial: Receipt }) {
 
   const handleExport = useCallback(
     async (kind: "png" | "pdf") => {
-      if (!requireSubscription()) return;
+      if (!requireAccess()) return;
       if (!previewRef.current) return;
       setBusy(kind);
       try {
@@ -98,11 +107,11 @@ export default function Editor({ initial }: { initial: Receipt }) {
         setBusy(null);
       }
     },
-    [getValues, requireSubscription],
+    [getValues, requireAccess],
   );
 
   const saveNamed = useCallback(() => {
-    if (!requireSubscription()) return;
+    if (!requireAccess()) return;
     const current = getValues();
     const name = window.prompt("Name this receipt", current.business.name || current.meta.receiptNo);
     if (!name) return;
@@ -115,7 +124,7 @@ export default function Editor({ initial }: { initial: Receipt }) {
     window.alert(
       user ? "Saved. View it on your dashboard." : "Saved to this browser. Sign in to see it on your dashboard.",
     );
-  }, [getValues, requireSubscription, user]);
+  }, [getValues, requireAccess, user]);
 
   const isFuel = receipt.templateId === "fuel";
   const isTaxi = receipt.templateId === "taxi";
@@ -656,7 +665,7 @@ export default function Editor({ initial }: { initial: Receipt }) {
           </div>
           <div className="flex justify-center overflow-auto rounded-xl bg-slate-200 p-4">
             <div id="print-area" className="shadow-lg">
-              <ReceiptPreview ref={previewRef} receipt={receipt} watermark={!isPro} />
+              <ReceiptPreview ref={previewRef} receipt={receipt} watermark={PAYMENTS_ENABLED && !isPro} />
             </div>
           </div>
         </div>
@@ -665,11 +674,24 @@ export default function Editor({ initial }: { initial: Receipt }) {
       {/* Sticky export bar */}
       <div className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-2 px-4 py-3">
-          {!isPro ? (
+          {PAYMENTS_ENABLED ? (
+            !isPro ? (
+              <p className="mr-auto text-xs text-slate-500">
+                Preview is free —{" "}
+                <Link href="/pricing" className="font-medium text-brand-600 hover:underline">
+                  subscribe to download, print &amp; save
+                </Link>
+                .
+              </p>
+            ) : null
+          ) : !user ? (
             <p className="mr-auto text-xs text-slate-500">
-              Preview is free —{" "}
-              <Link href="/pricing" className="font-medium text-brand-600 hover:underline">
-                subscribe to download, print &amp; save
+              Free to use —{" "}
+              <Link
+                href={`/signup?next=${encodeURIComponent(pathname)}`}
+                className="font-medium text-brand-600 hover:underline"
+              >
+                sign in to download, print &amp; save
               </Link>
               .
             </p>
@@ -682,7 +704,7 @@ export default function Editor({ initial }: { initial: Receipt }) {
             type="button"
             variant="secondary"
             onClick={() => {
-              if (requireSubscription()) printReceipt();
+              if (requireAccess()) printReceipt();
             }}
           >
             <PrinterIcon className="h-4 w-4" />

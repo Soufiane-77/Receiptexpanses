@@ -23,9 +23,11 @@ export default function UberTemplate({ receipt, totals }: TemplateProps) {
             alt="logo"
             className="max-h-8 w-auto object-contain invert mb-2"
           />
+        ) : (
           <div className="flex justify-center mb-1">
             <UberLogoIcon className="h-6 w-auto text-white" />
           </div>
+        )}
         <div className="text-xs text-slate-400">Ride Receipt</div>
         <div className="text-2xl font-bold tracking-tight mt-3">
           {money(totals.total)}

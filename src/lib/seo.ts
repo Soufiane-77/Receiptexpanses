@@ -8,7 +8,7 @@ export type Faq = { q: string; a: string };
 export const GENERAL_FAQS: Faq[] = [
   {
     q: "How much does ReceiptExpenses cost?",
-    a: "Building and previewing a receipt is free. To download it as a PDF or PNG, print it, or save it to your dashboard you need a Pro subscription ($6/month, cancel anytime).",
+    a: "ReceiptExpenses is free. Build and preview any receipt without an account; create a free account (with your email or Google) to download it as a PDF or PNG, print it, or save it to your dashboard.",
   },
   {
     q: "Is my data private?",
@@ -28,7 +28,7 @@ export const GENERAL_FAQS: Faq[] = [
   },
   {
     q: "Do I need an account?",
-    a: "You can build and preview a receipt without an account. To download, print or save it you'll create an account and start a Pro subscription, which you can manage or cancel anytime.",
+    a: "You can build and preview a receipt without an account. To download, print or save it you'll create a free account — sign up with your email or continue with Google in one click.",
   },
 ];
 
@@ -41,7 +41,7 @@ export function faqsForType(name: string, keyword: string): Faq[] {
     },
     {
       q: `How much does the ${keyword} maker cost?`,
-      a: `Building and previewing a ${keyword} is free. Downloading it as a PDF or PNG, printing or saving it requires a Pro subscription ($6/month, cancel anytime).`,
+      a: `It's free. Building and previewing a ${keyword} needs no account; downloading it as a PDF or PNG, printing or saving it just requires a free account (sign up with email or Google).`,
     },
     {
       q: `Can I customise the ${keyword}?`,

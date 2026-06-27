@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCurrentUser, useAuthLoaded } from "@/lib/auth";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 import { cancelPro, subscribePro } from "@/lib/subscription";
 import { computeTotals, formatMoney } from "@/lib/calc";
 import { loadSaved, removeSaved, saveDraft, type SavedReceipt } from "@/lib/storage";
@@ -72,10 +73,11 @@ export default function DashboardPage() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Saved receipts" value={String(stats.count)} />
         <StatCard label="Total value" value={stats.totalDisplay} />
-        <StatCard label="Plan" value={isPro ? "Pro" : "Preview"} />
+        <StatCard label="Plan" value={PAYMENTS_ENABLED ? (isPro ? "Pro" : "Preview") : "Free"} />
       </div>
 
-      {/* Subscription panel */}
+      {/* Subscription panel — only while paid plans are enabled. */}
+      {PAYMENTS_ENABLED ? (
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -109,6 +111,7 @@ export default function DashboardPage() {
           )}
         </div>
       </section>
+      ) : null}
 
       {/* Blog subscription */}
       <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

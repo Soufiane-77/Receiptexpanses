@@ -24,4 +24,11 @@ interface CloudflareEnv {
    * Set via `wrangler secret put BLOG_ADMIN_TOKEN`. Routes fail closed if unset.
    */
   BLOG_ADMIN_TOKEN?: string;
+
+  // --- Google OAuth (set as Worker secrets; optional — Google sign-in is
+  //     hidden/disabled until both are present) ---
+  /** Google OAuth client id. Set via `wrangler secret put GOOGLE_CLIENT_ID`. */
+  GOOGLE_CLIENT_ID?: string;
+  /** Google OAuth client secret. Set via `wrangler secret put GOOGLE_CLIENT_SECRET`. */
+  GOOGLE_CLIENT_SECRET?: string;
 }

@@ -1,6 +1,7 @@
 import { lineTotal } from "@/lib/calc";
 import type { TemplateProps } from "./TemplateProps";
 import { moneyFmt } from "./parts";
+import { StarbucksLogoIcon } from "@/components/icons";
 
 export default function StarbucksTemplate({ receipt, totals }: TemplateProps) {
   const money = moneyFmt(receipt);
@@ -22,15 +23,7 @@ export default function StarbucksTemplate({ receipt, totals }: TemplateProps) {
           />
         ) : (
           <div className="flex flex-col items-center mb-1">
-            {/* Simple Starbucks Siren-like circular SVG logo */}
-            <svg className="h-10 w-10 mb-1" style={{ color: accentColor }} viewBox="0 0 40 40" fill="currentColor">
-              <circle cx="20" cy="20" r="19" stroke="currentColor" strokeWidth="2" fill="none" />
-              <circle cx="20" cy="20" r="15" fill="currentColor" />
-              {/* Siren head outline */}
-              <circle cx="20" cy="18" r="4" fill="white" />
-              <path d="M12 28c3-4 6-6 8-6s5 2 8 6" stroke="white" strokeWidth="2" fill="none" />
-              <path d="M20 12l1 2 2 .5-1.5 1.5.5 2-2-1-2 1 .5-2-1.5-1.5 2-.5z" fill="white" />
-            </svg>
+            <StarbucksLogoIcon className="h-10 w-10 mb-1" style={{ color: accentColor }} />
             <div className="text-xs font-bold uppercase tracking-wider">
               {receipt.business.name || "STARBUCKS"}
             </div>

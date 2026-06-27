@@ -14,6 +14,10 @@ export type PublicUser = {
   blogSubscribed: boolean;
   /** ISO timestamp the account was created. */
   createdAt: string;
+  /** Google profile picture URL, when the account signed in with Google. */
+  avatarUrl?: string;
+  /** How the account authenticates. Defaults to "email". */
+  provider?: "email" | "google";
 };
 
 /** Fields a user is allowed to patch on their own account. */

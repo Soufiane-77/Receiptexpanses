@@ -429,4 +429,4 @@ export function getTemplate(id: string): TemplateDef {
   return TEMPLATE_MAP.get(id) ?? TEMPLATES[0]!;
 }
 
-export const DEFAULT_TEMPLATE_ID = TEMPLATES[0]!.id;
+export const DEFAULT_TEMPLATE_ID = "generic";

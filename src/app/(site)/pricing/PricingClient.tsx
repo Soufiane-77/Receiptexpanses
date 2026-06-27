@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser, type Plan } from "@/lib/auth";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 import { PLANS, subscribePro } from "@/lib/subscription";
 import { Button } from "@/components/Button";
 import { CheckIcon, SparklesIcon } from "@/components/icons";
@@ -13,6 +14,11 @@ export default function PricingClient() {
   const [notice, setNotice] = useState("");
 
   const onChoose = (planId: Plan) => {
+    // While payments are disabled everything is free — just get people creating.
+    if (!PAYMENTS_ENABLED) {
+      router.push(user ? "/create" : "/signup?next=/create");
+      return;
+    }
     if (!user) {
       router.push(`/signup?next=/pricing`);
       return;
@@ -27,11 +33,12 @@ export default function PricingClient() {
     <main className="mx-auto max-w-5xl px-4 py-14">
       <div className="text-center">
         <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
-          Simple, honest pricing
+          {PAYMENTS_ENABLED ? "Simple, honest pricing" : "Free while we're in beta"}
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-slate-600">
-          Build and preview any receipt for free. Subscribe to Pro to download, print and save your
-          receipts — watermark-free, cancel anytime.
+          {PAYMENTS_ENABLED
+            ? "Build and preview any receipt for free. Subscribe to Pro to download, print and save your receipts — watermark-free, cancel anytime."
+            : "Every feature is free right now — build, preview, download, print and save. Just create a free account (email or Google) to download your receipts."}
         </p>
       </div>
 
@@ -60,7 +67,9 @@ export default function PricingClient() {
                   </span>
                 ) : null}
               </div>
-              <div className="mt-3 text-4xl font-extrabold text-slate-900">{plan.priceLabel}</div>
+              <div className="mt-3 text-4xl font-extrabold text-slate-900">
+                {PAYMENTS_ENABLED ? plan.priceLabel : "Free"}
+              </div>
               <p className="mt-1 text-sm text-slate-500">{plan.tagline}</p>
 
               <ul className="mt-6 flex flex-1 flex-col gap-2 text-sm text-slate-600">
@@ -73,22 +82,30 @@ export default function PricingClient() {
               </ul>
 
               <Button
-                disabled={isCurrent}
+                disabled={PAYMENTS_ENABLED && isCurrent}
                 onClick={() => onChoose(plan.id)}
                 variant={plan.highlighted ? "primary" : "secondary"}
                 className="mt-8 w-full"
               >
-                {plan.id === "pro" && !isCurrent ? <SparklesIcon className="h-4 w-4" /> : null}
-                {isCurrent ? "Current plan" : user ? "Subscribe to Pro" : "Sign up for Pro"}
+                {!PAYMENTS_ENABLED ? (
+                  "Start creating — it's free"
+                ) : (
+                  <>
+                    {plan.id === "pro" && !isCurrent ? <SparklesIcon className="h-4 w-4" /> : null}
+                    {isCurrent ? "Current plan" : user ? "Subscribe to Pro" : "Sign up for Pro"}
+                  </>
+                )}
               </Button>
             </div>
           );
         })}
       </div>
 
-      <p className="mx-auto mt-8 max-w-xl text-center text-xs text-slate-400">
-        Secure payments are processed by Stripe. Cancel anytime from your billing portal.
-      </p>
+      {PAYMENTS_ENABLED ? (
+        <p className="mx-auto mt-8 max-w-xl text-center text-xs text-slate-400">
+          Secure payments are processed by Stripe. Cancel anytime from your billing portal.
+        </p>
+      ) : null}
     </main>
   );
 }
