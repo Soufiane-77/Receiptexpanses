@@ -14,6 +14,13 @@
   "ai": {
     "binding": "AI"
   },
+  // Non-secret config vars. GOOGLE_CLIENT_ID is a public OAuth identifier (it is
+  // sent to the browser during sign-in), so it lives here in config — this also
+  // ensures `wrangler deploy` preserves it. GOOGLE_CLIENT_SECRET is a real secret,
+  // set via `wrangler secret put GOOGLE_CLIENT_SECRET` (do NOT put it here).
+  "vars": {
+    "GOOGLE_CLIENT_ID": "771778083827-44mjsm6gncjdbij0ouiaqnl0ijapv5s3.apps.googleusercontent.com"
+  },
   // Cloudflare D1 (SQLite) database. Create it once with:
   //   npx wrangler d1 create receiptexpanses-db
   // then paste the printed database_id below (replace REPLACE_WITH_D1_DATABASE_ID).
