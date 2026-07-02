@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s · ReceiptExpenses",
   },
   description:
-    "Online receipt generator — pick a template, fill in details, preview free, then subscribe to download a PDF or PNG. Everything runs in your browser.",
+    "Free online receipt generator — pick a template, fill in details, preview live, and download a pixel-perfect PDF or PNG with a free account. Everything runs in your browser; nothing is uploaded.",
   keywords: [
     "receipt generator",
     "make a receipt",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ReceiptExpenses — Make a receipt in seconds",
     description:
-      "Pick a template, fill in your details, and preview live. Subscribe to download as PDF or PNG. Private by design.",
+      "Pick a template, fill in your details, and preview live. Download as PDF or PNG with a free account. Private by design.",
     type: "website",
     siteName: "ReceiptExpenses",
     url: "/",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ReceiptExpenses — Make a receipt in seconds",
-    description: "Private, browser-based receipt generator. Preview free, subscribe to download.",
+    description: "Free, private, browser-based receipt generator. Preview live, download PDF/PNG.",
     images: ["/og.png"],
   },
 };

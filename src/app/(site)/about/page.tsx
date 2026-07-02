@@ -35,9 +35,9 @@ export default function AboutPage() {
         </p>
         <h2 className="mt-4 text-xl font-bold text-slate-900">Pricing</h2>
         <p>
-          Building and previewing receipts is free. A Pro subscription ($6/month, cancel anytime)
-          lets you download them as PDF or PNG, print, and save unlimited receipts to your
-          dashboard — with no watermark.
+          ReceiptExpenses is free. Building and previewing receipts requires no account at all,
+          and a free account (sign up with email or Google) lets you download them as PDF or PNG,
+          print, and save receipts to your dashboard — with no watermark.
         </p>
       </div>
       <div className="mt-10">

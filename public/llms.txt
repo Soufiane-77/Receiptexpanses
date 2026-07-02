@@ -1,34 +1,76 @@
 # ReceiptExpenses
 
-> ReceiptExpenses (https://receiptexpenses.com) is a privacy-first online receipt maker. You pick a template, fill in a live form, and a receipt builds in real time in your browser — then you can download it as a PDF or PNG, or print it. Building and previewing are free; downloading, printing and saving require a Pro subscription ($6/month, cancel anytime). Receipt content is generated in the browser and is not uploaded.
+> ReceiptExpenses (https://receiptexpenses.com) is a free, private online receipt maker that generates pixel-perfect PDF and PNG expense records directly in your browser — nothing is uploaded to a server. Pick one of 24+ templates, fill in a live form, and the receipt builds in real time. Building and previewing require no account; downloading, printing and saving require only a free account (sign up with email or Google).
 
 ## What it is for
 
-ReceiptExpenses helps people and small businesses create receipts for their **own** business, freelancing or personal record-keeping — for example issuing proof of payment to a customer, or reconstructing a lost receipt for their own records. Templates are generic and brandable: users supply their own business name and upload their own logo. It must not be used to impersonate real companies or to forge receipts intended to deceive others.
+ReceiptExpenses helps people and small businesses create receipts for their **own** business, freelancing or personal record-keeping — for example issuing proof of payment to a customer, reconstructing a lost receipt of a real purchase for expense records, or replacing a faded/lost receipt for reimbursement documentation. Brand-styled templates (e.g. "Walmart Style Receipt", "Airbnb Style Receipt") are independent, customizable templates styled after common receipt formats — ReceiptExpenses is not affiliated with any of these companies. It must not be used to impersonate real companies or to forge receipts intended to deceive others.
+
+## Key facts
+
+- Price: free (no paid tier currently). A free account unlocks download (PDF/PNG), print and save.
+- Privacy: 100% client-side generation — receipt content, business details and logos never leave the browser.
+- Export: pixel-perfect PDF and PNG, plus direct browser printing.
+- Sign-in: email/password or Google (one click).
+- Templates: 24+ receipt types across Business, Retail, Food & Drink, Travel and Services.
 
 ## Key pages
 
-- [Create a receipt](https://receiptexpenses.com/create): The live editor — choose a template, fill in details, preview, and (with Pro) download or print.
-- [Receipt types](https://receiptexpenses.com/receipts): Browse every receipt category — sales, restaurant, café, grocery, fuel, taxi, parking, hotel, vacation rental, pharmacy, electronics, online order and more.
-- [Pricing](https://receiptexpenses.com/pricing): Free preview; Pro subscription at $6/month to download, print and save.
-- [FAQ](https://receiptexpenses.com/faq): Common questions about cost, privacy, formats and customization.
+- [Create a receipt](https://receiptexpenses.com/create): The live editor — choose a template, fill in details, preview, download or print.
+- [Receipt types](https://receiptexpenses.com/receipts): Browse every template by category.
+- [FAQ](https://receiptexpenses.com/faq): Cost, privacy, formats and customization.
 - [About](https://receiptexpenses.com/about): What the product is and the privacy-first philosophy behind it.
+
+## Receipt templates by category
+
+### Business
+- [Generic Sales Receipt Maker](https://receiptexpenses.com/receipts/generic): clean itemized sales receipt for any business.
+- [Online Order Receipt Maker](https://receiptexpenses.com/receipts/marketplace): e-commerce order confirmation receipt.
+
+### Retail
+- [Walmart Style Receipt Maker](https://receiptexpenses.com/receipts/walmart): thermal POS superstore receipt template (independent, for lost-receipt reconstruction).
+- [Amazon Style Invoice Maker](https://receiptexpenses.com/receipts/amazon): online marketplace order receipt template.
+- [Nike Receipt Maker](https://receiptexpenses.com/receipts/nike): sportswear retail receipt template.
+- [Adidas Receipt Maker](https://receiptexpenses.com/receipts/adidas): sportswear retail receipt template.
+- [Apple Receipt Maker](https://receiptexpenses.com/receipts/apple): electronics store receipt template.
+- [Jordan Receipt Maker](https://receiptexpenses.com/receipts/jordan): sneaker retail receipt template.
+- [Thermal / POS Receipt Maker](https://receiptexpenses.com/receipts/thermal): generic cash-register slip.
+- [Grocery / Market Receipt Maker](https://receiptexpenses.com/receipts/grocery): supermarket receipt.
+- [Superstore / Big-Box Receipt Maker](https://receiptexpenses.com/receipts/bigbox): big-box store receipt.
+- [Electronics Store Receipt Maker](https://receiptexpenses.com/receipts/electronics): electronics purchase receipt.
+
+### Food & Drink
+- [Restaurant Receipt Maker](https://receiptexpenses.com/receipts/restaurant): itemized dining receipt with tip.
+- [Café / Coffee Receipt Maker](https://receiptexpenses.com/receipts/cafe): coffee-shop receipt.
+- [Starbucks Style Receipt Maker](https://receiptexpenses.com/receipts/starbucks): coffee-chain style receipt template.
+
+### Travel
+- [Airbnb Style Receipt Maker](https://receiptexpenses.com/receipts/airbnb): vacation rental / lodging receipt template with check-in details.
+- [Uber Style Ride Receipt Maker](https://receiptexpenses.com/receipts/uber): rideshare trip receipt template.
+- [Hotel / Lodging Receipt Maker](https://receiptexpenses.com/receipts/hotel): hotel folio receipt.
+- [Vacation Rental Receipt Maker](https://receiptexpenses.com/receipts/vacation-rental): short-stay rental receipt.
+- [Fuel / Gas Receipt Maker](https://receiptexpenses.com/receipts/fuel): gas station receipt.
+- [Taxi / Transport Receipt Maker](https://receiptexpenses.com/receipts/taxi): taxi fare receipt.
+- [Parking Receipt Maker](https://receiptexpenses.com/receipts/parking): parking fee receipt.
+
+### Services
+- [Service Invoice Receipt Maker](https://receiptexpenses.com/receipts/service): labor/service payment receipt.
+- [Pharmacy Receipt Maker](https://receiptexpenses.com/receipts/pharmacy): pharmacy purchase receipt.
 
 ## How it works
 
 1. Choose a template that matches your situation.
 2. Fill in your business, items, currency, tax and tip — and upload your own logo.
 3. Watch the live preview update with every change.
-4. Subscribe to Pro to download a pixel-perfect PDF or PNG, or print.
+4. Create a free account (email or Google) to download a pixel-perfect PDF or PNG, or print.
 
 ## Policies
 
 - [Privacy Policy](https://receiptexpenses.com/privacy): How data is handled (receipt content stays in the browser).
 - [Cookie Policy](https://receiptexpenses.com/cookies): The minimal cookies and local storage used.
 - [Terms of Use](https://receiptexpenses.com/terms): Acceptable use, including no impersonation or fraud.
-- [Refund & Cancellation Policy](https://receiptexpenses.com/refund): Billing, cancelling, and refund eligibility.
 - [Contact](https://receiptexpenses.com/contact): support@receiptexpenses.com
 
 ## Support
 
-An in-app AI chat assistant is available in the corner of every page to answer questions about templates, pricing, downloads and accounts.
+An in-app AI chat assistant is available in the corner of every page to answer questions about templates, downloads and accounts.

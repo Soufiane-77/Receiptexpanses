@@ -44,7 +44,7 @@ export default function ContactPage() {
 
       <div className="mt-8 rounded-2xl bg-slate-900 p-8 text-center text-white">
         <h2 className="text-xl font-bold">Ready to make a receipt?</h2>
-        <p className="mt-2 text-slate-300">Build and preview for free — subscribe to download.</p>
+        <p className="mt-2 text-slate-300">Build and preview for free — download with a free account.</p>
         <ButtonLink href="/create" className="mt-4 px-6 py-3 text-base">
           Start creating
           <ArrowRightIcon className="h-5 w-5" />

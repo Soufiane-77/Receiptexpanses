@@ -6,7 +6,7 @@ import { ButtonLink } from "@/components/Button";
 import TemplateIcon from "@/components/TemplateIcon";
 import JsonLd from "@/components/JsonLd";
 import { ArrowRightIcon, CheckIcon, EyeIcon, ShieldIcon, ZapIcon } from "@/components/icons";
-import { SITE_URL, faqsForType } from "@/lib/seo";
+import { SITE_URL, faqJsonLd, faqsForType, softwareAppJsonLd } from "@/lib/seo";
 
 const KNOWN = new Set(TEMPLATES.map((t) => t.id));
 
@@ -32,6 +32,10 @@ export async function generateMetadata({
       `${t.seo.keyword} template`,
       `online ${t.seo.keyword}`,
       "receipt maker",
+      // High-intent recovery phrasing so answer engines match "lost receipt" queries.
+      ...(t.brandLabel
+        ? [`lost ${t.seo.keyword} replacement`, `${t.seo.keyword} reconstruction`]
+        : ["lost receipt reconstruction"]),
     ],
     alternates: { canonical: `/receipts/${t.id}` },
     openGraph: {
@@ -58,32 +62,19 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   if (!KNOWN.has(slug)) notFound();
   const t = getTemplate(slug);
-  const faqs = faqsForType(t.name, t.seo.keyword);
+  const faqs = faqsForType(t.name, t.seo.keyword, t.brandLabel);
   const related = TEMPLATES.filter((x) => x.id !== t.id && x.category === t.category).slice(0, 3);
   const fallbackRelated = related.length
     ? related
     : TEMPLATES.filter((x) => x.id !== t.id).slice(0, 3);
 
   const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
+    softwareAppJsonLd({
       name: `${t.name} Maker`,
-      applicationCategory: "BusinessApplication",
-      operatingSystem: "Web",
-      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       description: t.seo.blurb,
       url: `${SITE_URL}/receipts/${t.id}`,
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faqs.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    },
+    }),
+    faqJsonLd(faqs, `${SITE_URL}/receipts/${t.id}`),
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -134,6 +125,13 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
             {t.name} Maker
           </h1>
           <p className="mt-4 max-w-xl text-lg text-slate-600">{t.seo.blurb}</p>
+          {t.brandLabel ? (
+            <p className="mt-3 max-w-xl text-sm text-slate-500">
+              This is an independent {t.seo.keyword} template and generator — not affiliated with{" "}
+              {t.brandLabel}. Use it to reconstruct a lost receipt of a real purchase you made, or
+              for your own expense records.
+            </p>
+          ) : null}
           <div className="mt-6 flex flex-wrap gap-3">
             <ButtonLink href={`/create?template=${t.id}`} className="px-6 py-3 text-base">
               Make a {t.seo.keyword}
@@ -229,7 +227,7 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
       {/* Bottom CTA */}
       <section className="mt-14 rounded-2xl bg-slate-900 p-8 text-center text-white">
         <h2 className="text-2xl font-bold">Make your {t.seo.keyword} now</h2>
-        <p className="mt-2 text-slate-300">Private, and ready in under a minute — preview free, subscribe to download.</p>
+        <p className="mt-2 text-slate-300">Free, private, and ready in under a minute — download with a free account.</p>
         <ButtonLink href={`/create?template=${t.id}`} className="mt-4 px-6 py-3 text-base">
           Start creating
           <ArrowRightIcon className="h-5 w-5" />

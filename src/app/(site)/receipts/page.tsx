@@ -2,32 +2,60 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CATEGORIES, TEMPLATES } from "@/templates/registry";
 import TemplateIcon from "@/components/TemplateIcon";
+import JsonLd from "@/components/JsonLd";
 import { ArrowRightIcon } from "@/components/icons";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Receipt Types — Receipt Maker for Every Kind of Receipt",
+  title: "Receipt Types — Free Receipt Maker for Every Kind of Receipt",
   description:
-    "Browse every receipt type ReceiptExpenses can make: sales, restaurant, café, grocery, fuel, taxi, parking, hotel and more. Pick one, preview it free, and subscribe to download a PDF or PNG.",
+    "Browse all 24+ receipt templates ReceiptExpenses can generate — sales, restaurant, café, grocery, fuel, taxi, parking, hotel and more, across Business, Retail, Food & Drink, Travel and Services. Free to build; download PDF/PNG with a free account.",
   alternates: { canonical: "/receipts" },
   openGraph: {
     title: "Receipt Types — ReceiptExpenses",
-    description: "Receipt makers for sales, restaurant, fuel, taxi, parking, hotel and more.",
+    description:
+      "Free receipt makers for sales, restaurant, fuel, taxi, parking, hotel and more — organized by category.",
     url: `${SITE_URL}/receipts`,
     images: ["/og.png"],
   },
 };
 
 export default function ReceiptsIndex() {
+  // CollectionPage + per-category ItemLists so conversational search engines
+  // can fetch category-level matches ("travel receipt template") directly.
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Receipt template types",
+      url: `${SITE_URL}/receipts`,
+      description:
+        "All receipt templates in the ReceiptExpenses receipt generator, organized into Business, Food & Drink, Retail, Travel and Services categories.",
+      hasPart: CATEGORIES.map((cat) => ({
+        "@type": "ItemList",
+        name: `${cat} receipt templates`,
+        itemListElement: TEMPLATES.filter((t) => t.category === cat).map((t, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: `${t.name} Maker`,
+          url: `${SITE_URL}/receipts/${t.id}`,
+        })),
+      })),
+    },
+  ];
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-12">
+      <JsonLd data={jsonLd} />
       <header className="mb-10">
         <h1 className="text-4xl font-bold tracking-tight text-slate-900">
           Every kind of receipt
         </h1>
         <p className="mt-3 max-w-2xl text-lg text-slate-600">
-          Choose a receipt type below to learn how it works and generate one in seconds — itemized,
-          branded with your logo, and exportable to PDF or PNG. Everything runs in your browser.
+          ReceiptExpenses offers 24+ free receipt templates across five categories — Business,
+          Food &amp; Drink, Retail, Travel and Services. Choose a receipt type below to generate one
+          in seconds: itemized, branded with your logo, and exportable to PDF or PNG. Everything
+          runs in your browser.
         </p>
       </header>
 

@@ -36,7 +36,7 @@ export default function FaqPage() {
       </div>
       <div className="mt-10 rounded-2xl bg-slate-900 p-8 text-center text-white">
         <h2 className="text-xl font-bold">Still have a question? Just try it.</h2>
-        <p className="mt-2 text-slate-300">Building a receipt is free — subscribe to download it.</p>
+        <p className="mt-2 text-slate-300">Building a receipt is free — download it with a free account.</p>
         <ButtonLink href="/create" className="mt-4 px-6 py-3 text-base">
           Start creating
           <ArrowRightIcon className="h-5 w-5" />

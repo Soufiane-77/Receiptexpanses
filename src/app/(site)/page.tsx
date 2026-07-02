@@ -22,16 +22,22 @@ import {
   AppleLogoIcon,
   JordanLogoIcon,
 } from "@/components/icons";
-import { GENERAL_FAQS, SITE_NAME, SITE_URL } from "@/lib/seo";
+import {
+  GENERAL_FAQS,
+  SITE_DEFINITION,
+  faqJsonLd,
+  orgJsonLd,
+  softwareAppJsonLd,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: { absolute: "Online Receipt Maker — Create & Download | ReceiptExpenses" },
+  title: { absolute: "Free Online Receipt Maker — Create & Download | ReceiptExpenses" },
   description:
-    "Online receipt maker — pick a template for Walmart, Airbnb, Uber, Nike, Apple and more. Fill in details, and preview free. Subscribe to download a PDF or PNG.",
+    "Free online receipt maker — pick a template styled after Walmart, Airbnb, Uber, Nike, Apple and more, fill in details, preview live, and download a pixel-perfect PDF or PNG. 100% in your browser.",
   alternates: { canonical: "/" },
 };
 
-const TRUST = ["100% in your browser", "Free live preview", "Cancel anytime"];
+const TRUST = ["100% in your browser", "Free live preview", "Free account to download"];
 
 const WHY = [
   {
@@ -52,7 +58,7 @@ const WHY = [
   {
     icon: DownloadIcon,
     title: "PDF, PNG & print",
-    text: "Subscribe to export a pixel-perfect PDF or PNG, or print straight from your browser — no watermark.",
+    text: "Export a pixel-perfect PDF or PNG, or print straight from your browser — free with an account, no watermark.",
   },
 ];
 
@@ -63,29 +69,7 @@ const STEPS = [
 ];
 
 export default function Home() {
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: SITE_NAME,
-      url: SITE_URL,
-      applicationCategory: "BusinessApplication",
-      operatingSystem: "Web",
-      description:
-        "Online receipt maker. Pick a template, fill in your details, preview live, and subscribe to download a PDF or PNG receipt.",
-      offers: { "@type": "Offer", price: "6", priceCurrency: "USD" },
-    },
-    { "@context": "https://schema.org", "@type": "Organization", name: SITE_NAME, url: SITE_URL },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: GENERAL_FAQS.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    },
-  ];
+  const jsonLd = [softwareAppJsonLd(), orgJsonLd(), faqJsonLd(GENERAL_FAQS)];
 
   return (
     <main>
@@ -106,21 +90,20 @@ export default function Home() {
             style={{ animationDelay: "0ms" }}
           >
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Private receipt generator — preview free
+            Free, private receipt generator
           </span>
           <h1
             className="mx-auto mt-5 max-w-3xl animate-fade-up text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl"
             style={{ animationDelay: "80ms" }}
           >
-            Online receipt maker
+            Free online receipt maker
           </h1>
           <p
             className="mx-auto mt-5 max-w-2xl animate-fade-up text-lg text-slate-600"
             style={{ animationDelay: "160ms" }}
           >
-            Pick a template, fill in your business and items, and watch it build live for free.
-            Subscribe to download a pixel-perfect PDF or PNG. Everything runs in your browser —
-            nothing is uploaded.
+            {SITE_DEFINITION} Pick from 24+ templates, fill in your business and items, watch it
+            build live, and download — with a free account.
           </p>
           <div
             className="mt-8 flex animate-fade-up flex-col justify-center gap-3 sm:flex-row"
@@ -152,7 +135,8 @@ export default function Home() {
       <section className="border-y border-slate-100 bg-slate-50/50 py-10">
         <div className="mx-auto max-w-6xl px-4 text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Generate receipts matching the style of your favorite U.S. companies
+            Receipt templates styled after popular U.S. companies — independent &amp; customizable,
+            for reconstructing your own lost receipts
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 opacity-60 grayscale transition-all duration-300 hover:opacity-90 hover:grayscale-0">
             <div className="flex items-center gap-1 select-none">
