@@ -25,10 +25,18 @@ interface CloudflareEnv {
    */
   BLOG_ADMIN_TOKEN?: string;
 
-  // --- Google OAuth (set as Worker secrets; optional — Google sign-in is
-  //     hidden/disabled until both are present) ---
-  /** Google OAuth client id. Set via `wrangler secret put GOOGLE_CLIENT_ID`. */
+  // --- Supabase Auth (public config; stored ONLY as Cloudflare env — set as
+  //     Worker secrets so `wrangler deploy` doesn't wipe them). The browser
+  //     receives these at runtime via /api/env, not baked into the build. ---
+  /** Supabase project URL, e.g. https://xxxx.supabase.co */
+  SUPABASE_URL?: string;
+  /** Supabase publishable/anon key (safe for the browser). */
+  SUPABASE_ANON_KEY?: string;
+
+  // --- Google OAuth (legacy: the old custom flow; now handled by Supabase.
+  //     Kept for reference — safe to remove once fully migrated) ---
+  /** Google OAuth client id. */
   GOOGLE_CLIENT_ID?: string;
-  /** Google OAuth client secret. Set via `wrangler secret put GOOGLE_CLIENT_SECRET`. */
+  /** Google OAuth client secret. */
   GOOGLE_CLIENT_SECRET?: string;
 }

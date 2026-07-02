@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/server/session";
+import { getServerUser } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/server/stripe";
 import { getEnv } from "@/lib/server/db";
 import { getCustomerId } from "@/lib/server/subscriptions";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 // Open the Stripe Billing customer portal (manage / cancel subscription).
 export async function POST(req: Request) {
-  const user = await getSessionUser();
+  const user = await getServerUser();
   if (!user) return NextResponse.json({ ok: false, error: "Not signed in." }, { status: 401 });
 
   const env = await getEnv();

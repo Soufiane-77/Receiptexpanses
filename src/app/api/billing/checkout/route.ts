@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/server/session";
+import { getServerUser } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/server/stripe";
 import { getEnv } from "@/lib/server/db";
 import { getCustomerId, setCustomerId } from "@/lib/server/subscriptions";
@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 
 // Create a Stripe Checkout session for the Pro plan and return its URL.
 export async function POST(req: Request) {
-  const user = await getSessionUser();
+  const user = await getServerUser();
   if (!user) return NextResponse.json({ ok: false, error: "Not signed in." }, { status: 401 });
+  const userName = (user.user_metadata?.name as string | undefined) || undefined;
 
   const env = await getEnv();
   if (!env.STRIPE_SECRET_KEY || !env.STRIPE_PRICE_PRO) {
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   if (!customerId) {
     const customer = await stripe.customers.create({
       email: user.email,
-      name: user.name || undefined,
+      name: userName,
       metadata: { userId: user.id },
     });
     customerId = customer.id;

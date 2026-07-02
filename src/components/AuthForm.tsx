@@ -3,38 +3,52 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { logIn, signUp } from "@/lib/auth";
+import { logIn, signInWithGoogle, signUp } from "@/lib/auth";
 import { inputCls } from "./fields";
 
 const OAUTH_ERRORS: Record<string, string> = {
-  google_unavailable: "Google sign-in isn't available right now. Please use your email and password.",
-  google_denied: "Google sign-in was cancelled.",
-  google_failed: "Couldn't complete Google sign-in. Please try again.",
+  oauth: "Couldn't complete sign-in. Please try again.",
 };
 
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const search = useSearchParams();
   const next = search.get("next") || "/dashboard";
-  const oauthError = OAUTH_ERRORS[search.get("error") ?? ""] ?? "";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(OAUTH_ERRORS[search.get("error") ?? ""] ?? "");
+  const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setNotice("");
     setSubmitting(true);
-    const res = mode === "signup" ? await signUp(name, email, password) : await logIn(email, password);
-    setSubmitting(false);
-    if (res.ok) {
+    if (mode === "signup") {
+      const res = await signUp(name, email, password);
+      setSubmitting(false);
+      if (!res.ok) return setError(res.error);
+      if (res.needsConfirmation) {
+        return setNotice("Almost there — check your email to confirm your account, then log in.");
+      }
       router.push(next);
     } else {
-      setError(res.error);
+      const res = await logIn(email, password);
+      setSubmitting(false);
+      if (!res.ok) return setError(res.error);
+      router.push(next);
     }
+  };
+
+  const handleGoogle = async () => {
+    setError("");
+    setNotice("");
+    const res = await signInWithGoogle(next);
+    // On success the browser navigates to Google; only surface failures.
+    if (!res.ok) setError(res.error);
   };
 
   return (
@@ -48,19 +62,20 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </h1>
         <p className="mt-1 text-sm text-slate-500">
           {mode === "signup"
-            ? "Save receipts, manage your subscription, and access your dashboard."
+            ? "Save your receipts and download PDFs & PNGs — free."
             : "Sign in to your ReceiptExpenses dashboard."}
         </p>
 
-        {oauthError ? <p className="mt-3 text-sm text-red-500">{oauthError}</p> : null}
+        {notice ? <p className="mt-3 text-sm text-emerald-600">{notice}</p> : null}
 
-        <a
-          href={`/api/auth/google?next=${encodeURIComponent(next)}`}
+        <button
+          type="button"
+          onClick={handleGoogle}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
         >
           <GoogleMark className="h-4 w-4" />
           Continue with Google
-        </a>
+        </button>
 
         <div className="my-4 flex items-center gap-3 text-xs uppercase tracking-wide text-slate-400">
           <span className="h-px flex-1 bg-slate-200" />

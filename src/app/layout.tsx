@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -58,7 +59,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
-      <body>{children}</body>
+      <body>
+        {/* Injects window.__ENV__ (Supabase runtime config) before hydration.
+            Kept out of the build so config lives only as Cloudflare env. */}
+        <Script src="/api/env" strategy="beforeInteractive" />
+        {children}
+      </body>
     </html>
   );
 }
