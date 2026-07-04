@@ -5,8 +5,16 @@ import { TEMPLATES, getTemplate } from "@/templates/registry";
 import { ButtonLink } from "@/components/Button";
 import TemplateIcon from "@/components/TemplateIcon";
 import JsonLd from "@/components/JsonLd";
+import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { ArrowRightIcon, CheckIcon, EyeIcon, ShieldIcon, ZapIcon } from "@/components/icons";
-import { SITE_URL, faqJsonLd, faqsForType, softwareAppJsonLd } from "@/lib/seo";
+import {
+  SITE_URL,
+  breadcrumbJsonLd,
+  faqJsonLd,
+  faqsForType,
+  howToJsonLd,
+  softwareAppJsonLd,
+} from "@/lib/seo";
 
 const KNOWN = new Set(TEMPLATES.map((t) => t.id));
 
@@ -52,17 +60,34 @@ function titleCase(s: string): string {
   return s.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-const STEPS = [
-  { icon: EyeIcon, title: "Choose & fill", text: "Start from the template and enter your business and line items." },
-  { icon: ZapIcon, title: "Preview live", text: "The receipt updates with every keystroke — no guesswork." },
-  { icon: ShieldIcon, title: "Download", text: "Export a private PDF or PNG, or print. Nothing is uploaded." },
-];
+/** Steps are keyword-aware so the on-page text matches the HowTo schema exactly. */
+function stepsForKeyword(keyword: string) {
+  return [
+    {
+      icon: EyeIcon,
+      title: "Choose & fill",
+      text: `Open the ${keyword} template and enter your business name, line items, currency and tax in the form.`,
+    },
+    {
+      icon: ZapIcon,
+      title: "Preview live",
+      text: `Watch the ${keyword} build in real time — every keystroke updates the preview, so what you see is what you get.`,
+    },
+    {
+      icon: ShieldIcon,
+      title: "Download",
+      text: "Export a private PDF or PNG, or print. Nothing is uploaded to a server.",
+    },
+  ];
+}
 
 export default async function ReceiptTypePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   if (!KNOWN.has(slug)) notFound();
   const t = getTemplate(slug);
   const faqs = faqsForType(t.name, t.seo.keyword, t.brandLabel);
+  const steps = stepsForKeyword(t.seo.keyword);
+  const pageUrl = `${SITE_URL}/receipts/${t.id}`;
   const related = TEMPLATES.filter((x) => x.id !== t.id && x.category === t.category).slice(0, 3);
   const fallbackRelated = related.length
     ? related
@@ -72,18 +97,21 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
     softwareAppJsonLd({
       name: `${t.name} Maker`,
       description: t.seo.blurb,
-      url: `${SITE_URL}/receipts/${t.id}`,
+      url: pageUrl,
     }),
-    faqJsonLd(faqs, `${SITE_URL}/receipts/${t.id}`),
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-        { "@type": "ListItem", position: 2, name: "Receipt types", item: `${SITE_URL}/receipts` },
-        { "@type": "ListItem", position: 3, name: t.name, item: `${SITE_URL}/receipts/${t.id}` },
-      ],
-    },
+    howToJsonLd({
+      name: `How to make a ${t.seo.keyword}`,
+      description: `Create a ${t.seo.keyword} online with the ReceiptExpenses ${t.name} template — fill in your details, preview live, and download a PDF or PNG.`,
+      url: pageUrl,
+      totalTime: "PT2M",
+      steps: steps.map((s) => ({ name: s.title, text: s.text })),
+    }),
+    faqJsonLd(faqs, pageUrl),
+    breadcrumbJsonLd([
+      { name: "Home", path: "" },
+      { name: "Receipt types", path: "/receipts" },
+      { name: t.name, path: `/receipts/${t.id}` },
+    ]),
   ];
 
   return (
@@ -127,9 +155,11 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
           <p className="mt-4 max-w-xl text-lg text-slate-600">{t.seo.blurb}</p>
           {t.brandLabel ? (
             <p className="mt-3 max-w-xl text-sm text-slate-500">
-              This is an independent {t.seo.keyword} template and generator — not affiliated with{" "}
-              {t.brandLabel}. Use it to reconstruct a lost receipt of a real purchase you made, or
-              for your own expense records.
+              This customizable {t.seo.keyword} template is for freelancers, contractors and business
+              owners who need to reconstruct a replacement record or itemized expense receipt for a{" "}
+              {t.brandLabel}-style purchase they actually made — to submit for reimbursement or tax
+              deductions. It is an independent template and generator, <strong>not affiliated with{" "}
+              {t.brandLabel}</strong>.
             </p>
           ) : null}
           <div className="mt-6 flex flex-wrap gap-3">
@@ -159,9 +189,13 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
       {/* How it works */}
       <section className="mt-14">
         <h2 className="text-2xl font-bold text-slate-900">How to make a {t.seo.keyword}</h2>
-        <div className="mt-6 grid gap-5 sm:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <div key={i} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+        <ol className="mt-6 grid gap-5 sm:grid-cols-3">
+          {steps.map((s, i) => (
+            <li
+              key={i}
+              id={`step-${i + 1}`}
+              className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
+            >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                 <s.icon className="h-5 w-5" />
               </div>
@@ -169,9 +203,9 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
                 {i + 1}. {s.title}
               </h3>
               <p className="mt-1 text-sm text-slate-500">{s.text}</p>
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* Use cases */}
@@ -186,6 +220,13 @@ export default async function ReceiptTypePage({ params }: { params: Promise<{ sl
           ))}
         </ul>
       </section>
+
+      {/* Legal disclaimer — brand pages only */}
+      {t.brandLabel ? (
+        <section className="mt-14">
+          <LegalDisclaimer brandLabel={t.brandLabel} />
+        </section>
+      ) : null}
 
       {/* FAQ */}
       <section className="mt-14">

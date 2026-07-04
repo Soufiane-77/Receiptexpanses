@@ -20,6 +20,20 @@ ReceiptExpenses helps people and small businesses create receipts for their **ow
 - [Receipt types](https://receiptexpenses.com/receipts): Browse every template by category.
 - [FAQ](https://receiptexpenses.com/faq): Cost, privacy, formats and customization.
 - [About](https://receiptexpenses.com/about): What the product is and the privacy-first philosophy behind it.
+- [Guides](https://receiptexpenses.com/guides): Plain-English answers about receipts, invoices and expense records.
+
+## Guides & answers (cornerstone content)
+
+- [How to Write a Receipt](https://receiptexpenses.com/guides/how-to-write-a-receipt): Step-by-step, with a free template.
+- [Receipt vs. Invoice](https://receiptexpenses.com/guides/receipt-vs-invoice): The difference, with a side-by-side comparison.
+- [What Makes a Receipt Valid](https://receiptexpenses.com/guides/what-makes-a-receipt-valid): The fields a receipt needs for tax/reimbursement.
+- [Is a Photo of a Receipt Valid?](https://receiptexpenses.com/guides/is-a-photo-of-a-receipt-valid): Whether digital copies work for taxes and expenses.
+- [Replacement Receipt for Taxes](https://receiptexpenses.com/guides/replacement-receipt-for-taxes): Lawfully reconstructing a lost receipt for a real purchase.
+- [Track Tech & Hardware Expenses (1099)](https://receiptexpenses.com/guides/track-tech-hardware-expenses): Documenting hardware for business taxes.
+- [Lost Uber/Lyft Receipt](https://receiptexpenses.com/guides/lost-uber-lyft-receipt): Retrieving or reconstructing a rideshare receipt for work travel.
+- [Gig Worker & 1099 Receipts](https://receiptexpenses.com/guides/gig-worker-1099-receipts): Keeping deductible-expense records for tax season.
+- [Do Freelancers Need to Give Receipts?](https://receiptexpenses.com/guides/do-freelancers-need-receipts): Receipt vs invoice obligations for freelancers.
+- [Rent Receipt Requirements by State](https://receiptexpenses.com/guides/rent-receipt-requirements-by-state): Where tenants can request a rent receipt, and what it must contain.
 
 ## Receipt templates by category
 

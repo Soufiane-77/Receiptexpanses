@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ButtonLink } from "@/components/Button";
 import { ArrowRightIcon } from "@/components/icons";
+import { LAST_UPDATED_DISPLAY } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: { absolute: "About ReceiptExpenses — A Private, Modern Receipt Maker" },
@@ -13,6 +14,7 @@ export default function AboutPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-14">
       <h1 className="text-4xl font-bold tracking-tight text-slate-900">About ReceiptExpenses</h1>
+      <p className="mt-2 text-sm text-slate-400">Last updated {LAST_UPDATED_DISPLAY}</p>
       <div className="mt-6 flex flex-col gap-4 leading-relaxed text-slate-700">
         <p>
           ReceiptExpenses is an online receipt maker built around two ideas: it should be{" "}

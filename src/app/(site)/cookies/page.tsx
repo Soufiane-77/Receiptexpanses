@@ -44,9 +44,14 @@ export default function CookiesPage() {
 
         <h2 className="mt-4 text-xl font-bold text-slate-900">Analytics</h2>
         <p>
-          If we enable privacy-respecting analytics or advertising measurement in the future, this
-          section and our consent controls will be updated to describe exactly what is collected. We
-          will ask for consent where the law requires it (for example, visitors in the EEA and UK).
+          We use a lightweight, cookieless first-party measurement to understand where visitors come
+          from — for example, whether people arrive from a search engine, a link, or an AI assistant.
+          When you first land on the site we record the referring website&apos;s domain, the page you
+          landed on, and a coarse date. This sets <strong>no cookies</strong>, uses no third-party
+          tracker, and stores <strong>no IP address or personal identifier</strong>; it cannot be used
+          to identify you or follow you across other sites. If we ever add advertising measurement or
+          analytics that do require consent, we will update this section and add the appropriate
+          controls (for example, for visitors in the EEA and UK).
         </p>
 
         <h2 className="mt-4 text-xl font-bold text-slate-900">Managing cookies</h2>

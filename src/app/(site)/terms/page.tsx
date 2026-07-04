@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LegalDisclaimer from "@/components/LegalDisclaimer";
 
 export const metadata: Metadata = {
   title: { absolute: "Terms of Use — ReceiptExpenses" },
@@ -19,6 +20,21 @@ export default function TermsPage() {
           business, freelancing or personal record-keeping. You agree not to use it to commit fraud,
           to impersonate real named businesses or retailers, or for any unlawful purpose. You are
           solely responsible for the content of the receipts you create and how you use them.
+        </p>
+
+        <div className="my-2">
+          <LegalDisclaimer />
+        </div>
+
+        <h2 className="mt-4 text-xl font-bold text-slate-900">Brand-style templates</h2>
+        <p>
+          Some templates are styled after the general look of receipts from well-known companies
+          (for example Apple, Nike, Jordan, Uber, Walmart, Amazon and Starbucks). These templates
+          are independent and customizable; ReceiptExpenses is not affiliated with, endorsed by, or
+          connected to any of these companies, and no trademark or logo of theirs is reproduced. They
+          exist only to help you reconstruct a replacement expense record for a genuine purchase you
+          made. Using them to fabricate proof of a purchase that did not happen, or to deceive a
+          retailer, employer, insurer or any third party, is a violation of these terms.
         </p>
 
         <h2 className="mt-4 text-xl font-bold text-slate-900">No warranty</h2>

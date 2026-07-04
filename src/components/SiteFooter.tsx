@@ -14,6 +14,7 @@ const COLS: { heading: string; links: { href: string; label: string }[] }[] = [
   {
     heading: "Resources",
     links: [
+      { href: "/guides", label: "Guides" },
       { href: "/blogs", label: "Blog" },
       { href: "/faq", label: "FAQ" },
       { href: "/about", label: "About" },

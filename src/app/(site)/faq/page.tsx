@@ -3,7 +3,7 @@ import FaqList from "@/components/FaqList";
 import JsonLd from "@/components/JsonLd";
 import { ButtonLink } from "@/components/Button";
 import { ArrowRightIcon } from "@/components/icons";
-import { GENERAL_FAQS, SITE_URL } from "@/lib/seo";
+import { GENERAL_FAQS, LAST_UPDATED_DISPLAY, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: { absolute: "FAQ — ReceiptExpenses Receipt Maker" },
@@ -31,6 +31,7 @@ export default function FaqPage() {
       <p className="mt-3 text-lg text-slate-600">
         Everything you need to know about making receipts with ReceiptExpenses.
       </p>
+      <p className="mt-2 text-sm text-slate-400">Last updated {LAST_UPDATED_DISPLAY}</p>
       <div className="mt-8">
         <FaqList faqs={GENERAL_FAQS} />
       </div>

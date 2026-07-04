@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { POSTS } from "@/lib/blog";
 import { TEMPLATES } from "@/templates/registry";
+import { GUIDES } from "@/content/guides";
 import { SITE_URL } from "@/lib/seo";
 import { getDB } from "@/lib/server/db";
 import { listPublishedPosts } from "@/lib/server/blogStore";
@@ -18,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/receipts", priority: 0.9, freq: "weekly" as const },
     { path: "/pricing", priority: 0.7, freq: "monthly" as const },
     { path: "/blogs", priority: 0.7, freq: "weekly" as const },
+    { path: "/guides", priority: 0.8, freq: "weekly" as const },
     { path: "/faq", priority: 0.6, freq: "monthly" as const },
     { path: "/about", priority: 0.5, freq: "yearly" as const },
     { path: "/contact", priority: 0.4, freq: "yearly" as const },
@@ -41,6 +43,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const guides = GUIDES.map((g) => ({
+    url: `${SITE_URL}/guides/${g.slug}`,
+    lastModified: new Date(g.dateModified),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
   // Merge static + D1 posts, D1 winning on slug collisions.
   const bySlug = new Map<string, { url: string; date: string }>();
   for (const p of POSTS) bySlug.set(p.slug, { url: `${SITE_URL}/blogs/${p.slug}`, date: p.date });
@@ -59,5 +68,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...core, ...receiptTypes, ...posts];
+  return [...core, ...receiptTypes, ...guides, ...posts];
 }

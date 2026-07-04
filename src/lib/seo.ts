@@ -5,6 +5,14 @@ export const SITE_URL = "https://receiptexpenses.com";
 export const SITE_NAME = "ReceiptExpenses";
 
 /**
+ * Site-wide "content last reviewed" date (ISO + display), shown on evergreen
+ * pages as a freshness signal for search/answer engines. Bump when you refresh
+ * evergreen copy.
+ */
+export const LAST_UPDATED_ISO = "2026-07-04";
+export const LAST_UPDATED_DISPLAY = "July 4, 2026";
+
+/**
  * Canonical one-sentence definition of the product. Used verbatim in the hero,
  * meta descriptions, llms.txt and JSON-LD so LLMs and answer engines extract a
  * single consistent answer to "what is ReceiptExpenses?".
@@ -112,10 +120,107 @@ export function orgJsonLd(): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
     logo: `${SITE_URL}/icon.svg`,
     email: "support@receiptexpenses.com",
+    description: SITE_DEFINITION,
+  };
+}
+
+/**
+ * WebSite schema — the sitewide entity node that ties the whole domain together
+ * for search/answer engines. Emitted once on the home page. No SearchAction:
+ * the site has no server-side search endpoint, and declaring one that doesn't
+ * exist is a validation/trust risk, so it's intentionally omitted.
+ */
+export function websiteJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    name: SITE_NAME,
+    alternateName: "Receipt Expenses",
+    url: SITE_URL,
+    description: SITE_DEFINITION,
+    inLanguage: "en",
+    publisher: { "@id": `${SITE_URL}/#organization` },
+  };
+}
+
+/**
+ * HowTo schema from ordered steps. Only emit this where the numbered steps are
+ * genuinely present on the page as an ordered sequence — Google requires the
+ * on-page content to match the markup.
+ */
+export function howToJsonLd(opts: {
+  name: string;
+  description: string;
+  url: string;
+  steps: { name: string; text: string }[];
+  totalTime?: string; // ISO 8601 duration, e.g. "PT2M"
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    ...(opts.totalTime ? { totalTime: opts.totalTime } : {}),
+    step: opts.steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+      url: `${opts.url}#step-${i + 1}`,
+    })),
+  };
+}
+
+/**
+ * Article schema for cornerstone guide pages. `author`/`publisher` point at the
+ * real Organization; never fabricate a person byline. `dateModified` drives the
+ * "freshness" signal answer engines weigh, so keep it in sync with LAST_UPDATED.
+ */
+export function articleJsonLd(opts: {
+  headline: string;
+  description: string;
+  url: string;
+  datePublished: string;
+  dateModified: string;
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: opts.headline,
+    description: opts.description,
+    url: opts.url,
+    mainEntityOfPage: opts.url,
+    datePublished: opts.datePublished,
+    dateModified: opts.dateModified,
+    inLanguage: "en",
+    author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.svg` },
+    },
+  };
+}
+
+/** BreadcrumbList from an ordered list of {name, path} crumbs (path is relative). */
+export function breadcrumbJsonLd(crumbs: { name: string; path: string }[]): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: `${SITE_URL}${c.path}`,
+    })),
   };
 }
 

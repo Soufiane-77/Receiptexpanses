@@ -28,6 +28,7 @@ import {
   faqJsonLd,
   orgJsonLd,
   softwareAppJsonLd,
+  websiteJsonLd,
 } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -69,7 +70,7 @@ const STEPS = [
 ];
 
 export default function Home() {
-  const jsonLd = [softwareAppJsonLd(), orgJsonLd(), faqJsonLd(GENERAL_FAQS)];
+  const jsonLd = [websiteJsonLd(), orgJsonLd(), softwareAppJsonLd(), faqJsonLd(GENERAL_FAQS)];
 
   return (
     <main>

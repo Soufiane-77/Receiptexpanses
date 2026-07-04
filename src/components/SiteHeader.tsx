@@ -9,6 +9,7 @@ import Logo from "./Logo";
 const NAV = [
   { href: "/create", label: "Create" },
   { href: "/receipts", label: "Receipt types" },
+  { href: "/guides", label: "Guides" },
   ...(PAYMENTS_ENABLED ? [{ href: "/pricing", label: "Pricing" }] : []),
   { href: "/blogs", label: "Blog" },
 ];

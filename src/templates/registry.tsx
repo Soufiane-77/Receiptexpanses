@@ -79,8 +79,12 @@ const RAW_TEMPLATES: TemplateDef[] = [
     seo: {
       keyword: "Airbnb receipt",
       blurb:
-        "Generate a professional, detailed lodging and vacation rental receipt styled like an Airbnb invoice. Fully customizable guest details, check-in times, and host fees.",
-      useCases: ["Corporate travel expense logs", "Vacation rental reimbursement claims", "Host stay receipt generation"],
+        "Reconstruct a lodging and vacation-rental expense receipt styled after an Airbnb invoice — for documenting a stay you actually booked when you need a replacement record for travel reimbursement or tax deductions. Customizable guest details, check-in dates and host fees.",
+      useCases: [
+        "Business-travel lodging reimbursement documentation",
+        "Replacing a lost vacation-rental receipt for tax records",
+        "Short-stay host bookkeeping and per-diem expense logs",
+      ],
     },
   },
   {
@@ -95,8 +99,12 @@ const RAW_TEMPLATES: TemplateDef[] = [
     seo: {
       keyword: "Walmart receipt",
       blurb:
-        "Create a realistic point-of-sale thermal receipt layout styled after major US superstores like Walmart. Includes store numbers, lane/terminal details, and barcode options.",
-      useCases: ["Replacing a lost supercenter receipt", "Retail expense tracking", "Custom cash register simulations"],
+        "Reconstruct a superstore expense receipt in the thermal point-of-sale layout used by big-box retailers like Walmart — for replacing a receipt you lost after a real purchase so you can keep accurate expense and tax records. Includes store/lane details and totals.",
+      useCases: [
+        "Replacing a lost supercenter receipt for expense records",
+        "Small-business retail purchase and tax-deduction tracking",
+        "Reconstructing proof of a purchase you actually made",
+      ],
     },
   },
   {
@@ -111,8 +119,12 @@ const RAW_TEMPLATES: TemplateDef[] = [
     seo: {
       keyword: "Amazon receipt",
       blurb:
-        "Generate a clean, professional online marketplace order receipt styled like Amazon's invoice. Fully customize shipping and billing information, item condition, and tracking numbers.",
-      useCases: ["Business order documentation", "Online purchase proof", "Expense reconciliation"],
+        "Rebuild an online-order expense receipt styled after an Amazon invoice — for documenting a business or personal purchase you actually made when the original order confirmation is lost and you need a record for reimbursement, warranty or tax deductions. Customizable items, shipping and totals.",
+      useCases: [
+        "Documenting business equipment and supply purchases for taxes",
+        "Replacing a lost online-order confirmation for reimbursement",
+        "Expense reconciliation for 1099 and small-business bookkeeping",
+      ],
     },
   },
   {
@@ -127,8 +139,12 @@ const RAW_TEMPLATES: TemplateDef[] = [
     seo: {
       keyword: "Uber receipt",
       blurb:
-        "Generate a clean taxi and rideshare receipt styled after Uber's invoice. Includes driver info, vehicle details, duration, and a styled route line.",
-      useCases: ["Rideshare reimbursement", "Corporate business trip fuel/mileage logging", "Transportation expense reports"],
+        "Reconstruct a rideshare travel-expense receipt styled after an Uber trip invoice — for documenting a ride you actually took when you need a replacement record for work travel reimbursement or a tax deduction. Includes trip, fare and route details.",
+      useCases: [
+        "Rideshare travel-expense reimbursement for work trips",
+        "Replacing a lost trip receipt for 1099 mileage/transport records",
+        "Business-travel transportation expense reports",
+      ],
     },
   },
   {
@@ -143,8 +159,12 @@ const RAW_TEMPLATES: TemplateDef[] = [
     seo: {
       keyword: "Starbucks receipt",
       blurb:
-        "Create a classic coffee shop thermal receipt styled after Starbucks registers. Includes check numbers, reward points trackers, and beverage/food details.",
-      useCases: ["Coffee run logging", "Business meal expensing", "Coffee house POS simulation"],
+        "Reconstruct a coffee-shop expense receipt in the thermal register style used by chains like Starbucks — for documenting a business meeting coffee or meal you actually paid for when you need a replacement record for reimbursement or a meal-expense deduction. Includes items and totals.",
+      useCases: [
+        "Business meeting and client coffee/meal expense documentation",
+        "Replacing a lost café receipt for reimbursement",
+        "Meal-expense record keeping for freelancers and 1099 filers",
+      ],
     },
   },
   {
@@ -366,8 +386,13 @@ const RAW_TEMPLATES: TemplateDef[] = [
     brandLabel: "NIKE",
     seo: {
       keyword: "nike receipt",
-      blurb: "Generate a generic Nike receipt for a recent shoe or apparel purchase.",
-      useCases: ["Proof of purchase", "Expense reporting", "Replacing a lost receipt"],
+      blurb:
+        "Reconstruct an athletic-apparel expense receipt styled after a Nike store purchase — for documenting footwear or gear you actually bought when you need a replacement record for a business expense, resale-inventory log or tax deduction. Customizable items, order number and totals.",
+      useCases: [
+        "Fitness coaches & creators logging apparel/gear as a business expense",
+        "Replacing a lost store receipt for expense records",
+        "Resale-inventory and cost-basis documentation",
+      ],
     },
   },
   {
@@ -381,8 +406,13 @@ const RAW_TEMPLATES: TemplateDef[] = [
     brandLabel: "ADIDAS",
     seo: {
       keyword: "adidas receipt",
-      blurb: "Generate a generic Adidas receipt for a recent shoe or apparel purchase.",
-      useCases: ["Proof of purchase", "Expense reporting", "Replacing a lost receipt"],
+      blurb:
+        "Reconstruct an athletic-apparel expense receipt styled after an Adidas store purchase — for documenting footwear or gear you actually bought when you need a replacement record for a business expense, resale-inventory log or tax deduction. Customizable items, order number and totals.",
+      useCases: [
+        "Fitness coaches & creators logging apparel/gear as a business expense",
+        "Replacing a lost store receipt for expense records",
+        "Resale-inventory and cost-basis documentation",
+      ],
     },
   },
   {
@@ -396,8 +426,13 @@ const RAW_TEMPLATES: TemplateDef[] = [
     brandLabel: "APPLE",
     seo: {
       keyword: "apple receipt",
-      blurb: "Generate a generic Apple receipt for a recent device or accessory purchase.",
-      useCases: ["Proof of purchase", "Warranty records", "Expense reporting"],
+      blurb:
+        "Reconstruct a hardware expense receipt styled after an Apple store purchase — for documenting a Mac, iPhone, iPad or accessory you actually bought when you need a replacement record for business-equipment tax deductions, warranty files or reimbursement. Customizable items, order number and totals.",
+      useCases: [
+        "Documenting business hardware & tech purchases for 1099/small-business taxes",
+        "Warranty and AppleCare expense records",
+        "Replacing a lost device receipt for reimbursement",
+      ],
     },
   },
   {
@@ -411,8 +446,13 @@ const RAW_TEMPLATES: TemplateDef[] = [
     brandLabel: "JORDAN",
     seo: {
       keyword: "jordan receipt",
-      blurb: "Generate a generic Jordan brand receipt for a recent shoe or apparel purchase.",
-      useCases: ["Proof of purchase", "Sneaker collection records", "Expense reporting"],
+      blurb:
+        "Reconstruct a footwear expense receipt styled after a Jordan brand purchase — for documenting sneakers or apparel you actually bought when you need a replacement record for resale cost-basis, a business expense or a tax deduction. Customizable items, order number and totals.",
+      useCases: [
+        "Sneaker resellers logging cost basis for inventory and taxes",
+        "Creators & coaches expensing apparel as a business cost",
+        "Replacing a lost store receipt for expense records",
+      ],
     },
   },
 ];
