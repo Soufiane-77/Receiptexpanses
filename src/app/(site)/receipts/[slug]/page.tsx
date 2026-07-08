@@ -9,7 +9,8 @@ export function generateStaticParams() {
   return TEMPLATES.map((t) => ({ slug: t.id }));
 }
 
-export const dynamicParams = false;
+// No dynamicParams=false here: OpenNext/Cloudflare 404s dynamicParams=false
+// prerendered pages. Unknown ids render on demand and hit notFound() below.
 
 export default async function LegacyReceiptRedirect({
   params,

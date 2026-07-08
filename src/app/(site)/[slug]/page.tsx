@@ -21,10 +21,10 @@ import {
   softwareAppJsonLd,
 } from "@/lib/seo";
 
-// Only the known template slugs render here; every other single-segment path
-// falls through to a 404 (explicit routes like /about, /faq always win).
-export const dynamicParams = false;
-
+// The known template slugs are prerendered (SSG) via generateStaticParams;
+// any other single-segment path renders on demand and 404s via notFound()
+// below. (We intentionally do NOT set dynamicParams=false — OpenNext/Cloudflare
+// fails to serve dynamicParams=false prerendered pages, returning 404.)
 export function generateStaticParams() {
   return TEMPLATE_SLUGS.map((slug) => ({ slug }));
 }
