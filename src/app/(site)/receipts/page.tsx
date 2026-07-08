@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CATEGORIES, TEMPLATES } from "@/templates/registry";
+import { CATEGORIES, TEMPLATES, templateSlug } from "@/templates/registry";
 import TemplateIcon from "@/components/TemplateIcon";
 import JsonLd from "@/components/JsonLd";
 import { ArrowRightIcon } from "@/components/icons";
@@ -38,7 +38,7 @@ export default function ReceiptsIndex() {
           "@type": "ListItem",
           position: i + 1,
           name: `${t.name} Maker`,
-          url: `${SITE_URL}/receipts/${t.id}`,
+          url: `${SITE_URL}/${templateSlug(t)}`,
         })),
       })),
     },
@@ -69,7 +69,7 @@ export default function ReceiptsIndex() {
               {items.map((t) => (
                 <Link
                   key={t.id}
-                  href={`/receipts/${t.id}`}
+                  href={`/${templateSlug(t)}`}
                   className="group flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-elevated"
                 >
                   <span

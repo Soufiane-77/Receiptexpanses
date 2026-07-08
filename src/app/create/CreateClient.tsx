@@ -29,17 +29,25 @@ function withDefaults(receipt: Receipt): Receipt {
   };
 }
 
-export default function CreateClient() {
+export default function CreateClient({ template }: { template?: string }) {
   const [initial, setInitial] = useState<Receipt | null>(null);
 
   useEffect(() => {
-    // Read the requested template from the URL query (`?template=`) on the
-    // client, so the page can be statically exported.
-    const template = new URLSearchParams(window.location.search).get("template");
+    // Prefer the path param (/create/{id}). For back-compat, still honour a
+    // legacy `?template=` query — but rewrite the URL to the clean path so the
+    // old query-string URL stops existing.
+    let tpl = template ?? null;
+    if (!tpl) {
+      const q = new URLSearchParams(window.location.search).get("template");
+      if (q) {
+        tpl = q;
+        window.history.replaceState(null, "", `/create/${q}`);
+      }
+    }
     // If a template is explicitly requested, start fresh from its preset
     // (with admin defaults applied). Otherwise restore the saved draft.
-    if (template) {
-      setInitial(applyTemplateCustomization(withDefaults(presetFor(template)), template));
+    if (tpl) {
+      setInitial(applyTemplateCustomization(withDefaults(presetFor(tpl)), tpl));
       return;
     }
     setInitial(
@@ -49,7 +57,7 @@ export default function CreateClient() {
           DEFAULT_TEMPLATE_ID,
         ),
     );
-  }, []);
+  }, [template]);
 
   if (!initial) {
     return (

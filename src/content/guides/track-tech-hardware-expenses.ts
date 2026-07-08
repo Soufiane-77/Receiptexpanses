@@ -48,7 +48,7 @@ export const trackTechHardwareExpenses: Guide = {
     },
     {
       "type": "p",
-      "text": "If you buy from a marketplace or a brand's own store, the emailed order confirmation usually works as your receipt — save the PDF. For an in-person purchase where the paper slip faded or went missing, you can reconstruct a clean, itemized record of the real purchase you made using a tool like [ReceiptExpenses](/create?template=electronics). See our guide on creating a [replacement receipt for taxes](/guides/replacement-receipt-for-taxes) for how to do that responsibly."
+      "text": "If you buy from a marketplace or a brand's own store, the emailed order confirmation usually works as your receipt — save the PDF. For an in-person purchase where the paper slip faded or went missing, you can reconstruct a clean, itemized record of the real purchase you made using a tool like [ReceiptExpenses](/create/electronics). See our guide on creating a [replacement receipt for taxes](/guides/replacement-receipt-for-taxes) for how to do that responsibly."
     },
     {
       "type": "h2",
@@ -128,12 +128,12 @@ export const trackTechHardwareExpenses: Guide = {
     },
     {
       "type": "p",
-      "text": "When you buy from a specific store or brand and want a matching, itemized record of your real purchase, ReceiptExpenses has templates for common tech sources like [electronics retailers](/receipts/electronics) and an [Apple-style](/receipts/apple) layout. ReceiptExpenses is an independent tool and is not affiliated with or endorsed by Apple or any brand — the brand-style templates simply help you reproduce a clean receipt for a purchase you actually made."
+      "text": "When you buy from a specific store or brand and want a matching, itemized record of your real purchase, ReceiptExpenses has templates for common tech sources like [electronics retailers](/electronics-receipt-generator) and an [Apple-style](/apple-receipt-generator) layout. ReceiptExpenses is an independent tool and is not affiliated with or endorsed by Apple or any brand — the brand-style templates simply help you reproduce a clean receipt for a purchase you actually made."
     },
     {
       "type": "cta",
       "text": "Missing a receipt for a computer or camera you bought for work? Rebuild a clean, itemized record of the real purchase.",
-      "url": "/create?template=electronics",
+      "url": "/create/electronics",
       "label": "Make an electronics receipt"
     },
     {
@@ -159,7 +159,7 @@ export const trackTechHardwareExpenses: Guide = {
         },
         {
           "q": "What counts as a valid receipt for hardware?",
-          "a": "A valid record shows the vendor, the purchase date, an itemized description of the device, the amount paid (including tax), and the payment method. An emailed order confirmation usually qualifies. If your paper receipt is lost or faded, you can reconstruct an accurate record of the real purchase using our [electronics receipt template](/receipts/electronics)."
+          "a": "A valid record shows the vendor, the purchase date, an itemized description of the device, the amount paid (including tax), and the payment method. An emailed order confirmation usually qualifies. If your paper receipt is lost or faded, you can reconstruct an accurate record of the real purchase using our [electronics receipt template](/electronics-receipt-generator)."
         },
         {
           "q": "What is Section 179 in simple terms?",
@@ -177,7 +177,7 @@ export const trackTechHardwareExpenses: Guide = {
     },
     {
       "type": "p",
-      "text": "Track your gear the way you'd want to explain it later: one receipt per device, an honest note on business use, and a backup you can find in a year. That habit turns tax season from a scramble into a quick export. Start your next record with a [receipt template](/create?template=electronics) built for tech purchases."
+      "text": "Track your gear the way you'd want to explain it later: one receipt per device, an honest note on business use, and a backup you can find in a year. That habit turns tax season from a scramble into a quick export. Start your next record with a [receipt template](/create/electronics) built for tech purchases."
     }
   ],
   "howToSteps": [

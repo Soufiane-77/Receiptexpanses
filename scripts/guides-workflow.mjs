@@ -15,14 +15,46 @@ brand-STYLE templates like Walmart, Amazon, Uber, Apple, Nike, Jordan, Airbnb, S
 fill a live form, preview in real time, and download a pixel-perfect PDF/PNG or print. 100%
 client-side — receipt content never leaves the browser. Building & previewing need no account;
 downloading/printing/saving need only a FREE account (email or Google). No paid tier currently.
-The receipt editor lives at /create (deep-link a template with /create?template=<id>). Template
-landing pages are /receipts/<id>. Other pages: /receipts (all types), /faq, /about, /blogs.
+The receipt editor lives at /create (deep-link a template with /create/<id>). Each template
+also has a keyword landing page at a top-level slug like /apple-receipt-generator (see the
+TEMPLATE LINK MAP). Other pages: /receipts (all types), /guides, /faq, /about, /blogs.
 `.trim()
 
 const TEMPLATE_IDS = `
 generic, service, marketplace (online order), restaurant, cafe, thermal, grocery, bigbox,
 fuel, taxi, parking, hotel, vacation-rental, pharmacy, electronics, airbnb, walmart, amazon,
 uber, starbucks, nike, adidas, apple, jordan
+`.trim()
+
+// TEMPLATE LINK MAP — canonical internal-link URLs per template. For in-body
+// cross-links use the LANDING page; for a CTA use the EDITOR path. NEVER emit
+// the legacy /receipts/<id> or /create?template=<id> forms (they only redirect).
+const TEMPLATE_LINKS = `
+TEMPLATE LINK MAP (in-body cross-link → landing page; CTA → editor path):
+- generic → landing /sales-receipt-generator, editor /create/generic
+- service → landing /service-receipt-generator, editor /create/service
+- marketplace → landing /online-order-receipt-generator, editor /create/marketplace
+- restaurant → landing /restaurant-receipt-generator, editor /create/restaurant
+- cafe → landing /coffee-shop-receipt-generator, editor /create/cafe
+- thermal → landing /pos-receipt-generator, editor /create/thermal
+- grocery → landing /grocery-receipt-generator, editor /create/grocery
+- bigbox → landing /superstore-receipt-generator, editor /create/bigbox
+- fuel → landing /gas-receipt-generator, editor /create/fuel
+- taxi → landing /taxi-receipt-generator, editor /create/taxi
+- parking → landing /parking-receipt-generator, editor /create/parking
+- hotel → landing /hotel-receipt-generator, editor /create/hotel
+- vacation-rental → landing /vacation-rental-receipt-generator, editor /create/vacation-rental
+- pharmacy → landing /pharmacy-receipt-generator, editor /create/pharmacy
+- electronics → landing /electronics-receipt-generator, editor /create/electronics
+- airbnb → landing /airbnb-receipt-generator, editor /create/airbnb
+- walmart → landing /walmart-receipt-generator, editor /create/walmart
+- amazon → landing /amazon-receipt-generator, editor /create/amazon
+- uber → landing /uber-receipt-generator, editor /create/uber
+- starbucks → landing /starbucks-receipt-generator, editor /create/starbucks
+- nike → landing /nike-receipt-generator, editor /create/nike
+- adidas → landing /adidas-receipt-generator, editor /create/adidas
+- apple → landing /apple-receipt-generator, editor /create/apple
+- jordan → landing /jordan-receipt-generator, editor /create/jordan
 `.trim()
 
 const GUIDE_SLUGS = `
@@ -57,10 +89,11 @@ The "body" is an array of Block objects. Allowed block shapes ONLY:
   {"type":"ul","items":["...","..."]}                    bullet list
   {"type":"ol","items":["...","..."]}                    numbered list
   {"type":"table","headers":["A","B"],"rows":[["1","2"]]} comparison table
-  {"type":"cta","text":"...","url":"/create?template=generic","label":"Make a receipt"}
+  {"type":"cta","text":"...","url":"/create/generic","label":"Make a receipt"}
   {"type":"faq","items":[{"q":"...","a":"..."}]}         FAQ block (harvested into FAQPage schema)
-Inline markdown INSIDE any text/items/cell: [anchor](/receipts/uber) for internal links and
-**bold**. Use internal links liberally to relevant /receipts/<id> template pages and /create.
+Inline markdown INSIDE any text/items/cell: [anchor](/uber-receipt-generator) for internal links and
+**bold**. Use internal links liberally to the template LANDING pages and /create/<id> editor
+paths in the TEMPLATE LINK MAP (never the legacy /receipts/<id> or /create?template=<id> forms).
 Do NOT use "image" blocks (we have no real images for these). Do NOT invent other block types.
 The FIRST block MUST be a {"type":"p"} that is a complete, self-contained, definition-first answer
 to the page's core question (answer-first / GEO best practice).
@@ -102,7 +135,7 @@ const GUIDES = [
     block contrasting receipt vs invoice across: purpose, when issued (before vs after payment),
     what it proves, typical fields, and who needs it. Definition-first opening defines both terms in
     one paragraph. Target queries: "receipt vs invoice", "difference between invoice and receipt".
-    Category "Comparisons". Cross-link /receipts/service and /receipts/generic. No HowTo.`,
+    Category "Comparisons". Cross-link /service-receipt-generator and /sales-receipt-generator. No HowTo.`,
   },
   {
     slug: 'how-to-write-a-receipt',
@@ -110,7 +143,7 @@ const GUIDES = [
     {"type":"ol"} of the steps to write a valid receipt (date, seller, buyer, itemized lines,
     subtotal/tax/total, payment method, receipt number), and populate howToSteps to mirror that ol
     exactly. Definition-first opening. Category "Guides". Strong CTA to /create. Cross-link
-    /receipts/generic, /receipts/service. Targets: "how to write a receipt", "small business receipt template".`,
+    /sales-receipt-generator, /service-receipt-generator. Targets: "how to write a receipt", "small business receipt template".`,
   },
   {
     slug: 'replacement-receipt-for-taxes',
@@ -119,7 +152,7 @@ const GUIDES = [
     ORIGINAL receipt is lost — reconstructing an accurate record of a real purchase (bank/card
     statement + reconstructed receipt), NOT fabricating a purchase. Category "Taxes". Include a
     numbered ol of how to reconstruct a lost receipt properly + howToSteps. Brand mentions must be
-    safe per guardrails. Cross-link /receipts/apple, /receipts/amazon, /receipts/electronics and the
+    safe per guardrails. Cross-link /apple-receipt-generator, /amazon-receipt-generator, /electronics-receipt-generator and the
     guide track-tech-hardware-expenses. Targets: "lost receipt for taxes", "replacement receipt".`,
   },
   {
@@ -127,8 +160,8 @@ const GUIDES = [
     brief: `"Rideshare Expense Tracking: How to Handle a Lost Uber or Lyft Receipt". How to retrieve or
     reconstruct a rideshare receipt for a ride you actually took, for work-travel reimbursement or a
     mileage/transport deduction. Note the legit first step is checking the app's trip history/email;
-    reconstruction is for when that's unavailable. Category "Taxes". Cross-link /receipts/uber,
-    /receipts/taxi. Include an faq block. Targets: "lost uber receipt for work",
+    reconstruction is for when that's unavailable. Category "Taxes". Cross-link /uber-receipt-generator,
+    /taxi-receipt-generator. Include an faq block. Targets: "lost uber receipt for work",
     "how to get rideshare receipts for taxes".`,
   },
   {
@@ -139,8 +172,8 @@ const GUIDES = [
     citation. MUST include a {"type":"table"} of representative states and their rent-receipt rule
     (e.g. Maryland, Massachusetts, New York, Washington — describe generally, note "verify current
     local law"). Include a numbered ol of what a rent receipt must contain + howToSteps. Include the
-    "not legal advice, verify local law" note. Category "Guides". Cross-link /receipts/generic,
-    /receipts/service. Targets: "rent receipt template", "rent receipt requirements".`,
+    "not legal advice, verify local law" note. Category "Guides". Cross-link /sales-receipt-generator,
+    /service-receipt-generator. Targets: "rent receipt template", "rent receipt requirements".`,
   },
   {
     slug: 'gig-worker-1099-receipts',
@@ -148,7 +181,7 @@ const GUIDES = [
     receipts for deductible expenses (mileage/fuel, phone, supplies, home office, platform fees).
     General tax framing + "not tax advice, consult a professional" note. Category "Taxes". Include an
     faq block (e.g. "Do I need receipts if I have bank statements?", "How long to keep receipts?").
-    Cross-link /receipts/fuel, /receipts/taxi, /receipts/uber and guide what-makes-a-receipt-valid.
+    Cross-link /gas-receipt-generator, /taxi-receipt-generator, /uber-receipt-generator and guide what-makes-a-receipt-valid.
     Targets: "gig worker tax deduction receipts", "1099 expense tracking".`,
   },
   {
@@ -156,7 +189,7 @@ const GUIDES = [
     brief: `"What Has to Be on a Legally Valid Receipt". Definition-first: list the elements a receipt
     needs to be useful for tax/reimbursement (seller name & contact, date, itemized description,
     amount & currency, tax, total, payment method, receipt number). MUST include a {"type":"ul"} or
-    ol of the required elements. Category "Guides". Include an faq block. Cross-link /receipts/generic
+    ol of the required elements. Category "Guides". Include an faq block. Cross-link /sales-receipt-generator
     and guide how-to-write-a-receipt. Targets: "what information should be on a receipt",
     "legal receipt requirements".`,
   },
@@ -174,7 +207,7 @@ const GUIDES = [
     brief: `"Do Freelancers Need to Give Clients a Receipt?" Direct-answer: distinguish invoice (request
     for payment) vs receipt (proof payment was made), when a client can request a receipt, and why
     issuing one is good practice. Category "Guides". MUST include an faq block. Cross-link
-    /receipts/service, /create?template=service and guide receipt-vs-invoice. Targets:
+    /service-receipt-generator, /create/service and guide receipt-vs-invoice. Targets:
     "freelancer receipt requirements", "invoice vs receipt for freelancers".`,
   },
   {
@@ -183,7 +216,7 @@ const GUIDES = [
     computers, phones, cameras: how to document hardware purchases, keep receipts, and the general
     idea of deducting/depreciating business equipment (general, "consult a tax pro" caveat; mention
     Section 179 only in general terms, not as guaranteed specifics). Category "Taxes". Cross-link
-    /receipts/apple, /receipts/electronics and guide replacement-receipt-for-taxes. Include an faq
+    /apple-receipt-generator, /electronics-receipt-generator and guide replacement-receipt-for-taxes. Include an faq
     block. Targets: "track hardware expenses 1099", "deduct computer for business".`,
   },
 ]
@@ -200,8 +233,9 @@ cornerstone guide page for ReceiptExpenses as validated JSON matching the output
 PRODUCT CONTEXT:
 ${PRODUCT}
 
-Available template ids for internal links (use /receipts/<id> or /create?template=<id>):
-${TEMPLATE_IDS}
+Valid template ids: ${TEMPLATE_IDS}
+Internal-link URLs to use (landing page for in-body links, editor path for CTAs):
+${TEMPLATE_LINKS}
 
 Other guide slugs in this set (cross-link a few via /guides/<slug>):
 ${GUIDE_SLUGS}
@@ -214,7 +248,7 @@ WRITING STYLE FOR ANSWER ENGINES (GEO/AEO):
 - First body block = a complete, standalone, definition-first answer (2–4 sentences).
 - One idea per H2 section; use ol for any sequence of steps; use a table where comparing things.
 - Include at least one {"type":"faq"} block with 3–5 real Q&As targeting long-tail queries.
-- Include one {"type":"cta"} block pointing to the most relevant /create?template=<id>.
+- Include one {"type":"cta"} block pointing to the most relevant /create/<id>.
 - ~700–1100 words of substantive copy. Natural keyword use, no stuffing.
 - Set the slug field to EXACTLY "${g.slug}".
 
@@ -243,7 +277,9 @@ Check and FIX every issue:
    fits naturally OR drop howToSteps. If the brief said the page MUST include a table/ol/faq, ensure
    it is present.
 3. QUALITY — first block is a genuine definition-first answer; every block type is valid per the
-   spec; internal links point to real template ids (${TEMPLATE_IDS}) or /guides/<slug> from this set
+   spec; internal links use ONLY the canonical URLs from the TEMPLATE LINK MAP (${TEMPLATE_LINKS})
+   — landing pages like /apple-receipt-generator or editor paths like /create/apple, NEVER legacy
+   /receipts/<id> or /create?template=<id> — plus /guides/<slug> from this set
    (${GUIDE_SLUGS}) or /create; no lorem/TODO; complete publishable copy; ~700+ words.
 4. slug must equal "${g.slug}".
 

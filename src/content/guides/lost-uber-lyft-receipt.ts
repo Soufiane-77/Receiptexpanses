@@ -55,7 +55,7 @@ export const lostUberLyftReceipt: Guide = {
     },
     {
       "type": "p",
-      "text": "With those details in hand, you can generate a tidy, human-readable receipt to attach to your expense report or tax folder. A [rideshare-style receipt template](/receipts/uber) or a general [taxi receipt](/receipts/taxi) lets you record the fare, date, pickup and drop-off, and total in a consistent format. Build and preview it free in the [receipt editor](/create?template=uber); ReceiptExpenses is an independent tool and is not affiliated with, endorsed by, or connected to Uber, Lyft, or any rideshare company."
+      "text": "With those details in hand, you can generate a tidy, human-readable receipt to attach to your expense report or tax folder. A [rideshare-style receipt template](/uber-receipt-generator) or a general [taxi receipt](/taxi-receipt-generator) lets you record the fare, date, pickup and drop-off, and total in a consistent format. Build and preview it free in the [receipt editor](/create/uber); ReceiptExpenses is an independent tool and is not affiliated with, endorsed by, or connected to Uber, Lyft, or any rideshare company."
     },
     {
       "type": "p",
@@ -64,7 +64,7 @@ export const lostUberLyftReceipt: Guide = {
     {
       "type": "cta",
       "text": "Reconstruct a receipt for a rideshare trip you actually took, using the real amount from your statement.",
-      "url": "/create?template=uber",
+      "url": "/create/uber",
       "label": "Make a rideshare receipt"
     },
     {

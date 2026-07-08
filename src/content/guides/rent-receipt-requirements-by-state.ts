@@ -14,7 +14,7 @@ export const rentReceiptRequirementsByState: Guide = {
   "body": [
     {
       "type": "p",
-      "text": "A **rent receipt** is a written record, given by a landlord or property manager to a tenant, that confirms a specific rent payment was made. A valid rent receipt shows the amount paid, the date it was paid, the rental period it covers, the payment method, the property address, and the names of both the tenant and the person who received the money. In several US states, tenants have a statutory right to request a rent receipt — most commonly when rent is paid in cash — and some states require landlords to provide one automatically. You can build a clean, professional rent receipt in a browser with the [free receipt maker](/create?template=service) and download it as a PDF or PNG in seconds."
+      "text": "A **rent receipt** is a written record, given by a landlord or property manager to a tenant, that confirms a specific rent payment was made. A valid rent receipt shows the amount paid, the date it was paid, the rental period it covers, the payment method, the property address, and the names of both the tenant and the person who received the money. In several US states, tenants have a statutory right to request a rent receipt — most commonly when rent is paid in cash — and some states require landlords to provide one automatically. You can build a clean, professional rent receipt in a browser with the [free receipt maker](/create/service) and download it as a PDF or PNG in seconds."
     },
     {
       "type": "h2",
@@ -96,12 +96,12 @@ export const rentReceiptRequirementsByState: Guide = {
     },
     {
       "type": "p",
-      "text": "If you're not sure which layout to use, the general-purpose [receipt template](/receipts/generic) and the [service receipt template](/receipts/service) both handle rent payments well — add the property address and rental period in the line-item and notes fields."
+      "text": "If you're not sure which layout to use, the general-purpose [receipt template](/sales-receipt-generator) and the [service receipt template](/service-receipt-generator) both handle rent payments well — add the property address and rental period in the line-item and notes fields."
     },
     {
       "type": "cta",
       "text": "Build a professional rent receipt in your browser — fill the form, preview it live, and download a PDF or PNG. It's free and your details never leave your device.",
-      "url": "/create?template=service",
+      "url": "/create/service",
       "label": "Make a rent receipt"
     },
     {
@@ -115,7 +115,7 @@ export const rentReceiptRequirementsByState: Guide = {
     {
       "type": "ol",
       "items": [
-        "Open the [receipt editor](/create?template=service) and pick the service or generic template.",
+        "Open the [receipt editor](/create/service) and pick the service or generic template.",
         "Enter the landlord/agent name as the issuer and the tenant name as the recipient.",
         "Add the property address, then a single line item like \"June 2026 rent\" with the amount.",
         "Set the payment date and select the payment method (mark it clearly if it was cash).",
@@ -152,7 +152,7 @@ export const rentReceiptRequirementsByState: Guide = {
         },
         {
           "q": "Can I make my own rent receipt?",
-          "a": "Yes. A landlord, property manager, or tenant can create a rent receipt as long as it contains the required details. You can build one for free with the [ReceiptExpenses editor](/create?template=service), preview it, and download a PDF or PNG — everything stays in your browser. ReceiptExpenses is an independent tool and is not affiliated with any landlord, property manager, or government agency."
+          "a": "Yes. A landlord, property manager, or tenant can create a rent receipt as long as it contains the required details. You can build one for free with the [ReceiptExpenses editor](/create/service), preview it, and download a PDF or PNG — everything stays in your browser. ReceiptExpenses is an independent tool and is not affiliated with any landlord, property manager, or government agency."
         },
         {
           "q": "Should I keep a copy of every rent receipt?",

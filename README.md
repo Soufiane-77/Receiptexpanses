@@ -95,9 +95,10 @@ Requires **Node 18.18+** (developed on Node 24).
 | Path | Type | Purpose |
 |---|---|---|
 | `/` | Static | Landing: hero, template grid, why/how/FAQ |
-| `/create` | Dynamic | The editor (reads `?template=<id>` or the saved draft) |
+| `/create`, `/create/[id]` | Dynamic | The editor (`/create/{id}` preselects a template; plain `/create` restores the draft) |
 | `/receipts` | Static | All receipt types, grouped by category (SEO hub) |
-| `/receipts/[slug]` | SSG | One landing page **per template** (SEO) |
+| `/[keyword]-receipt-generator` | SSG | One keyword landing page **per template** (SEO), e.g. `/apple-receipt-generator` |
+| `/receipts/[slug]` | Redirect | Legacy per-template URL → 308 to `/[keyword]-receipt-generator` |
 | `/pricing` | Static | Free vs Pro plans |
 | `/dashboard` | Client | Auth-gated user dashboard |
 | `/login`, `/signup` | Static | Auth pages |
@@ -230,12 +231,14 @@ truth**. Each entry is:
   category,                    // "Business" | "Food & Drink" | "Retail" | "Travel" | "Services"
   thumbnail,                   // emoji fallback (UI renders <TemplateIcon> instead)
   Component,                   // a layout component taking { receipt, totals }
-  seo: { keyword, blurb, useCases }   // drives the /receipts/[id] landing page
+  seo: { keyword, blurb, useCases }   // drives the /{keyword}-receipt-generator landing page
 }
 ```
 
-Because the grid, editor dropdown, `/receipts/[slug]` SEO pages, the sitemap, and
-`presetFor()` all **derive from this array**, adding one entry wires up the whole app.
+The landing slug is `${slugify(seo.keyword)}-generator` (via `templateSlug()`), overridable
+with an optional `seoSlug`. Because the grid, editor dropdown, `/[keyword]-receipt-generator`
+SEO pages, the sitemap, and `presetFor()` all **derive from this array**, adding one entry wires
+up the whole app.
 Layout components are reusable — 15 templates are built from 6 layouts.
 
 ### 3. The live editor
@@ -295,8 +298,9 @@ live in `localStorage`; the gate is convenience, not security.
 
 ### 9. SEO system
 
-- **Per-type landing pages** `/receipts/[slug]` (SSG via `generateStaticParams`) with
-  keyword titles, H1, how-it-works, use cases, FAQ, related links, CTA into the editor.
+- **Per-type landing pages** at keyword slugs `/[keyword]-receipt-generator` (`(site)/[slug]`,
+  SSG via `generateStaticParams` from `TEMPLATE_SLUGS`) with keyword titles, H1, how-it-works,
+  use cases, FAQ, related links, CTA into the editor. Old `/receipts/[slug]` 308-redirects here.
 - **JSON-LD** (`components/JsonLd.tsx`): `WebApplication` + `Organization` + `FAQPage`
   on home; `SoftwareApplication` + `FAQPage` + `BreadcrumbList` on each type page;
   `BlogPosting` on posts.
@@ -349,7 +353,7 @@ in **[SETUP-CLOUDFLARE.md](./SETUP-CLOUDFLARE.md#6-autopilot-blog)**.
 2. Add one entry to `TEMPLATES` in `registry.tsx` (set `category` + `seo`).
 3. Add a preset to `PRESETS` in `lib/samples.ts` and an icon mapping in `TemplateIcon.tsx`
    (add the SVG to `icons.tsx` if new).
-4. Done — grid, editor, `/receipts/<id>`, and the sitemap update automatically.
+4. Done — grid, editor, the `/[keyword]-receipt-generator` landing page, and the sitemap update automatically.
 
 **Add a currency** — append to `CURRENCIES` in `lib/currencies.ts` (code + label + locale).
 

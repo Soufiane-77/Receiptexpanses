@@ -38,38 +38,38 @@ ReceiptExpenses helps people and small businesses create receipts for their **ow
 ## Receipt templates by category
 
 ### Business
-- [Generic Sales Receipt Maker](https://receiptexpenses.com/receipts/generic): clean itemized sales receipt for any business.
-- [Online Order Receipt Maker](https://receiptexpenses.com/receipts/marketplace): e-commerce order confirmation receipt.
+- [Generic Sales Receipt Maker](https://receiptexpenses.com/sales-receipt-generator): clean itemized sales receipt for any business.
+- [Online Order Receipt Maker](https://receiptexpenses.com/online-order-receipt-generator): e-commerce order confirmation receipt.
 
 ### Retail
-- [Walmart Style Receipt Maker](https://receiptexpenses.com/receipts/walmart): thermal POS superstore receipt template (independent, for lost-receipt reconstruction).
-- [Amazon Style Invoice Maker](https://receiptexpenses.com/receipts/amazon): online marketplace order receipt template.
-- [Nike Receipt Maker](https://receiptexpenses.com/receipts/nike): sportswear retail receipt template.
-- [Adidas Receipt Maker](https://receiptexpenses.com/receipts/adidas): sportswear retail receipt template.
-- [Apple Receipt Maker](https://receiptexpenses.com/receipts/apple): electronics store receipt template.
-- [Jordan Receipt Maker](https://receiptexpenses.com/receipts/jordan): sneaker retail receipt template.
-- [Thermal / POS Receipt Maker](https://receiptexpenses.com/receipts/thermal): generic cash-register slip.
-- [Grocery / Market Receipt Maker](https://receiptexpenses.com/receipts/grocery): supermarket receipt.
-- [Superstore / Big-Box Receipt Maker](https://receiptexpenses.com/receipts/bigbox): big-box store receipt.
-- [Electronics Store Receipt Maker](https://receiptexpenses.com/receipts/electronics): electronics purchase receipt.
+- [Walmart Style Receipt Maker](https://receiptexpenses.com/walmart-receipt-generator): thermal POS superstore receipt template (independent, for lost-receipt reconstruction).
+- [Amazon Style Invoice Maker](https://receiptexpenses.com/amazon-receipt-generator): online marketplace order receipt template.
+- [Nike Receipt Maker](https://receiptexpenses.com/nike-receipt-generator): sportswear retail receipt template.
+- [Adidas Receipt Maker](https://receiptexpenses.com/adidas-receipt-generator): sportswear retail receipt template.
+- [Apple Receipt Maker](https://receiptexpenses.com/apple-receipt-generator): electronics store receipt template.
+- [Jordan Receipt Maker](https://receiptexpenses.com/jordan-receipt-generator): sneaker retail receipt template.
+- [Thermal / POS Receipt Maker](https://receiptexpenses.com/pos-receipt-generator): generic cash-register slip.
+- [Grocery / Market Receipt Maker](https://receiptexpenses.com/grocery-receipt-generator): supermarket receipt.
+- [Superstore / Big-Box Receipt Maker](https://receiptexpenses.com/superstore-receipt-generator): big-box store receipt.
+- [Electronics Store Receipt Maker](https://receiptexpenses.com/electronics-receipt-generator): electronics purchase receipt.
 
 ### Food & Drink
-- [Restaurant Receipt Maker](https://receiptexpenses.com/receipts/restaurant): itemized dining receipt with tip.
-- [Café / Coffee Receipt Maker](https://receiptexpenses.com/receipts/cafe): coffee-shop receipt.
-- [Starbucks Style Receipt Maker](https://receiptexpenses.com/receipts/starbucks): coffee-chain style receipt template.
+- [Restaurant Receipt Maker](https://receiptexpenses.com/restaurant-receipt-generator): itemized dining receipt with tip.
+- [Café / Coffee Receipt Maker](https://receiptexpenses.com/coffee-shop-receipt-generator): coffee-shop receipt.
+- [Starbucks Style Receipt Maker](https://receiptexpenses.com/starbucks-receipt-generator): coffee-chain style receipt template.
 
 ### Travel
-- [Airbnb Style Receipt Maker](https://receiptexpenses.com/receipts/airbnb): vacation rental / lodging receipt template with check-in details.
-- [Uber Style Ride Receipt Maker](https://receiptexpenses.com/receipts/uber): rideshare trip receipt template.
-- [Hotel / Lodging Receipt Maker](https://receiptexpenses.com/receipts/hotel): hotel folio receipt.
-- [Vacation Rental Receipt Maker](https://receiptexpenses.com/receipts/vacation-rental): short-stay rental receipt.
-- [Fuel / Gas Receipt Maker](https://receiptexpenses.com/receipts/fuel): gas station receipt.
-- [Taxi / Transport Receipt Maker](https://receiptexpenses.com/receipts/taxi): taxi fare receipt.
-- [Parking Receipt Maker](https://receiptexpenses.com/receipts/parking): parking fee receipt.
+- [Airbnb Style Receipt Maker](https://receiptexpenses.com/airbnb-receipt-generator): vacation rental / lodging receipt template with check-in details.
+- [Uber Style Ride Receipt Maker](https://receiptexpenses.com/uber-receipt-generator): rideshare trip receipt template.
+- [Hotel / Lodging Receipt Maker](https://receiptexpenses.com/hotel-receipt-generator): hotel folio receipt.
+- [Vacation Rental Receipt Maker](https://receiptexpenses.com/vacation-rental-receipt-generator): short-stay rental receipt.
+- [Fuel / Gas Receipt Maker](https://receiptexpenses.com/gas-receipt-generator): gas station receipt.
+- [Taxi / Transport Receipt Maker](https://receiptexpenses.com/taxi-receipt-generator): taxi fare receipt.
+- [Parking Receipt Maker](https://receiptexpenses.com/parking-receipt-generator): parking fee receipt.
 
 ### Services
-- [Service Invoice Receipt Maker](https://receiptexpenses.com/receipts/service): labor/service payment receipt.
-- [Pharmacy Receipt Maker](https://receiptexpenses.com/receipts/pharmacy): pharmacy purchase receipt.
+- [Service Invoice Receipt Maker](https://receiptexpenses.com/service-receipt-generator): labor/service payment receipt.
+- [Pharmacy Receipt Maker](https://receiptexpenses.com/pharmacy-receipt-generator): pharmacy purchase receipt.
 
 ## How it works
 

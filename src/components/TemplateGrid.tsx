@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CATEGORIES, TEMPLATES, type TemplateCategory, type TemplateDef } from "@/templates/registry";
+import { CATEGORIES, TEMPLATES, templateSlug, type TemplateCategory, type TemplateDef } from "@/templates/registry";
 import { enabledTemplateDefs } from "@/lib/adminSettings";
 import TemplateIcon from "./TemplateIcon";
 import { templateName, templateDescription, templateLogo } from "@/lib/templateCustomize";
@@ -54,7 +54,7 @@ export default function TemplateGrid() {
           return (
             <Link
               key={t.id}
-              href={`/create?template=${t.id}`}
+              href={`/${templateSlug(t)}`}
               className="group flex cursor-pointer flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-card transition duration-200 hover:-translate-y-1 hover:border-brand-300 hover:shadow-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
             >
               {/* Icon area — brand templates get their brand color background */}

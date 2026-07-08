@@ -46,8 +46,8 @@ export const gigWorker1099Receipts: Guide = {
       "rows": [
         [
           "Vehicle — mileage or actual costs",
-          "Miles driven for deliveries/rides, [fuel](/receipts/fuel), tolls, parking, maintenance",
-          "Mileage log with dates + purpose, or [fuel receipts](/receipts/fuel) and repair invoices if using actual costs"
+          "Miles driven for deliveries/rides, [fuel](/gas-receipt-generator), tolls, parking, maintenance",
+          "Mileage log with dates + purpose, or [fuel receipts](/gas-receipt-generator) and repair invoices if using actual costs"
         ],
         [
           "Phone & data",
@@ -78,7 +78,7 @@ export const gigWorker1099Receipts: Guide = {
     },
     {
       "type": "p",
-      "text": "For the vehicle category, most gig drivers choose between a **standard mileage rate** and **actual expenses** — you generally cannot mix methods freely once chosen, so pick deliberately and keep the matching records. A contemporaneous mileage log (date, miles, and business purpose) is the backbone either way. Rideshare and delivery drivers can rebuild trip records from a [taxi/rideshare receipt](/receipts/taxi) or an [Uber-style ride receipt](/receipts/uber) when a specific paid trip needs documenting."
+      "text": "For the vehicle category, most gig drivers choose between a **standard mileage rate** and **actual expenses** — you generally cannot mix methods freely once chosen, so pick deliberately and keep the matching records. A contemporaneous mileage log (date, miles, and business purpose) is the backbone either way. Rideshare and delivery drivers can rebuild trip records from a [taxi/rideshare receipt](/taxi-receipt-generator) or an [Uber-style ride receipt](/uber-receipt-generator) when a specific paid trip needs documenting."
     },
     {
       "type": "h2",
@@ -105,12 +105,12 @@ export const gigWorker1099Receipts: Guide = {
     },
     {
       "type": "p",
-      "text": "Use this only to document genuine purchases you made. Never recreate a receipt to invent an expense you did not incur, to mislead a platform, or to claim a deduction that isn't real — that defeats the purpose and creates real risk. ReceiptExpenses offers brand-*style* templates (for example, an [Uber-style](/receipts/uber) layout for a ride you took or a [fuel](/receipts/fuel) layout for gas you bought); it is an independent tool and is not affiliated with, endorsed by, or connected to any of the brands its templates resemble."
+      "text": "Use this only to document genuine purchases you made. Never recreate a receipt to invent an expense you did not incur, to mislead a platform, or to claim a deduction that isn't real — that defeats the purpose and creates real risk. ReceiptExpenses offers brand-*style* templates (for example, an [Uber-style](/uber-receipt-generator) layout for a ride you took or a [fuel](/gas-receipt-generator) layout for gas you bought); it is an independent tool and is not affiliated with, endorsed by, or connected to any of the brands its templates resemble."
     },
     {
       "type": "cta",
       "text": "Rebuild a missing fuel or mileage receipt for a real trip and export a clean PDF for your tax file.",
-      "url": "/create?template=fuel",
+      "url": "/create/fuel",
       "label": "Make a fuel receipt"
     },
     {

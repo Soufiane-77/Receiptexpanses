@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { POSTS } from "@/lib/blog";
-import { TEMPLATES } from "@/templates/registry";
+import { TEMPLATES, templateSlug } from "@/templates/registry";
 import { GUIDES } from "@/content/guides";
 import { SITE_URL } from "@/lib/seo";
 import { getDB } from "@/lib/server/db";
@@ -37,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const receiptTypes = TEMPLATES.map((t) => ({
-    url: `${SITE_URL}/receipts/${t.id}`,
+    url: `${SITE_URL}/${templateSlug(t)}`,
     lastModified: now,
     changeFrequency: "monthly" as const,
     priority: 0.8,

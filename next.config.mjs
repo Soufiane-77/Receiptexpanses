@@ -1,6 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      // Kill the legacy editor query URL: /create?template=jordan → /create/jordan
+      {
+        source: "/create",
+        has: [{ type: "query", key: "template", value: "(?<t>[^&/]+)" }],
+        destination: "/create/:t",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

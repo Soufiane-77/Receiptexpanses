@@ -28,7 +28,7 @@ dev server makes the build worker crash).
 - **Accounts + dashboard** (`/dashboard`), **subscription** (`/pricing`, Free/Pro),
   **blog** (`/blogs`), **admin** (`/admin`, password `admin`).
   Auth/subscription/newsletter are **client-side simulations** (localStorage), no backend.
-- **SEO**: per-type landing pages `/receipts/[slug]` (SSG), `/receipts` index, `/faq`,
+- **SEO**: per-type landing pages `/[keyword]-receipt-generator` (SSG; `/receipts/[slug]` → 308 redirect), `/receipts` index, `/faq`,
   About/Privacy/Terms, JSON-LD, sitemap.xml (29 URLs), robots.txt, canonicals.
 - **UI/UX**: SVG icon set (no emoji-as-icon), reusable Button, focus-visible rings,
   reduced-motion support, hero blob animation, scroll reveals (`src/components/Reveal.tsx`).

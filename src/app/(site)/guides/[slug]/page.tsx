@@ -8,7 +8,7 @@ import TemplateIcon from "@/components/TemplateIcon";
 import { ArrowRightIcon, SparklesIcon } from "@/components/icons";
 import { GUIDES, getGuide } from "@/content/guides";
 import { guideFaqs } from "@/lib/guides";
-import { getTemplate } from "@/templates/registry";
+import { getTemplate, templateSlug } from "@/templates/registry";
 import {
   SITE_URL,
   articleJsonLd,
@@ -138,7 +138,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             {relatedTemplates.map((t) => (
               <Link
                 key={t.id}
-                href={`/receipts/${t.id}`}
+                href={`/${templateSlug(t)}`}
                 className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-card transition hover:border-brand-300 hover:shadow-elevated"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600">

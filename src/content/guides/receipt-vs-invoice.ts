@@ -82,7 +82,7 @@ export const receiptVsInvoice: Guide = {
     },
     {
       "type": "p",
-      "text": "If you bill clients for work and need a matching document once they pay, start with the [service receipt template](/receipts/service) to record the completed transaction."
+      "text": "If you bill clients for work and need a matching document once they pay, start with the [service receipt template](/service-receipt-generator) to record the completed transaction."
     },
     {
       "type": "h2",
@@ -103,7 +103,7 @@ export const receiptVsInvoice: Guide = {
     },
     {
       "type": "p",
-      "text": "Need a clean, general-purpose proof of payment for any transaction? The [generic receipt template](/receipts/generic) covers most everyday purchases, and you can [build one in the editor](/create?template=generic) in a couple of minutes."
+      "text": "Need a clean, general-purpose proof of payment for any transaction? The [generic receipt template](/sales-receipt-generator) covers most everyday purchases, and you can [build one in the editor](/create/generic) in a couple of minutes."
     },
     {
       "type": "h2",
@@ -128,7 +128,7 @@ export const receiptVsInvoice: Guide = {
     {
       "type": "cta",
       "text": "Reconstruct a clear proof of payment for any real purchase in minutes — no account needed to build and preview.",
-      "url": "/create?template=generic",
+      "url": "/create/generic",
       "label": "Make a receipt"
     },
     {
@@ -171,7 +171,7 @@ export const receiptVsInvoice: Guide = {
     },
     {
       "type": "p",
-      "text": "ReceiptExpenses is a free, private, browser-based tool for creating clear receipts for real purchases you made. Everything is built client-side, so your receipt content never leaves your browser. Start from the [generic template](/receipts/generic) to record a payment, or read [how to write a receipt](/guides/how-to-write-a-receipt) for the essential fields."
+      "text": "ReceiptExpenses is a free, private, browser-based tool for creating clear receipts for real purchases you made. Everything is built client-side, so your receipt content never leaves your browser. Start from the [generic template](/sales-receipt-generator) to record a payment, or read [how to write a receipt](/guides/how-to-write-a-receipt) for the essential fields."
     }
   ],
   "relatedGuides": [

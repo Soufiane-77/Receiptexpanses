@@ -40,7 +40,7 @@ export const replacementReceiptForTaxes: Guide = {
       "type": "ul",
       "items": [
         "**Bank or credit-card statement** showing the merchant name, date, and exact amount charged",
-        "**Order-confirmation or shipping emails** — [Amazon](/receipts/amazon), [Apple](/receipts/apple), Best Buy and most retailers email these automatically",
+        "**Order-confirmation or shipping emails** — [Amazon](/amazon-receipt-generator), [Apple](/apple-receipt-generator), Best Buy and most retailers email these automatically",
         "**Vendor account history** — your online order history often keeps years of past purchases you can re-download",
         "**Warranty registration, delivery notes, or the product's serial number** for hardware",
         "**Calendar entries, project notes, or client correspondence** that place the purchase in a business context"
@@ -76,7 +76,7 @@ export const replacementReceiptForTaxes: Guide = {
     {
       "type": "cta",
       "text": "Reconstruct a clean, itemized record of a real electronics purchase in a couple of minutes.",
-      "url": "/create?template=electronics",
+      "url": "/create/electronics",
       "label": "Make an electronics receipt"
     },
     {
@@ -89,7 +89,7 @@ export const replacementReceiptForTaxes: Guide = {
     },
     {
       "type": "p",
-      "text": "If the official copy is truly gone and you still need to document the expense for your books, you can produce a plain reconstructed receipt from your own records using a [brand-style Apple template](/receipts/apple), an [Amazon-style order template](/receipts/amazon), or a general [electronics template](/receipts/electronics). ReceiptExpenses is an independent tool and is **not affiliated with, endorsed by, or connected to** Apple, Amazon, Best Buy or any other brand. These templates are for reconstructing your own real purchases for legitimate expense tracking, tax record-keeping, and reimbursement — never for impersonating a retailer, faking a purchase, or supporting a return, warranty, or resale claim that isn't genuine."
+      "text": "If the official copy is truly gone and you still need to document the expense for your books, you can produce a plain reconstructed receipt from your own records using a [brand-style Apple template](/apple-receipt-generator), an [Amazon-style order template](/amazon-receipt-generator), or a general [electronics template](/electronics-receipt-generator). ReceiptExpenses is an independent tool and is **not affiliated with, endorsed by, or connected to** Apple, Amazon, Best Buy or any other brand. These templates are for reconstructing your own real purchases for legitimate expense tracking, tax record-keeping, and reimbursement — never for impersonating a retailer, faking a purchase, or supporting a return, warranty, or resale claim that isn't genuine."
     },
     {
       "type": "h2",

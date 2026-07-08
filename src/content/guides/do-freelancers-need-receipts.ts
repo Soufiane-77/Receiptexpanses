@@ -127,7 +127,7 @@ export const doFreelancersNeedReceipts: Guide = {
     },
     {
       "type": "p",
-      "text": "If you'd like a step-by-step walkthrough, read [how to write a receipt](/guides/how-to-write-a-receipt). For a ready-made layout built for freelancers and consultants, the [service receipt template](/receipts/service) has these fields laid out already."
+      "text": "If you'd like a step-by-step walkthrough, read [how to write a receipt](/guides/how-to-write-a-receipt). For a ready-made layout built for freelancers and consultants, the [service receipt template](/service-receipt-generator) has these fields laid out already."
     },
     {
       "type": "h2",
@@ -140,7 +140,7 @@ export const doFreelancersNeedReceipts: Guide = {
     {
       "type": "ol",
       "items": [
-        "Open the [service receipt template](/create?template=service) — ideal for freelance and consulting work.",
+        "Open the [service receipt template](/create/service) — ideal for freelance and consulting work.",
         "Enter your details, the client's name, the service description, and the amount paid.",
         "Mark it paid and add the payment method and date.",
         "Preview it, then download a PDF or PNG (a free account is only needed to download, print, or save)."
@@ -153,7 +153,7 @@ export const doFreelancersNeedReceipts: Guide = {
     {
       "type": "cta",
       "text": "Send your client a clean, professional receipt in under a minute.",
-      "url": "/create?template=service",
+      "url": "/create/service",
       "label": "Make a service receipt"
     },
     {
@@ -173,7 +173,7 @@ export const doFreelancersNeedReceipts: Guide = {
         },
         {
           "q": "Can a client demand a receipt after paying me in cash?",
-          "a": "A client can certainly ask, and for cash it's especially wise to provide one because there's no bank record linking the payment to the work. A receipt protects both of you by date-stamping the amount paid. You can generate one instantly with the [service receipt template](/create?template=service)."
+          "a": "A client can certainly ask, and for cash it's especially wise to provide one because there's no bank record linking the payment to the work. A receipt protects both of you by date-stamping the amount paid. You can generate one instantly with the [service receipt template](/create/service)."
         },
         {
           "q": "Do I need receipts for my own freelance taxes?",

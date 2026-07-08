@@ -34,9 +34,14 @@ export type TemplateDef = {
   brandColor?: string;
   /** Optional short brand label shown as a badge on the card (e.g. "Airbnb"). */
   brandLabel?: string;
+  /**
+   * Optional override for the keyword-rich landing-page slug. Defaults to
+   * `${slugify(seo.keyword)}-generator` (e.g. "apple-receipt-generator").
+   */
+  seoSlug?: string;
   /** SEO copy for the per-type landing page. */
   seo: {
-    /** e.g. "restaurant" → used in slug /receipts/restaurant and H1 keyword. */
+    /** e.g. "restaurant" → keyword used in the H1 and to derive the URL slug. */
     keyword: string;
     blurb: string;
     useCases: string[];
@@ -470,3 +475,31 @@ export function getTemplate(id: string): TemplateDef {
 }
 
 export const DEFAULT_TEMPLATE_ID = "generic";
+
+// --- Keyword-rich SEO slugs (the canonical per-template landing URL) ---
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * The canonical landing-page slug for a template, e.g. "apple-receipt-generator".
+ * This is the URL segment served at `/{slug}` — the template's own SEO page.
+ */
+export function templateSlug(t: TemplateDef): string {
+  return t.seoSlug ?? `${slugify(t.seo.keyword)}-generator`;
+}
+
+const SLUG_TO_TEMPLATE = new Map(TEMPLATES.map((t) => [templateSlug(t), t]));
+
+/** Resolve a template from its keyword-rich landing slug, or undefined. */
+export function getTemplateBySlug(slug: string): TemplateDef | undefined {
+  return SLUG_TO_TEMPLATE.get(slug);
+}
+
+/** All landing-page slugs — used by generateStaticParams and the sitemap. */
+export const TEMPLATE_SLUGS: string[] = TEMPLATES.map(templateSlug);

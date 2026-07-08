@@ -119,12 +119,12 @@ export const isAPhotoOfAReceiptValid: Guide = {
     },
     {
       "type": "p",
-      "text": "That's exactly what [ReceiptExpenses](/create) is built for. It's a free, private, browser-based receipt maker — an independent tool that is not affiliated with any merchant or brand it can help you record. Pick a template, fill in the real merchant, date, items, and amounts from your own transaction, and download a clean PDF or PNG. Everything stays in your browser — the receipt content never leaves your device. Use it only to reconstruct a legitimate purchase you actually made, whether that's a [restaurant meal](/receipts/restaurant), a [fuel stop](/receipts/fuel), a [rideshare trip](/receipts/uber), or a piece of [electronics or hardware](/receipts/electronics) for your business. Learn more in [replacement receipt for taxes](/guides/replacement-receipt-for-taxes)."
+      "text": "That's exactly what [ReceiptExpenses](/create) is built for. It's a free, private, browser-based receipt maker — an independent tool that is not affiliated with any merchant or brand it can help you record. Pick a template, fill in the real merchant, date, items, and amounts from your own transaction, and download a clean PDF or PNG. Everything stays in your browser — the receipt content never leaves your device. Use it only to reconstruct a legitimate purchase you actually made, whether that's a [restaurant meal](/restaurant-receipt-generator), a [fuel stop](/gas-receipt-generator), a [rideshare trip](/uber-receipt-generator), or a piece of [electronics or hardware](/electronics-receipt-generator) for your business. Learn more in [replacement receipt for taxes](/guides/replacement-receipt-for-taxes)."
     },
     {
       "type": "cta",
       "text": "Reconstruct a clear, complete receipt for a real purchase and download it as a PDF or PNG — free, private, no receipt data leaves your browser.",
-      "url": "/create?template=generic",
+      "url": "/create/generic",
       "label": "Make a receipt"
     },
     {

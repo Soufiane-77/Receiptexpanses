@@ -105,7 +105,7 @@ export const whatMakesAReceiptValid: Guide = {
     {
       "type": "ol",
       "items": [
-        "Start from a blank [generic receipt template](/receipts/generic) or a category that fits the purchase.",
+        "Start from a blank [generic receipt template](/sales-receipt-generator) or a category that fits the purchase.",
         "Enter the seller's name and contact details at the top.",
         "Add the transaction date (and time if it matters).",
         "List each item or service on its own line with a short, honest description and price.",
@@ -121,7 +121,7 @@ export const whatMakesAReceiptValid: Guide = {
     {
       "type": "cta",
       "text": "Build a complete, professional receipt with every required field in a couple of minutes — free, private, and right in your browser.",
-      "url": "/create?template=generic",
+      "url": "/create/generic",
       "label": "Make a valid receipt"
     },
     {
@@ -165,7 +165,7 @@ export const whatMakesAReceiptValid: Guide = {
     },
     {
       "type": "p",
-      "text": "Bottom line: a receipt is 'valid' when it carries enough verifiable detail — seller, date, itemized description, amount, tax, total, payment method, and a reference number — to prove a real transaction took place. Get those elements right and your records will hold up for taxes and reimbursement. Reconstructing a receipt for a purchase you genuinely made? Start from the [generic template](/receipts/generic) or [create a receipt](/create) now."
+      "text": "Bottom line: a receipt is 'valid' when it carries enough verifiable detail — seller, date, itemized description, amount, tax, total, payment method, and a reference number — to prove a real transaction took place. Get those elements right and your records will hold up for taxes and reimbursement. Reconstructing a receipt for a purchase you genuinely made? Start from the [generic template](/sales-receipt-generator) or [create a receipt](/create) now."
     }
   ],
   "howToSteps": [

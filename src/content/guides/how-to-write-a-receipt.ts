@@ -14,7 +14,7 @@ export const howToWriteAReceipt: Guide = {
   "body": [
     {
       "type": "p",
-      "text": "To write a receipt for your small business, record eight core details: the transaction **date**, your **business name and contact information** (the seller), the **buyer's name**, an **itemized list** of goods or services with quantities and prices, the **subtotal, tax, and grand total**, the **payment method**, and a **unique receipt number**. A receipt is simply a written proof of payment given to the buyer after money changes hands. You can hand-write it, use a printed book, or fill in a free template and download a clean PDF in minutes with [ReceiptExpenses](/create?template=generic)."
+      "text": "To write a receipt for your small business, record eight core details: the transaction **date**, your **business name and contact information** (the seller), the **buyer's name**, an **itemized list** of goods or services with quantities and prices, the **subtotal, tax, and grand total**, the **payment method**, and a **unique receipt number**. A receipt is simply a written proof of payment given to the buyer after money changes hands. You can hand-write it, use a printed book, or fill in a free template and download a clean PDF in minutes with [ReceiptExpenses](/create/generic)."
     },
     {
       "type": "h2",
@@ -52,7 +52,7 @@ export const howToWriteAReceipt: Guide = {
     {
       "type": "cta",
       "text": "Skip the manual work — fill in a live form, preview in real time, and download a pixel-perfect PDF or PNG. Building and previewing are free; you only need a free account to download.",
-      "url": "/create?template=generic",
+      "url": "/create/generic",
       "label": "Make a receipt now"
     },
     {
@@ -61,7 +61,7 @@ export const howToWriteAReceipt: Guide = {
     },
     {
       "type": "p",
-      "text": "Here's the standard structure of a small-business receipt. Use it as a checklist when you write one by hand, or let a [generic receipt template](/receipts/generic) lay it out for you automatically. The figures below are illustrative examples, not real transactions."
+      "text": "Here's the standard structure of a small-business receipt. Use it as a checklist when you write one by hand, or let a [generic receipt template](/sales-receipt-generator) lay it out for you automatically. The figures below are illustrative examples, not real transactions."
     },
     {
       "type": "table",
@@ -132,7 +132,7 @@ export const howToWriteAReceipt: Guide = {
     },
     {
       "type": "p",
-      "text": "If you sell services rather than goods, your line items describe work performed — hours, a flat project fee, or a milestone — instead of physical products. The eight core fields stay the same. A dedicated [service receipt template](/receipts/service) is set up for this, with room for a description of the work and hourly or fixed pricing. Freelancers and contractors especially should keep a copy of every receipt they issue; our guide on whether [freelancers need receipts](/guides/do-freelancers-need-receipts) covers why."
+      "text": "If you sell services rather than goods, your line items describe work performed — hours, a flat project fee, or a milestone — instead of physical products. The eight core fields stay the same. A dedicated [service receipt template](/service-receipt-generator) is set up for this, with room for a description of the work and hourly or fixed pricing. Freelancers and contractors especially should keep a copy of every receipt they issue; our guide on whether [freelancers need receipts](/guides/do-freelancers-need-receipts) covers why."
     },
     {
       "type": "h2",
@@ -169,7 +169,7 @@ export const howToWriteAReceipt: Guide = {
     },
     {
       "type": "p",
-      "text": "Once you know the eight fields, writing a receipt takes under a minute. Start from a [blank generic receipt](/create?template=generic), or browse all [receipt types](/receipts) to find the layout that fits your business. ReceiptExpenses is 100% client-side — your receipt content never leaves your browser."
+      "text": "Once you know the eight fields, writing a receipt takes under a minute. Start from a [blank generic receipt](/create/generic), or browse all [receipt types](/receipts) to find the layout that fits your business. ReceiptExpenses is 100% client-side — your receipt content never leaves your browser."
     }
   ],
   "howToSteps": [

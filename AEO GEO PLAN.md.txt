@@ -1,0 +1,228 @@
+# ReceiptExpenses.com — AEO/GEO & Brand Entity Visibility Sprint (Claude Code Prompt)
+
+**How to use this file:** Paste this entire document to Claude Code as your task brief. Work phase by phase, in order — Phase 0 and Phase 1 are blocking; everything after them is wasted effort if they're skipped. Do not ship placeholder copy, mock stats, or fabricated review data anywhere in this sprint.
+
+## Context
+
+ReceiptExpenses is a browser-based receipt and invoice generator for freelancers, small businesses, landlords, drivers, hosts, and self-employed individuals. The platform includes customized template styles for major retail, travel, and hospitality brands (e.g., Apple, Jordan, Nike, Uber, Airbnb, Starbucks, Amazon) to help users generate replacement records for expense tracking, tax deductions, and client reimbursement.
+
+The goal of this sprint is to make the site maximally discoverable and citable inside AI answer engines — ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews — for both general ("make a receipt/invoice") and brand-specific ("replacement Uber receipt for taxes", "track Apple hardware expenses") query spaces, layered on top of technical SEO.
+
+## Guardrails (apply to every phase, no exceptions)
+
+* **Brand & Legal Safety Framing:** You must actively optimize and retain the brand-specific templates (Apple, Nike, Jordan, Adidas, Walmart, Amazon, Uber, Starbucks, etc.). However, **every brand template MUST be strictly framed around legitimate small-business expense tracking, tax record replacement, and reimbursement.** Never optimize for queries like "fake [Brand] receipt," "receipt generator for returns," or anything implying proof-of-purchase impersonation, warranty fraud, or counterfeit authentication.
+* Never fabricate `AggregateRating`, `Review`, testimonial quotes, or usage stats in schema or copy. Mark up only what's real; leave the field out entirely if the data doesn't exist yet.
+* No placeholder, lorem-ipsum, or "TODO" content in anything that ships — every page, FAQ answer, and schema field must be complete, real copy.
+
+## Phase 0 — Audit first, change nothing yet
+
+Report back on all of this before writing code:
+
+1. Framework and rendering mode (Next.js App/Pages Router, Vite/CRA SPA, static site, etc.) and whether marketing/content routes are server-rendered or client-only.
+2. Current `robots.txt`, `sitemap.xml`, and `llms.txt` (if any) — dump their contents.
+3. Every `<script type="application/ld+json">` block currently shipped, and on which pages.
+4. The current blog/content pipeline: is an automated content pipeline + IndexNow integration running? What is its cadence and topic backlog?
+5. List every branded receipt template name/slug currently in the codebase (e.g., Apple, Jordan, Uber) and check if their on-page H1s and metadata currently use safe "expense/replacement" framing or risky "fake/generator" framing.
+
+## Phase 1 — Fix renderability (blocking priority)
+
+AI crawlers, like classic crawlers, read whatever HTML the server returns on the first response; the large majority do not execute client-side JavaScript. If the marketing/content routes are CSR-only, this is the single biggest blocker to every phase below.
+
+* If Next.js: make sure the home page, `/blog/*`, `/faq`, `/how-it-works`, `/templates/*` (including brand pages), and comparison pages are statically generated or ISR'd (`generateStaticParams`, static `export const dynamic`), not client components. The interactive receipt builder itself can stay client-rendered behind that crawlable shell.
+* If a plain SPA: add a prerendering step (static export, or SSR middleware) so the *first* HTTP response contains full text content, not an empty root `<div>`.
+* Verify with a raw fetch (`curl -s [https://receiptexpenses.com/](https://receiptexpenses.com/) | less`, no headless browser) after deploying. Confirm real paragraph text is present, not just a title tag and a script bundle.
+
+## Phase 2 — robots.txt: AI crawler access
+
+Audit the live file first and merge with the block below — keep any existing `Disallow` rules for `/admin/`, `/api/`, `/account/`, `/checkout/`. Also check the CDN/WAF (Cloudflare, etc.) for a separate "block AI bots" toggle; several platforms ship this on by default, and it silently overrides robots.txt.
+
+```text
+# --- AI search & retrieval (citation-driving; keep these allowed) ---
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# --- AI training crawlers (allowed — visibility-first posture) ---
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# --- Deprecated Anthropic tokens ---
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: claude-web
+Allow: /
+
+# --- Documented non-compliant scraper ---
+User-agent: Bytespider
+Disallow: /
+
+# --- Standard search engines ---
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# --- Everything else ---
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /account/
+Disallow: /checkout/
+Allow: /
+
+Sitemap: https://receiptexpenses.com/sitemap.xml
+
+```
+
+## Phase 3 — llms.txt
+
+Create `/llms.txt`: site name, one-line description, and a short curated list of links (home, pricing, FAQ, how-it-works, blog index, top cornerstone pages, and top branded expense template pages). Keep it concise; use this as a clean entity-mapping signal for LLMs.
+
+## Phase 4 — Brand Entity Optimization & Safe Legal Framing
+
+Instead of removing brand names, **re-engineer them to dominate LLM entity recognition for legitimate business use cases.** AI answer engines will refuse to cite pages that look like counterfeit generators, but they heavily cite tools for "expense tracking" and "lost receipt replacement."
+
+1. **Audit & Rewrite Brand Slugs and Titles:** Ensure all branded template pages use structured, professional naming conventions:
+* *Old H1:* "Apple Receipt Generator" ➔ *New H1:* "Apple Hardware Expense Receipt Template (For Tax & Reimbursement)"
+* *Old H1:* "Jordan / Nike Receipt Maker" ➔ *New H1:* "Athletic & Footwear Expense Receipt Template (Nike, Jordan Style)"
+* *Old H1:* "Uber Receipt Tool" ➔ *New H1:* "Rideshare Travel Expense Receipt Maker (Uber, Lyft Style)"
+
+
+2. **Inject Semantic Entity Descriptions:** On every branded template page, add a definition-first introductory paragraph that explicitly connects the brand entity to accounting utility:
+> *"This customizable [Brand]-style receipt template is designed for freelancers, contractors, and business owners who need to generate a replacement receipt or itemized expense record for [Brand] purchases, software subscriptions, or business travel to submit for reimbursement and tax deductions."*
+
+
+3. **Mandatory On-Page Legal Disclaimer:** Add a prominent, styled callout box on every branded template page and in the Terms of Service:
+> **Legal Disclaimer:** *ReceiptExpenses is a record-keeping and expense management tool. Receipts generated using brand-style templates (including Apple, Nike, Jordan, Uber, etc.) are intended solely for personal tax accounting, internal business bookkeeping, and employer expense reimbursement for legitimate, completed transactions. Using this tool to generate false proof-of-purchase for retail returns, warranty claims, or resale authentication is strictly prohibited.*
+
+
+
+## Phase 5 — Structured Data (JSON-LD)
+
+* **Sitewide:** `Organization` + `WebSite`.
+* **Homepage/Tool Page:** `SoftwareApplication` — adapt the example below with real current pricing:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ReceiptExpenses",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "url": "https://receiptexpenses.com/",
+  "description": "Browser-based receipt and invoice generator for freelancers, small businesses, landlords, and gig workers. Includes specialized templates for major brands and expense categories. Nothing is uploaded to a server.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0.00",
+    "priceCurrency": "USD"
+  }
+}
+
+```
+
+* **Branded Template Pages:** Inject `ItemPage` and `SoftwareApplication` schema that explicitly mentions the target brand entity in the `keywords` and `description` fields to build semantic association without violating trademark schema rules.
+* **FAQ-Rich Pages:** `FAQPage` with strict Question/Answer structures.
+* **Tutorial Pages:** `HowTo`, with real numbered steps matching on-page content.
+* **Blog Posts:** `Article`/`BlogPosting` with real `author`, `datePublished`, `dateModified`.
+* **Category/Template Pages:** `BreadcrumbList`.
+* Validate every block with Google's Rich Results Test before shipping. Zero errors, zero warnings.
+
+## Phase 6 — Answer-First Content Restructuring
+
+* Rewrite the homepage hero/intro so the first ~150–200 words state, in one self-contained block, what the tool is, who it's for, and the core benefit. AI answer engines weight the opening section heavily and disproportionately cite from the first third of a page.
+* Apply the same definition-first pattern to every existing page: first paragraph = a complete, standalone answer to that page's target question; supporting detail after.
+* Break long unstructured paragraphs into H2/H3 sections, one idea per section, with ordered lists (`<ol>`) wherever the content is a sequence of steps.
+* Add a one-sentence TL;DR callout near the top of every blog post and cornerstone page.
+
+## Phase 7 — New Cornerstone & FAQ Content (Include Brand Use-Cases)
+
+Build these as real pages, each with the schema type noted and 2–4 sub-questions answered directly:
+
+1. **How to Get a Replacement Receipt for Tax & Expense Reimbursement (Apple, Amazon, Best Buy)** — `HowTo` + `FAQPage`. Explain how small businesses can lawfully document hardware and tech expenses when original receipts are lost.
+2. **Rideshare Expense Tracking: How to Generate Replacement Uber & Lyft Receipts** — `FAQPage` + link to rideshare template. Targets: "lost uber receipt for work," "how to get rideshare receipts for taxes."
+3. **Receipt vs. Invoice: What's the Difference?** — comparison table + `FAQPage`. Targets: "receipt vs invoice," "difference between invoice and receipt."
+4. **How to Write a Receipt for Your Small Business (Free Template)** — `HowTo` + numbered steps. Targets: "how to write a receipt," "small business receipt template."
+5. **Do Freelancers Need to Give Clients a Receipt?** — `FAQPage`. Targets: "freelancer receipt requirements," "invoice vs receipt for freelancers."
+6. **Rent Receipt Template & Requirements by State** — cover states with explicit tenant-can-request-a-receipt rules. `HowTo` + `FAQPage`.
+7. **Gig Worker & 1099 Contractor Receipts for Tax Season** — `FAQPage`. Targets: "gig worker tax deduction receipts," "1099 expense tracking."
+8. **What Has to Be on a Legally Valid Receipt** — definition-first, `FAQPage`. Targets: "what information should be on a receipt," "legal receipt requirements."
+9. **Is a Photo/Screenshot of a Receipt Valid for Taxes or Reimbursement?** — direct-answer page, `FAQPage`.
+10. Four to six short industry-vertical pages pairing a template with a direct answer: e.g., retail merchandise (Nike/Jordan apparel expense tracking for fitness coaches/creators), food truck/catering, freelance photography, home cleaning.
+
+## Phase 8 — Blog Pipeline: Extend, Don't Rebuild
+
+* If an automated content pipeline is live: audit its output and feed it long-tail topics from Phase 7 (state-specific rent receipts, brand-specific expense replacement guides, vertical-specific invoicing).
+* If it isn't live: build a minimal scheduled job drafting one AEO-structured post a week from a topic queue, pinging IndexNow and sitemap endpoints on publish.
+* Every generated post must pass the Phase 5/6 checklist (schema present, TL;DR block, definition-first opening, strict anti-fraud disclaimers on brand topics) before publishing. Write a simple lint script to verify these elements prior to the publish step.
+
+## Phase 9 — Trust Signals
+
+* Add or verify an About page with real founder/company info and a real support contact — AI systems weight authorship and transparency heavily.
+* Turn the privacy pitch into a direct, citable FAQ block: *"Does ReceiptExpenses store my data? No — receipts are generated entirely in your browser; nothing is uploaded to a server."*
+* Add visible "last updated" dates to evergreen pages, and a one-line "what changed" note when content is refreshed.
+
+## Phase 10 — Internal Linking
+
+* Build topic clusters: link brand template pages directly to relevant accounting blog posts (e.g., link the Apple template page to the "How to Track Tech Hardware Expenses for 1099 Taxes" guide, and vice versa).
+* Add a breadcrumb + "related templates/articles" block driven by the taxonomy used in the `BreadcrumbList` schema.
+
+## Phase 11 — Technical Checklist
+
+* Sitemap includes every new page and brand template route; resubmit to Search Console and Bing Webmaster Tools.
+* No important content sits only behind an accordion/tab interaction without also being present in the initial HTML.
+* Run Lighthouse after the content additions; fix any Core Web Vitals regression.
+
+## Phase 12 — Monitoring
+
+* Add referrer/UTM tracking for `chat.openai.com`, `claude.ai`, `perplexity.ai`, `gemini.google.com` in analytics, so AI-referred traffic is visible.
+* Check server logs to confirm crawl rates from OAI-SearchBot, ClaudeBot, and PerplexityBot.
+
+## Deliverables Checklist (Self-verify before calling this done)
+
+* [ ] Phase 0 audit report written and reviewed before any code changed
+* [ ] Marketing/content routes confirmed server-rendered; raw fetch shows real text
+* [ ] robots.txt merged with current AI-crawler rules; CDN-level AI-bot toggle checked
+* [ ] llms.txt live with core routes and top branded template mappings
+* [ ] All branded templates retained but re-engineered with legal "expense/replacement" framing and prominent disclaimers
+* [ ] JSON-LD live and validated (Organization, WebSite, SoftwareApplication, FAQPage, HowTo, Article, BreadcrumbList, ItemPage)
+* [ ] Homepage + all existing pages restructured answer-first
+* [ ] All 10 Phase 7 cornerstone pieces published with real, complete copy
+* [ ] Blog pipeline passing the pre-publish schema/structure/disclaimer lint
+* [ ] About/trust content live; freshness dates on evergreen pages
+* [ ] Internal linking/topic clusters connected (templates linked to tax/expense guides)
+* [ ] Sitemap resubmitted; Lighthouse/Core Web Vitals clean
+* [ ] Analytics tracking AI referrers
