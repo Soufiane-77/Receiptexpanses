@@ -3,8 +3,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { loadSettings } from "@/lib/adminSettings";
 import { getTemplate } from "@/templates/registry";
-import { Button } from "@/components/Button";
-import { inputCls } from "@/components/fields";
+import {
+  AdminButton,
+  AdminField,
+  Badge,
+  Banner,
+  Card,
+  EmptyState,
+  PageHeader,
+  StatTile,
+  Table,
+  Td,
+  Tr,
+  adminInputCls,
+} from "./ui";
 
 type AdminUser = {
   id: string;
@@ -53,7 +65,21 @@ const ACTION_LABEL: Record<string, string> = {
 function fmtDate(v: string | null): string {
   if (!v) return "—";
   const d = new Date(v.includes("T") ? v : `${v.replace(" ", "T")}Z`);
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
+}
+
+function fmtDateTime(v: string | null): string {
+  if (!v) return "—";
+  const d = new Date(v.includes("T") ? v : `${v.replace(" ", "T")}Z`);
   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
+}
+
+function templateName(id: string): string {
+  try {
+    return getTemplate(id).name;
+  } catch {
+    return id;
+  }
 }
 
 export default function AdminUsers() {
@@ -67,8 +93,9 @@ export default function AdminUsers() {
 
   const load = useCallback(async (tok: string, d: number) => {
     if (!tok) {
-      setUsersErr("Set the admin token in Admin → Security first.");
-      setReceiptsErr("Set the admin token in Admin → Security first.");
+      const msg = "Add your admin API token under Security to load this data.";
+      setUsersErr(msg);
+      setReceiptsErr(msg);
       return;
     }
     setLoading(true);
@@ -84,14 +111,26 @@ export default function AdminUsers() {
     if (u.status === "fulfilled") {
       const body = (await u.value.json().catch(() => ({}))) as UsersPayload;
       if (u.value.ok) setUsers(body);
-      else setUsersErr(body.error || (u.value.status === 401 ? "Unauthorized — token doesn't match BLOG_ADMIN_TOKEN." : `Failed (${u.value.status}).`));
-    } else setUsersErr("Network error loading users.");
+      else
+        setUsersErr(
+          body.error ||
+            (u.value.status === 401
+              ? "Unauthorized — the token doesn't match BLOG_ADMIN_TOKEN."
+              : `Couldn't load users (${u.value.status}).`)
+        );
+    } else setUsersErr("Network error while loading users.");
 
     if (r.status === "fulfilled") {
       const body = (await r.value.json().catch(() => ({}))) as ReceiptPayload;
       if (r.value.ok) setReceipts(body);
-      else setReceiptsErr(body.error || (r.value.status === 401 ? "Unauthorized — token doesn't match BLOG_ADMIN_TOKEN." : `Failed (${r.value.status}).`));
-    } else setReceiptsErr("Network error loading receipt activity.");
+      else
+        setReceiptsErr(
+          body.error ||
+            (r.value.status === 401
+              ? "Unauthorized — the token doesn't match BLOG_ADMIN_TOKEN."
+              : `Couldn't load receipt activity (${r.value.status}).`)
+        );
+    } else setReceiptsErr("Network error while loading receipt activity.");
 
     setLoading(false);
   }, []);
@@ -104,283 +143,250 @@ export default function AdminUsers() {
   }, []);
 
   const maxDay = Math.max(1, ...(receipts?.byDay ?? []).map((d) => d.count));
+  const topTemplate = receipts?.byTemplate[0]?.count ?? 1;
 
   return (
-    <div className="flex flex-col gap-8">
+    <>
+      <PageHeader
+        title="Users & activity"
+        subtitle="Customer accounts from Supabase Auth, plus what people generate. Receipt contents are never stored — only which template, which action and when."
+        actions={
+          <AdminButton onClick={() => load(token, days)} disabled={loading}>
+            {loading ? "Refreshing…" : "Refresh"}
+          </AdminButton>
+        }
+      />
+
       {/* Controls */}
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-slate-700">Admin token</span>
-          <input
-            type="password"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder="BLOG_ADMIN_TOKEN"
-            className={`${inputCls} w-64`}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-slate-700">Period</span>
-          <select
-            value={days}
-            onChange={(e) => {
-              const d = Number(e.target.value);
-              setDays(d);
-              void load(token, d);
-            }}
-            className={`${inputCls} w-32`}
+      <Card className="mb-5" title="Data source">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <AdminField
+            label="Admin API token"
+            htmlFor="au-token"
+            hint="Must match the Worker secret BLOG_ADMIN_TOKEN."
           >
-            <option value={7}>7 days</option>
-            <option value={30}>30 days</option>
-            <option value={90}>90 days</option>
-            <option value={365}>1 year</option>
-          </select>
-        </label>
-        <Button type="button" onClick={() => load(token, days)} disabled={loading}>
-          {loading ? "Loading…" : "Refresh"}
-        </Button>
-      </div>
+            <input
+              id="au-token"
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder="BLOG_ADMIN_TOKEN"
+              className={adminInputCls}
+            />
+          </AdminField>
+          <AdminField label="Activity period" htmlFor="au-days">
+            <select
+              id="au-days"
+              value={days}
+              onChange={(e) => {
+                const d = Number(e.target.value);
+                setDays(d);
+                void load(token, d);
+              }}
+              className={adminInputCls}
+            >
+              <option value={7}>Last 7 days</option>
+              <option value={30}>Last 30 days</option>
+              <option value={90}>Last 90 days</option>
+              <option value={365}>Last 12 months</option>
+            </select>
+          </AdminField>
+        </div>
+      </Card>
 
-      {/* ---------------- Customers ---------------- */}
-      <section>
-        <h2 className="text-lg font-bold text-slate-900">Customers</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Registered accounts from Supabase Auth — the system of record for sign-ins.
-        </p>
+      {/* ------------------------------ Customers ----------------------------- */}
+      <h2 className="mb-3 text-base font-semibold text-[#303030]">Customers</h2>
 
-        {usersErr ? (
-          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+      {usersErr ? (
+        <div className="mb-4">
+          <Banner tone="warning" title="Customer list unavailable">
             {usersErr}
-          </div>
-        ) : null}
+          </Banner>
+        </div>
+      ) : null}
 
-        {users ? (
-          <>
-            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat label="Total users" value={String(users.count) + (users.hasMore ? "+" : "")} />
-              <Stat label="New (7 days)" value={String(users.stats.last7)} />
-              <Stat label="Confirmed" value={String(users.stats.confirmed)} />
-              <Stat
-                label="Google sign-ups"
-                value={String(users.stats.byProvider.find((p) => p.provider === "google")?.count ?? 0)}
+      {users ? (
+        <>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatTile
+              label="Total customers"
+              value={`${users.count}${users.hasMore ? "+" : ""}`}
+            />
+            <StatTile label="New this week" value={String(users.stats.last7)} hint="Last 7 days" />
+            <StatTile label="Confirmed" value={String(users.stats.confirmed)} />
+            <StatTile
+              label="Google sign-ups"
+              value={String(users.stats.byProvider.find((p) => p.provider === "google")?.count ?? 0)}
+            />
+          </div>
+
+          <Card className="mt-4" padding={false}>
+            {users.users.length === 0 ? (
+              <EmptyState
+                title="No customers yet"
+                description="Accounts will appear here as people sign up to download receipts."
               />
-            </div>
+            ) : (
+              <Table head={["Customer", "Sign-in", "Joined", "Last seen", "Status"]}>
+                {users.users.map((u) => (
+                  <Tr key={u.id}>
+                    <Td strong>
+                      <div className="min-w-0">
+                        <div className="truncate">{u.email ?? "—"}</div>
+                        {u.name ? (
+                          <div className="truncate text-xs font-normal text-[#616161]">{u.name}</div>
+                        ) : null}
+                      </div>
+                    </Td>
+                    <Td>
+                      <Badge tone={u.provider === "google" ? "info" : "neutral"}>{u.provider}</Badge>
+                    </Td>
+                    <Td>{fmtDate(u.createdAt)}</Td>
+                    <Td>{fmtDate(u.lastSignInAt)}</Td>
+                    <Td>
+                      {u.confirmed ? (
+                        <Badge tone="success">Confirmed</Badge>
+                      ) : (
+                        <Badge tone="warning">Pending</Badge>
+                      )}
+                    </Td>
+                  </Tr>
+                ))}
+              </Table>
+            )}
+          </Card>
+        </>
+      ) : null}
 
-            <div className="mt-5 overflow-x-auto rounded-xl border border-slate-200 bg-white">
-              <table className="w-full min-w-[640px] text-left text-sm">
-                <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">Email</th>
-                    <th className="px-4 py-3 font-semibold">Name</th>
-                    <th className="px-4 py-3 font-semibold">Sign-in</th>
-                    <th className="px-4 py-3 font-semibold">Joined</th>
-                    <th className="px-4 py-3 font-semibold">Last seen</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {users.users.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
-                        No users yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    users.users.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 font-medium text-slate-900">
-                          {u.email ?? "—"}
-                          {!u.confirmed ? (
-                            <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-700">
-                              unconfirmed
-                            </span>
-                          ) : null}
-                        </td>
-                        <td className="px-4 py-3 text-slate-600">{u.name || "—"}</td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                              u.provider === "google"
-                                ? "bg-red-50 text-red-700"
-                                : "bg-slate-100 text-slate-600"
-                            }`}
-                          >
-                            {u.provider}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-slate-500">{fmtDate(u.createdAt)}</td>
-                        <td className="px-4 py-3 text-slate-500">{fmtDate(u.lastSignInAt)}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </>
-        ) : null}
-      </section>
+      {/* --------------------------- Receipt activity -------------------------- */}
+      <h2 className="mb-3 mt-8 text-base font-semibold text-[#303030]">Generated receipts</h2>
 
-      {/* ---------------- Receipt activity ---------------- */}
-      <section>
-        <h2 className="text-lg font-bold text-slate-900">Generated receipts</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Which templates users generate, and when. Receipt <strong>contents</strong> are never
-          stored — they stay in the user&apos;s browser, as promised on the privacy page — so this
-          shows activity, not the receipts themselves.
-        </p>
-
-        {receiptsErr ? (
-          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+      {receiptsErr ? (
+        <div className="mb-4">
+          <Banner tone="warning" title="Receipt activity unavailable">
             {receiptsErr}
+          </Banner>
+        </div>
+      ) : null}
+
+      {receipts ? (
+        <>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatTile
+              label="Generated"
+              value={String(receipts.total)}
+              hint={`Last ${receipts.days} days`}
+            />
+            <StatTile label="All time" value={String(receipts.totalAllTime)} />
+            <StatTile label="By customers" value={String(receipts.signedIn)} hint="Signed in" />
+            <StatTile label="By guests" value={String(receipts.anonymous)} hint="Not signed in" />
           </div>
-        ) : null}
 
-        {receipts ? (
-          <>
-            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat label={`Generated (${receipts.days}d)`} value={String(receipts.total)} />
-              <Stat label="All time" value={String(receipts.totalAllTime)} />
-              <Stat label="By signed-in users" value={String(receipts.signedIn)} />
-              <Stat label="By guests" value={String(receipts.anonymous)} />
-            </div>
-
-            {/* Daily bars */}
-            {receipts.byDay.length > 0 ? (
-              <div className="mt-5 rounded-xl border border-slate-200 bg-white p-5">
-                <h3 className="text-sm font-semibold text-slate-700">Per day</h3>
-                <div className="mt-4 flex h-32 items-end gap-1">
-                  {receipts.byDay.map((d) => (
-                    <div
-                      key={d.day}
-                      className="flex-1 rounded-t bg-brand-500/80 transition-colors hover:bg-brand-600"
-                      style={{ height: `${Math.max(4, (d.count / maxDay) * 100)}%` }}
-                      title={`${d.day}: ${d.count}`}
-                    />
-                  ))}
-                </div>
+          {receipts.byDay.length > 0 ? (
+            <Card className="mt-4" title={`Receipts per day · last ${receipts.days} days`}>
+              <div className="flex h-32 items-end gap-1" role="img" aria-label={`Receipt volume over the last ${receipts.days} days`}>
+                {receipts.byDay.map((d) => (
+                  <div
+                    key={d.day}
+                    className="group relative flex-1 rounded-t bg-brand-500/80 transition-colors hover:bg-brand-600"
+                    style={{ height: `${Math.max(4, (d.count / maxDay) * 100)}%` }}
+                    title={`${d.day}: ${d.count}`}
+                  />
+                ))}
               </div>
-            ) : null}
+              <div className="mt-2 flex justify-between text-xs text-[#8a8a8a]">
+                <span>{receipts.byDay[0]?.day}</span>
+                <span>{receipts.byDay[receipts.byDay.length - 1]?.day}</span>
+              </div>
+            </Card>
+          ) : null}
 
-            <div className="mt-5 grid gap-5 lg:grid-cols-2">
-              {/* Templates */}
-              <div className="rounded-xl border border-slate-200 bg-white p-5">
-                <h3 className="text-sm font-semibold text-slate-700">Most used templates</h3>
-                {receipts.byTemplate.length === 0 ? (
-                  <p className="mt-3 text-sm text-slate-400">No activity yet.</p>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <Card title="Most used templates">
+              {receipts.byTemplate.length === 0 ? (
+                <p className="text-sm text-[#616161]">No activity yet.</p>
+              ) : (
+                <ul className="flex flex-col gap-3">
+                  {receipts.byTemplate.slice(0, 8).map((t) => (
+                    <li key={t.templateId}>
+                      <div className="flex justify-between text-sm">
+                        <span className="truncate text-[#303030]">{templateName(t.templateId)}</span>
+                        <span className="ml-3 shrink-0 font-medium tabular-nums text-[#303030]">
+                          {t.count}
+                        </span>
+                      </div>
+                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#f1f1f1]">
+                        <div
+                          className="h-full rounded-full bg-brand-500"
+                          style={{ width: `${Math.round((t.count / topTemplate) * 100)}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+
+            <div className="flex flex-col gap-4">
+              <Card title="By action">
+                {receipts.byAction.length === 0 ? (
+                  <p className="text-sm text-[#616161]">No activity yet.</p>
                 ) : (
-                  <ul className="mt-3 flex flex-col gap-2">
-                    {receipts.byTemplate.slice(0, 10).map((t) => {
-                      const pct = Math.round((t.count / receipts.byTemplate[0]!.count) * 100);
-                      let name = t.templateId;
-                      try {
-                        name = getTemplate(t.templateId).name;
-                      } catch {
-                        /* unknown id */
-                      }
-                      return (
-                        <li key={t.templateId} className="text-sm">
-                          <div className="flex justify-between text-slate-600">
-                            <span>{name}</span>
-                            <span className="font-medium text-slate-900">{t.count}</span>
-                          </div>
-                          <div className="mt-1 h-1.5 rounded-full bg-slate-100">
-                            <div className="h-1.5 rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
-                          </div>
-                        </li>
-                      );
-                    })}
+                  <ul className="flex flex-col gap-2 text-sm">
+                    {receipts.byAction.map((a) => (
+                      <li key={a.action} className="flex justify-between">
+                        <span className="text-[#616161]">{ACTION_LABEL[a.action] ?? a.action}</span>
+                        <span className="font-medium tabular-nums text-[#303030]">{a.count}</span>
+                      </li>
+                    ))}
                   </ul>
                 )}
-              </div>
+              </Card>
 
-              {/* Actions + top users */}
-              <div className="flex flex-col gap-5">
-                <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <h3 className="text-sm font-semibold text-slate-700">By action</h3>
-                  {receipts.byAction.length === 0 ? (
-                    <p className="mt-3 text-sm text-slate-400">No activity yet.</p>
-                  ) : (
-                    <ul className="mt-3 flex flex-col gap-1.5 text-sm">
-                      {receipts.byAction.map((a) => (
-                        <li key={a.action} className="flex justify-between">
-                          <span className="text-slate-600">{ACTION_LABEL[a.action] ?? a.action}</span>
-                          <span className="font-medium text-slate-900">{a.count}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <h3 className="text-sm font-semibold text-slate-700">Most active users</h3>
-                  {receipts.topUsers.length === 0 ? (
-                    <p className="mt-3 text-sm text-slate-400">No signed-in activity yet.</p>
-                  ) : (
-                    <ul className="mt-3 flex flex-col gap-1.5 text-sm">
-                      {receipts.topUsers.slice(0, 8).map((u) => (
-                        <li key={u.userId} className="flex justify-between gap-3">
-                          <span className="truncate text-slate-600">{u.email ?? u.userId.slice(0, 8)}</span>
-                          <span className="font-medium text-slate-900">{u.count}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
+              <Card title="Most active customers">
+                {receipts.topUsers.length === 0 ? (
+                  <p className="text-sm text-[#616161]">No signed-in activity yet.</p>
+                ) : (
+                  <ul className="flex flex-col gap-2 text-sm">
+                    {receipts.topUsers.slice(0, 6).map((u) => (
+                      <li key={u.userId} className="flex justify-between gap-3">
+                        <span className="truncate text-[#616161]">
+                          {u.email ?? u.userId.slice(0, 8)}
+                        </span>
+                        <span className="shrink-0 font-medium tabular-nums text-[#303030]">
+                          {u.count}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
             </div>
+          </div>
 
-            {/* Recent activity */}
-            <div className="mt-5 overflow-x-auto rounded-xl border border-slate-200 bg-white">
-              <table className="w-full min-w-[560px] text-left text-sm">
-                <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">When</th>
-                    <th className="px-4 py-3 font-semibold">Template</th>
-                    <th className="px-4 py-3 font-semibold">Action</th>
-                    <th className="px-4 py-3 font-semibold">User</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {receipts.recent.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
-                        No receipts generated yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    receipts.recent.map((r, i) => {
-                      let name = r.templateId;
-                      try {
-                        name = getTemplate(r.templateId).name;
-                      } catch {
-                        /* unknown id */
-                      }
-                      return (
-                        <tr key={i} className="hover:bg-slate-50">
-                          <td className="px-4 py-3 text-slate-500">{fmtDate(r.createdAt)}</td>
-                          <td className="px-4 py-3 font-medium text-slate-900">{name}</td>
-                          <td className="px-4 py-3 text-slate-600">
-                            {ACTION_LABEL[r.action] ?? r.action}
-                          </td>
-                          <td className="px-4 py-3 text-slate-500">{r.email ?? "guest"}</td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </>
-        ) : null}
-      </section>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-2xl font-bold text-slate-900">{value}</div>
-    </div>
+          <Card className="mt-4" title="Recent activity" padding={false}>
+            {receipts.recent.length === 0 ? (
+              <EmptyState
+                title="No receipts generated yet"
+                description="Activity appears here as soon as someone downloads, prints or saves a receipt."
+              />
+            ) : (
+              <Table head={["When", "Template", "Action", "Customer"]}>
+                {receipts.recent.map((r, i) => (
+                  <Tr key={i}>
+                    <Td>{fmtDateTime(r.createdAt)}</Td>
+                    <Td strong>{templateName(r.templateId)}</Td>
+                    <Td>{ACTION_LABEL[r.action] ?? r.action}</Td>
+                    <Td>
+                      {r.email ?? <span className="text-[#8a8a8a]">Guest</span>}
+                    </Td>
+                  </Tr>
+                ))}
+              </Table>
+            )}
+          </Card>
+        </>
+      ) : null}
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getEnv } from "@/lib/server/db";
 import { isAuthorized } from "@/lib/server/adminToken";
+import { cleanEnvValue } from "@/lib/supabase/env";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +35,10 @@ export async function GET(req: Request) {
   }
 
   const env = await getEnv();
-  const url = env.SUPABASE_URL;
-  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  // Sanitize: a BOM/newline from `wrangler secret put` would otherwise make
+  // fetch() throw or produce a malformed Authorization header.
+  const url = cleanEnvValue(env.SUPABASE_URL).replace(/\/+$/, "");
+  const serviceKey = cleanEnvValue(env.SUPABASE_SERVICE_ROLE_KEY);
   if (!url || !serviceKey) {
     return NextResponse.json(
       {
@@ -116,7 +119,10 @@ export async function GET(req: Request) {
       },
     });
   } catch (e) {
-    return NextResponse.json({ error: "Could not reach Supabase.", detail: String(e) }, { status: 502 });
+    return NextResponse.json(
+      { error: `Could not reach Supabase: ${String(e)}`, detail: String(e) },
+      { status: 502 }
+    );
   }
 }
 

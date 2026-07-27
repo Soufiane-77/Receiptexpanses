@@ -14,15 +14,40 @@ import {
   type AdminSettings,
 } from "@/lib/adminSettings";
 import { TEMPLATES, getTemplate } from "@/templates/registry";
-import { Field, Section, Toggle, inputCls } from "@/components/fields";
-import { Button } from "@/components/Button";
+import { Toggle } from "@/components/fields";
 import TemplateIcon from "@/components/TemplateIcon";
-import Logo from "@/components/Logo";
-import { ChevronUpIcon, ChevronDownIcon, SlidersIcon } from "@/components/icons";
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
+  HomeIcon,
+  UserIcon,
+  SaveIcon,
+  ReceiptIcon,
+  SparklesIcon,
+  FileSearchIcon,
+  CartIcon,
+  SlidersIcon,
+  ShieldIcon,
+} from "@/components/icons";
 import AdminPayments from "@/components/admin/AdminPayments";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AutopilotBlog from "@/components/admin/AutopilotBlog";
 import AdminTemplateCustomizer from "@/components/admin/AdminTemplateCustomizer";
+import AdminShell, { type NavItem } from "@/components/admin/AdminShell";
+import {
+  AdminButton,
+  AdminField,
+  Badge,
+  Banner,
+  Card,
+  EmptyState,
+  PageHeader,
+  StatTile,
+  Table,
+  Td,
+  Tr,
+  adminInputCls,
+} from "@/components/admin/ui";
 
 type Tab =
   | "overview"
@@ -47,45 +72,67 @@ export default function AdminPage() {
   }, []);
 
   if (!ready) {
-    return <div className="flex min-h-screen items-center justify-center text-slate-400">…</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f1f1f1] text-[#616161]">
+        …
+      </div>
+    );
   }
 
   if (!authed) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+      <main className="flex min-h-screen items-center justify-center bg-[#f1f1f1] p-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (tryLogin(pw)) {
-              setAuthed(true);
-            } else {
-              setErr("Wrong password");
-            }
+            if (tryLogin(pw)) setAuthed(true);
+            else setErr("Incorrect password. Try again.");
           }}
-          className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+          className="w-full max-w-[400px]"
         >
-          <h1 className="text-xl font-bold text-slate-900">Admin sign in</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Default password is <code className="rounded bg-slate-100 px-1">admin</code>. Change it in
-            Security.
-          </p>
-          <input
-            type="password"
-            value={pw}
-            onChange={(e) => {
-              setPw(e.target.value);
-              setErr("");
-            }}
-            placeholder="Password"
-            className={`${inputCls} mt-4 w-full`}
-            autoFocus
-          />
-          {err ? <p className="mt-2 text-sm text-red-500">{err}</p> : null}
-          <button className="mt-4 w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
-            Sign in
-          </button>
-          <Link href="/" className="mt-3 block text-center text-sm text-slate-500 hover:underline">
-            ← Back to app
+          <div className="mb-6 flex flex-col items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-base font-bold text-white">
+              R
+            </span>
+            <h1 className="text-lg font-semibold text-[#303030]">Log in to ReceiptExpenses admin</h1>
+          </div>
+
+          <div className="rounded-xl border border-[#e3e3e3] bg-white p-6 shadow-[0_1px_0_0_rgba(0,0,0,0.04)]">
+            <AdminField
+              label="Password"
+              htmlFor="admin-pw"
+              hint={err ? undefined : "Default is “admin”. Change it under Security."}
+            >
+              <input
+                id="admin-pw"
+                type="password"
+                autoComplete="current-password"
+                value={pw}
+                onChange={(e) => {
+                  setPw(e.target.value);
+                  setErr("");
+                }}
+                className={adminInputCls}
+                autoFocus
+                aria-invalid={Boolean(err)}
+                aria-describedby={err ? "admin-pw-error" : undefined}
+              />
+            </AdminField>
+            {err ? (
+              <p id="admin-pw-error" role="alert" className="mt-2 text-sm text-[#8e1f1f]">
+                {err}
+              </p>
+            ) : null}
+            <AdminButton type="submit" tone="primary" className="mt-5 w-full">
+              Log in
+            </AdminButton>
+          </div>
+
+          <Link
+            href="/"
+            className="mt-5 block text-center text-sm text-[#616161] underline-offset-2 hover:text-[#303030] hover:underline"
+          >
+            ← Back to ReceiptExpenses
           </Link>
         </form>
       </main>
@@ -125,7 +172,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   const deleteReceipt = (id: string) => {
-    if (!window.confirm("Delete this saved receipt?")) return;
+    if (!window.confirm("Delete this saved receipt? This can't be undone.")) return;
     setSaved(removeSaved(id));
   };
 
@@ -143,184 +190,244 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     const set = new Set(settings.enabledTemplates);
     if (on) set.add(id);
     else set.delete(id);
-    // Preserve registry order for newly-added ones.
     update({ enabledTemplates: TEMPLATES.filter((t) => set.has(t.id)).map((t) => t.id) });
   };
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "overview", label: "Overview" },
-    { id: "users", label: "Users & activity" },
-    { id: "saved", label: `Saved (${saved.length})` },
-    { id: "templates", label: "Templates" },
-    { id: "customize", label: "Customize" },
-    { id: "blog", label: "Blog" },
-    { id: "payments", label: "Payments" },
-    { id: "defaults", label: "Defaults" },
-    { id: "security", label: "Security" },
+  const nav: NavItem<Tab>[] = [
+    { id: "overview", label: "Overview", Icon: HomeIcon },
+    { id: "users", label: "Users & activity", Icon: UserIcon },
+    { id: "saved", label: "Saved receipts", Icon: SaveIcon, badge: String(saved.length) },
+    { id: "templates", label: "Templates", Icon: ReceiptIcon },
+    { id: "customize", label: "Customize", Icon: SparklesIcon },
+    { id: "blog", label: "Blog", Icon: FileSearchIcon },
+    { id: "payments", label: "Payments", Icon: CartIcon },
+    { id: "defaults", label: "Defaults", Icon: SlidersIcon },
+    { id: "security", label: "Security", Icon: ShieldIcon },
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="group rounded-lg" aria-label="ReceiptExpenses home">
-              <Logo size="sm" />
-            </Link>
-            <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
-              <SlidersIcon className="h-3.5 w-3.5" />
-              Admin
-            </span>
-          </div>
-          <button
-            onClick={() => {
-              logout();
-              onLogout();
-            }}
-            className="cursor-pointer rounded-md px-2 py-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <nav className="mb-6 flex flex-wrap gap-2">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium ${
-                tab === t.id
-                  ? "bg-brand-600 text-white"
-                  : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
-
-        {tab === "overview" ? (
+    <AdminShell
+      nav={nav}
+      current={tab}
+      onNavigate={setTab}
+      onSignOut={() => {
+        logout();
+        onLogout();
+      }}
+    >
+      {/* ------------------------------ Overview ----------------------------- */}
+      {tab === "overview" ? (
+        <>
+          <PageHeader
+            title="Overview"
+            subtitle="A snapshot of this browser's admin workspace. Customer accounts and live receipt activity live under Users & activity."
+          />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StatCard label="Saved receipts" value={String(stats.count)} />
-            <StatCard label="Total value" value={stats.totalValueDisplay} />
-            <StatCard label="Active templates" value={String(settings.enabledTemplates.length)} />
+            <StatTile label="Saved receipts" value={String(stats.count)} hint="In this browser" />
+            <StatTile label="Total value" value={stats.totalValueDisplay} hint="Across saved receipts" />
+            <StatTile
+              label="Active templates"
+              value={String(settings.enabledTemplates.length)}
+              hint={`of ${TEMPLATES.length} available`}
+            />
           </div>
-        ) : null}
 
-        {tab === "saved" ? (
-          <div className="flex flex-col gap-3">
-            <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
-              These are receipts saved in <strong>this browser</strong> — your own, not your
-              customers&apos;. Receipt content never reaches the server by design, so customer
-              receipts can&apos;t be listed here. See <strong>Users &amp; activity</strong> for what
-              customers are generating.
-            </p>
-            {saved.length === 0 ? (
-              <p className="text-slate-500">
-                No saved receipts yet. Create one and hit “Save” on the editor.
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <Card
+              title="Customers & receipt activity"
+              description="See who signed up and which templates they generate."
+              actions={
+                <AdminButton size="sm" onClick={() => setTab("users")}>
+                  Open
+                </AdminButton>
+              }
+            >
+              <p className="text-sm leading-relaxed text-[#616161]">
+                Accounts come from Supabase Auth; receipt activity is recorded as metadata only —
+                template, action and timestamp, never receipt contents.
               </p>
-            ) : (
-              saved.map((s) => {
-                const t = computeTotals(s.receipt);
-                return (
-                  <div
-                    key={s.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                  >
-                    <div>
-                      <div className="font-semibold text-slate-900">{s.name}</div>
-                      <div className="text-xs text-slate-500">
-                        {getTemplate(s.receipt.templateId).name} ·{" "}
-                        {new Date(s.savedAt).toLocaleString()} ·{" "}
-                        {formatMoney(t.total, s.receipt.currency, s.receipt.locale)}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => openReceipt(s)}>
-                        Open
-                      </Button>
-                      <Button size="sm" variant="danger" onClick={() => deleteReceipt(s.id)}>
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
+            </Card>
+            <Card
+              title="Landing page templates"
+              description="Choose which templates appear, and in what order."
+              actions={
+                <AdminButton size="sm" onClick={() => setTab("templates")}>
+                  Manage
+                </AdminButton>
+              }
+            >
+              <p className="text-sm leading-relaxed text-[#616161]">
+                {settings.enabledTemplates.length} of {TEMPLATES.length} templates are currently
+                shown on the public site.
+              </p>
+            </Card>
           </div>
-        ) : null}
+        </>
+      ) : null}
 
-        {tab === "templates" ? (
-          <Section title="Templates shown on the landing page">
-            {TEMPLATES.map((t) => {
-              const on = settings.enabledTemplates.includes(t.id);
-              const order = settings.enabledTemplates.indexOf(t.id);
-              return (
-                <div
-                  key={t.id}
-                  className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3 last:border-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-                      <TemplateIcon id={t.id} className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <div className="text-sm font-medium text-slate-800">{t.name}</div>
-                      <div className="text-xs text-slate-400">{t.description}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {on ? (
-                      <div className="flex flex-col">
-                        <button
-                          aria-label="Move up"
-                          disabled={order <= 0}
-                          onClick={() => moveTemplate(t.id, -1)}
-                          className="cursor-pointer rounded p-0.5 text-slate-400 transition-colors hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-30"
-                        >
-                          <ChevronUpIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          aria-label="Move down"
-                          disabled={order === settings.enabledTemplates.length - 1}
-                          onClick={() => moveTemplate(t.id, 1)}
-                          className="cursor-pointer rounded p-0.5 text-slate-400 transition-colors hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-30"
-                        >
-                          <ChevronDownIcon className="h-4 w-4" />
-                        </button>
+      {/* ------------------------------- Users ------------------------------- */}
+      {tab === "users" ? <AdminUsers /> : null}
+
+      {/* ------------------------------- Saved ------------------------------- */}
+      {tab === "saved" ? (
+        <>
+          <PageHeader
+            title="Saved receipts"
+            subtitle="Receipts you saved in this browser."
+            actions={
+              <AdminButton tone="primary" onClick={() => router.push("/create")}>
+                Create receipt
+              </AdminButton>
+            }
+          />
+          <div className="mb-4">
+            <Banner tone="info" title="These are your own receipts, not your customers'">
+              Receipt content never reaches the server by design, so customer receipts can&apos;t be
+              listed anywhere. See <strong>Users &amp; activity</strong> for what customers generate.
+            </Banner>
+          </div>
+
+          <Card padding={false}>
+            {saved.length === 0 ? (
+              <EmptyState
+                title="No saved receipts yet"
+                description="Create a receipt and choose Save in the editor to keep it here."
+                action={
+                  <AdminButton tone="primary" onClick={() => router.push("/create")}>
+                    Create receipt
+                  </AdminButton>
+                }
+              />
+            ) : (
+              <Table head={["Name", "Template", "Saved", "Total", ""]}>
+                {saved.map((s) => {
+                  const t = computeTotals(s.receipt);
+                  return (
+                    <Tr key={s.id}>
+                      <Td strong>{s.name}</Td>
+                      <Td>{getTemplate(s.receipt.templateId).name}</Td>
+                      <Td>{new Date(s.savedAt).toLocaleDateString()}</Td>
+                      <Td numeric>{formatMoney(t.total, s.receipt.currency, s.receipt.locale)}</Td>
+                      <Td className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <AdminButton size="sm" onClick={() => openReceipt(s)}>
+                            Open
+                          </AdminButton>
+                          <AdminButton
+                            size="sm"
+                            tone="critical"
+                            onClick={() => deleteReceipt(s.id)}
+                          >
+                            Delete
+                          </AdminButton>
+                        </div>
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </Table>
+            )}
+          </Card>
+        </>
+      ) : null}
+
+      {/* ----------------------------- Templates ----------------------------- */}
+      {tab === "templates" ? (
+        <>
+          <PageHeader
+            title="Templates"
+            subtitle="Toggle which receipt templates appear on the landing page, and drag their order with the arrows."
+          />
+          <Card padding={false}>
+            <ul className="divide-y divide-[#f0f0f0]">
+              {TEMPLATES.map((t) => {
+                const on = settings.enabledTemplates.includes(t.id);
+                const order = settings.enabledTemplates.indexOf(t.id);
+                return (
+                  <li key={t.id} className="flex items-center justify-between gap-4 px-5 py-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f1f1f1] text-[#4a4a4a]">
+                        <TemplateIcon id={t.id} className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-sm font-medium text-[#303030]">
+                            {t.name}
+                          </span>
+                          {on ? <Badge tone="success">Live</Badge> : null}
+                        </div>
+                        <p className="truncate text-xs text-[#616161]">{t.description}</p>
                       </div>
-                    ) : null}
-                    <Toggle label="" checked={on} onChange={(v) => toggleTemplate(t.id, v)} />
-                  </div>
-                </div>
-              );
-            })}
-          </Section>
-        ) : null}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3">
+                      {on ? (
+                        <div className="flex flex-col">
+                          <button
+                            type="button"
+                            aria-label={`Move ${t.name} up`}
+                            disabled={order <= 0}
+                            onClick={() => moveTemplate(t.id, -1)}
+                            className="cursor-pointer rounded p-1 text-[#8a8a8a] transition-colors hover:text-[#303030] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-30"
+                          >
+                            <ChevronUpIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Move ${t.name} down`}
+                            disabled={order === settings.enabledTemplates.length - 1}
+                            onClick={() => moveTemplate(t.id, 1)}
+                            className="cursor-pointer rounded p-1 text-[#8a8a8a] transition-colors hover:text-[#303030] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-30"
+                          >
+                            <ChevronDownIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : null}
+                      <Toggle label="" checked={on} onChange={(v) => toggleTemplate(t.id, v)} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
+        </>
+      ) : null}
 
-        {tab === "users" ? <AdminUsers /> : null}
+      {/* ----------------------------- Customize ----------------------------- */}
+      {tab === "customize" ? (
+        <>
+          <PageHeader
+            title="Customize"
+            subtitle="Override template branding — names, descriptions and logos shown on the public site."
+          />
+          <AdminTemplateCustomizer />
+        </>
+      ) : null}
 
-        {tab === "customize" ? <AdminTemplateCustomizer /> : null}
-
-        {tab === "defaults" ? (
-          <Section title="Defaults applied to new receipts">
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Default currency">
+      {/* ------------------------------ Defaults ----------------------------- */}
+      {tab === "defaults" ? (
+        <>
+          <PageHeader
+            title="Defaults"
+            subtitle="Applied to every new receipt. Changes save automatically."
+          />
+          <Card title="Receipt defaults">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AdminField label="Default currency" htmlFor="d-currency">
                 <input
-                  className={inputCls}
+                  id="d-currency"
+                  className={adminInputCls}
                   value={settings.defaults.currency}
                   onChange={(e) =>
                     update({ defaults: { ...settings.defaults, currency: e.target.value } })
                   }
                 />
-              </Field>
-              <Field label="Default tax rate (%)">
+              </AdminField>
+              <AdminField label="Default tax rate (%)" htmlFor="d-tax">
                 <input
+                  id="d-tax"
                   type="number"
                   step="0.01"
-                  className={inputCls}
+                  className={adminInputCls}
                   value={settings.defaults.taxRatePct}
                   onChange={(e) =>
                     update({
@@ -328,85 +435,110 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                     })
                   }
                 />
-              </Field>
-              <Field label="Accent color">
+              </AdminField>
+              <AdminField label="Accent color" htmlFor="d-accent">
                 <input
+                  id="d-accent"
                   type="color"
-                  className="h-10 w-full rounded-md border border-slate-300"
+                  className="h-10 w-full cursor-pointer rounded-lg border border-[#c9c9c9] bg-white p-1"
                   value={settings.defaults.accentColor}
                   onChange={(e) =>
                     update({ defaults: { ...settings.defaults, accentColor: e.target.value } })
                   }
                 />
-              </Field>
-              <Field label="Footer note">
+              </AdminField>
+              <AdminField label="Footer note" htmlFor="d-footer">
                 <input
-                  className={inputCls}
+                  id="d-footer"
+                  className={adminInputCls}
                   value={settings.defaults.footerNote}
                   onChange={(e) =>
                     update({ defaults: { ...settings.defaults, footerNote: e.target.value } })
                   }
                 />
-              </Field>
+              </AdminField>
             </div>
-            <Field label="Default business name">
-              <input
-                className={inputCls}
-                value={settings.defaults.business.name}
-                onChange={(e) =>
-                  update({
-                    defaults: {
-                      ...settings.defaults,
-                      business: { ...settings.defaults.business, name: e.target.value },
-                    },
-                  })
-                }
-              />
-            </Field>
-            <p className="text-xs text-slate-400">Changes save automatically.</p>
-          </Section>
-        ) : null}
+            <div className="mt-4">
+              <AdminField label="Default business name" htmlFor="d-business">
+                <input
+                  id="d-business"
+                  className={adminInputCls}
+                  value={settings.defaults.business.name}
+                  onChange={(e) =>
+                    update({
+                      defaults: {
+                        ...settings.defaults,
+                        business: { ...settings.defaults.business, name: e.target.value },
+                      },
+                    })
+                  }
+                />
+              </AdminField>
+            </div>
+          </Card>
+        </>
+      ) : null}
 
-        {tab === "blog" ? <AutopilotBlog /> : null}
+      {/* -------------------------------- Blog ------------------------------- */}
+      {tab === "blog" ? (
+        <>
+          <PageHeader
+            title="Blog"
+            subtitle="Autopilot content pipeline — keywords, generation queue and publishing."
+          />
+          <AutopilotBlog />
+        </>
+      ) : null}
 
-        {tab === "payments" ? <AdminPayments /> : null}
+      {/* ------------------------------ Payments ----------------------------- */}
+      {tab === "payments" ? (
+        <>
+          <PageHeader title="Payments" subtitle="Stripe configuration and subscription state." />
+          <AdminPayments />
+        </>
+      ) : null}
 
-        {tab === "security" ? (
-          <Section title="Security">
-            <Field label="Admin password" hint="Stored in your browser only.">
-              <input
-                className={inputCls}
-                value={settings.password}
-                onChange={(e) => update({ password: e.target.value })}
-              />
-            </Field>
-            <p className="text-xs text-slate-400">
-              This is a client-side soft gate for a no-backend app — it keeps the panel tidy, not
-              secure. Add real auth before any multi-user deployment.
-            </p>
-            <Field
-              label="Blog automation token"
-              hint="Must match the Worker secret BLOG_ADMIN_TOKEN. Used by the Automation tab to authorize the server."
-            >
-              <input
-                className={inputCls}
-                value={settings.automationToken}
-                onChange={(e) => update({ automationToken: e.target.value })}
-                placeholder="paste the same value you set via wrangler secret put"
-              />
-            </Field>
-          </Section>
-        ) : null}
-      </div>
-    </main>
-  );
-}
+      {/* ------------------------------ Security ----------------------------- */}
+      {tab === "security" ? (
+        <>
+          <PageHeader title="Security" subtitle="Access to this panel and the automation API." />
+          <div className="flex flex-col gap-4">
+            <Banner tone="warning" title="This panel is a soft gate, not real security">
+              The password below is stored in your browser only. Server routes are protected
+              separately by the <code className="font-mono text-xs">BLOG_ADMIN_TOKEN</code> Worker
+              secret. Add real auth before any multi-user deployment.
+            </Banner>
 
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="text-sm text-slate-500">{label}</div>
-      <div className="mt-2 text-3xl font-bold text-slate-900">{value}</div>
-    </div>
+            <Card title="Admin password">
+              <AdminField label="Password" htmlFor="s-pw" hint="Stored in this browser only.">
+                <input
+                  id="s-pw"
+                  className={adminInputCls}
+                  value={settings.password}
+                  onChange={(e) => update({ password: e.target.value })}
+                />
+              </AdminField>
+            </Card>
+
+            <Card title="Automation token">
+              <AdminField
+                label="Admin API token"
+                htmlFor="s-token"
+                hint="Must match the Worker secret BLOG_ADMIN_TOKEN. Used by Users & activity and Blog to authorize server requests."
+              >
+                <input
+                  id="s-token"
+                  type="password"
+                  className={adminInputCls}
+                  value={settings.automationToken}
+                  onChange={(e) => update({ automationToken: e.target.value })}
+                  placeholder="paste the value set via wrangler secret put"
+                />
+              </AdminField>
+            </Card>
+          </div>
+        </>
+      ) : null}
+    </AdminShell>
   );
 }
