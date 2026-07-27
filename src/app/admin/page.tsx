@@ -20,11 +20,13 @@ import TemplateIcon from "@/components/TemplateIcon";
 import Logo from "@/components/Logo";
 import { ChevronUpIcon, ChevronDownIcon, SlidersIcon } from "@/components/icons";
 import AdminPayments from "@/components/admin/AdminPayments";
+import AdminUsers from "@/components/admin/AdminUsers";
 import AutopilotBlog from "@/components/admin/AutopilotBlog";
 import AdminTemplateCustomizer from "@/components/admin/AdminTemplateCustomizer";
 
 type Tab =
   | "overview"
+  | "users"
   | "saved"
   | "templates"
   | "customize"
@@ -147,6 +149,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
+    { id: "users", label: "Users & activity" },
     { id: "saved", label: `Saved (${saved.length})` },
     { id: "templates", label: "Templates" },
     { id: "customize", label: "Customize" },
@@ -208,6 +211,12 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
         {tab === "saved" ? (
           <div className="flex flex-col gap-3">
+            <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
+              These are receipts saved in <strong>this browser</strong> — your own, not your
+              customers&apos;. Receipt content never reaches the server by design, so customer
+              receipts can&apos;t be listed here. See <strong>Users &amp; activity</strong> for what
+              customers are generating.
+            </p>
             {saved.length === 0 ? (
               <p className="text-slate-500">
                 No saved receipts yet. Create one and hit “Save” on the editor.
@@ -290,6 +299,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             })}
           </Section>
         ) : null}
+
+        {tab === "users" ? <AdminUsers /> : null}
 
         {tab === "customize" ? <AdminTemplateCustomizer /> : null}
 

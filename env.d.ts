@@ -32,6 +32,13 @@ interface CloudflareEnv {
   SUPABASE_URL?: string;
   /** Supabase publishable/anon key (safe for the browser). */
   SUPABASE_ANON_KEY?: string;
+  /**
+   * Supabase service_role key — ADMIN level, server-only. Used solely by
+   * /api/admin/users to list registered accounts. NEVER expose to the browser
+   * and never add it to /api/env. Set with:
+   *   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+   */
+  SUPABASE_SERVICE_ROLE_KEY?: string;
 
   // --- Google OAuth (legacy: the old custom flow; now handled by Supabase.
   //     Kept for reference — safe to remove once fully migrated) ---

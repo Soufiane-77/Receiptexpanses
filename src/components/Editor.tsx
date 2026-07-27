@@ -13,6 +13,7 @@ import { presetFor } from "@/lib/samples";
 import { applyTemplateCustomization, templateName } from "@/lib/templateCustomize";
 import { saveDraft, addSaved } from "@/lib/storage";
 import { exportPDF, exportPNG, printReceipt } from "@/lib/export";
+import { trackReceipt } from "@/lib/trackReceipt";
 import { useCurrentUser } from "@/lib/auth";
 import { useIsPro } from "@/lib/subscription";
 import ReceiptPreview from "./ReceiptPreview";
@@ -103,6 +104,7 @@ export default function Editor({ initial }: { initial: Receipt }) {
         const no = getValues("meta.receiptNo");
         if (kind === "png") await exportPNG(previewRef.current, no);
         else await exportPDF(previewRef.current, no);
+        trackReceipt(getValues("templateId"), kind);
       } finally {
         setBusy(null);
       }
@@ -121,6 +123,7 @@ export default function Editor({ initial }: { initial: Receipt }) {
       savedAt: new Date().toISOString(),
       receipt: current,
     });
+    trackReceipt(current.templateId, "save");
     window.alert(
       user ? "Saved. View it on your dashboard." : "Saved to this browser. Sign in to see it on your dashboard.",
     );
@@ -704,7 +707,10 @@ export default function Editor({ initial }: { initial: Receipt }) {
             type="button"
             variant="secondary"
             onClick={() => {
-              if (requireAccess()) printReceipt();
+              if (requireAccess()) {
+                printReceipt();
+                trackReceipt(getValues("templateId"), "print");
+              }
             }}
           >
             <PrinterIcon className="h-4 w-4" />
