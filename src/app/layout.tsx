@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import SiteSnippets from "@/components/SiteSnippets";
 import "./globals.css";
 
 const inter = Inter({
@@ -64,6 +65,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Kept out of the build so config lives only as Cloudflare env. */}
         <Script src="/api/env" strategy="beforeInteractive" />
         {children}
+        {/* Admin-managed custom code (analytics, pixels). Client-side so the
+            marketing pages stay statically generated. */}
+        <SiteSnippets />
       </body>
     </html>
   );

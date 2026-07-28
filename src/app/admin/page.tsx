@@ -28,7 +28,9 @@ import {
   CartIcon,
   SlidersIcon,
   ShieldIcon,
+  BarcodeIcon,
 } from "@/components/icons";
+import AdminCustomCode from "@/components/admin/AdminCustomCode";
 import AdminPayments from "@/components/admin/AdminPayments";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AutopilotBlog from "@/components/admin/AutopilotBlog";
@@ -58,6 +60,7 @@ type Tab =
   | "blog"
   | "payments"
   | "defaults"
+  | "code"
   | "security";
 
 export default function AdminPage() {
@@ -202,6 +205,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     { id: "blog", label: "Blog", Icon: FileSearchIcon },
     { id: "payments", label: "Payments", Icon: CartIcon },
     { id: "defaults", label: "Defaults", Icon: SlidersIcon },
+    { id: "code", label: "Custom code", Icon: BarcodeIcon },
     { id: "security", label: "Security", Icon: ShieldIcon },
   ];
 
@@ -497,6 +501,9 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           <AdminPayments />
         </>
       ) : null}
+
+      {/* ---------------------------- Custom code ---------------------------- */}
+      {tab === "code" ? <AdminCustomCode /> : null}
 
       {/* ------------------------------ Security ----------------------------- */}
       {tab === "security" ? (
