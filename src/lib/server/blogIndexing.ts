@@ -54,7 +54,12 @@ async function pushIndexNow(db: D1Database, url: string): Promise<EngineResult> 
       body: JSON.stringify({
         host: indexNowHost,
         key,
-        keyLocation: `${SITE_URL}/api/indexnow`,
+        // Canonical IndexNow location: the key file at the site root. Do NOT
+        // point this at /api/indexnow — robots.txt disallows /api/, engines
+        // honour that, and verification then fails with 422 "URLs are not
+        // related to your site". The file lives in public/<key>.txt; if the key
+        // is ever rotated, write the new file alongside it.
+        keyLocation: `${SITE_URL}/${key}.txt`,
         urlList: [url],
       }),
     });

@@ -29,10 +29,15 @@ export default function robots(): MetadataRoute.Robots {
   // Account, auth and API pathways are never useful to crawl; everything else
   // (including /llms.txt and all template landing pages) is open.
   const restricted = ["/admin", "/dashboard", "/api/", "/auth/"];
+  // …except the IndexNow key: Bing/Yandex must fetch it to verify ownership, and
+  // they honour robots.txt. Blocking it makes every IndexNow submission fail
+  // with 422 "URLs are not related to your site". Allow beats Disallow by
+  // longest-match, so this re-opens exactly that one path.
+  const allow = ["/", "/api/indexnow"];
   return {
     rules: [
-      { userAgent: "*", allow: "/", disallow: restricted },
-      { userAgent: aiAgents, allow: "/", disallow: restricted },
+      { userAgent: "*", allow, disallow: restricted },
+      { userAgent: aiAgents, allow, disallow: restricted },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
