@@ -1,7 +1,11 @@
-{
+﻿{
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "receiptexpanses",
-  "main": ".open-next/worker.js",
+  "main": "worker-entry.mjs",
+  // Hourly cron drives the Autopilot Blog. The tick self-limits via
+  // interval_hours / daily_cap / min_spacing_minutes, so firing hourly yields
+  // the configured posts-per-day without drifting past a 6-hourly boundary.
+  "triggers": { "crons": ["0 * * * *"] },
   "compatibility_date": "2025-03-25",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -15,7 +19,7 @@
     "binding": "AI"
   },
   // Non-secret config vars. GOOGLE_CLIENT_ID is a public OAuth identifier (it is
-  // sent to the browser during sign-in), so it lives here in config — this also
+  // sent to the browser during sign-in), so it lives here in config â€” this also
   // ensures `wrangler deploy` preserves it. GOOGLE_CLIENT_SECRET is a real secret,
   // set via `wrangler secret put GOOGLE_CLIENT_SECRET` (do NOT put it here).
   "vars": {
