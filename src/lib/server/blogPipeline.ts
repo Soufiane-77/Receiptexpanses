@@ -251,15 +251,55 @@ const AUDIENCE =
   `ReceiptExpenses (${SITE_NAME}) is an online receipt generator for small businesses and freelancers. ` +
   `Users pick a template, fill a live form, and download a PDF/PNG. Never impersonate a real named company.`;
 
+// --- Fraud-adjacent keyword handling ---------------------------------------
+
+/**
+ * Keywords whose raw search intent is fabricating a receipt to deceive someone
+ * ("fake receipt", "forge a receipt"). These are high-volume and worth ranking
+ * for, but the article has to serve the legitimate need behind the query rather
+ * than teach fraud — see SAFETY_DIRECTIVE.
+ */
+const FRAUD_INTENT_RE = /\bfakes?\b|\bforge|\bfraud|\bcounterfeit/i;
+
+export function isSensitiveKeyword(keyword: string): boolean {
+  return FRAUD_INTENT_RE.test(keyword);
+}
+
+/**
+ * Appended to every prompt for a fraud-adjacent keyword. The page still targets
+ * the query — that is the whole point of ranking for it — but it answers what
+ * people overwhelmingly actually need (a lost/faded receipt for a real purchase,
+ * a template for their own business, a prop) and states the legal line plainly.
+ * Ranking for the term and giving a lawful answer is both better business and
+ * better for the reader than ceding it to sites that do teach forgery.
+ */
+const SAFETY_DIRECTIVE =
+  `\n\nCRITICAL CONTENT RULE for this keyword:\n` +
+  `- Do NOT explain how to fabricate a receipt for a purchase that did not happen, and do NOT ` +
+  `present forged receipts as acceptable or give tips for making one look convincing to a ` +
+  `retailer, employer or tax authority.\n` +
+  `- DO address what readers searching this actually need: reconstructing a receipt for a REAL ` +
+  `purchase whose original was lost, faded or never issued; creating receipts for their own ` +
+  `business; or a harmless prop/meme.\n` +
+  `- State plainly, once and without lecturing, that creating a receipt for a transaction that ` +
+  `never occurred — to claim a refund, expense, reimbursement or tax deduction — is fraud and ` +
+  `illegal in most jurisdictions.\n` +
+  `- Keep the tone helpful, practical and non-judgemental. No moralising, no repeated warnings.`;
+
+function safetyFor(keyword: string): string {
+  return isSensitiveKeyword(keyword) ? SAFETY_DIRECTIVE : "";
+}
+
 export async function outline(complete: Completer, keyword: string): Promise<Outline> {
   const system =
     `You are an SEO content strategist for ${AUDIENCE} ` +
     `Return a plan in EXACTLY this plain-text format and nothing else:\n` +
     `INTENT: <one line>\nANGLE: <one line unique angle>\nHEADINGS:\n- <H2>\n- <H2>\n- <H2>\n- <H2>\n` +
     `SECONDARY: kw1, kw2, kw3\nFAQ:\n- <question?>\n- <question?>\n- <question?>`;
+  const system2 = system + safetyFor(keyword);
   let text = "";
   try {
-    text = await complete(system, `Keyword: ${keyword}`, 600);
+    text = await complete(system2, `Keyword: ${keyword}`, 600);
   } catch {
     text = "";
   }
@@ -315,7 +355,7 @@ export async function draft(
     (plan.angle ? `Angle: ${plan.angle}\n` : "") +
     (plan.headings.length ? `Suggested H2s:\n${plan.headings.map((h) => `- ${h}`).join("\n")}\n` : "") +
     (plan.faqs.length ? `FAQ questions to answer:\n${plan.faqs.map((f) => `- ${f}`).join("\n")}` : "");
-  return complete(system, user, 4096);
+  return complete(system + safetyFor(keyword), user, 4096);
 }
 
 export async function selfEdit(
@@ -329,7 +369,7 @@ export async function selfEdit(
     `keep all markdown structure (title first line, ## / ### headings, tables, lists, FAQ), and make sure the keyword "${keyword}" ` +
     `appears naturally in the title, first paragraph and one heading. Return ONLY the edited markdown article, same format.`;
   try {
-    const edited = await complete(system, markdown, 4096);
+    const edited = await complete(system + safetyFor(keyword), markdown, 4096);
     // Guard against a model that returns a refusal or a tiny fragment.
     return edited.split("\n").length >= 6 && edited.length > markdown.length * 0.5 ? edited : markdown;
   } catch {
@@ -365,7 +405,7 @@ export async function expand(
     `- Keep "${keyword}" in the title, the first paragraph and at least one heading.\n` +
     `- Do NOT pad with repetition, filler or restated sentences. Every added sentence must carry information.`;
   try {
-    const out = await complete(system, markdown, 4096);
+    const out = await complete(system + safetyFor(keyword), markdown, 4096);
     return out.trim().length > markdown.trim().length ? out : markdown;
   } catch {
     return markdown;
@@ -503,6 +543,10 @@ export async function generatePost(
   const words = countWords(blocks);
   const belowFloor = words < settings.minWordCount;
 
+  // Fraud-adjacent keywords are written with the safety framing above, but they
+  // are never auto-published: a human reads them once before they go live.
+  const sensitive = isSensitiveKeyword(kw);
+
   const firstPara = (blocks.find((b) => b.type === "p") as { text: string } | undefined)?.text ?? "";
   const { metaTitle, metaDescription } = buildMeta(title, firstPara, kw);
   const excerpt = metaDescription;
@@ -529,7 +573,7 @@ export async function generatePost(
       cover: settings.cover,
       body: blocks,
       readMins: Math.max(1, Math.round(words / 200)),
-      status: settings.autoPublish && !belowFloor ? "published" : "draft",
+      status: settings.autoPublish && !belowFloor && !sensitive ? "published" : "draft",
       source: "auto",
       keyword: kw,
       metaTitle,
