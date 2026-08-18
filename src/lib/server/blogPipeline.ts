@@ -315,7 +315,7 @@ export async function draft(
     (plan.angle ? `Angle: ${plan.angle}\n` : "") +
     (plan.headings.length ? `Suggested H2s:\n${plan.headings.map((h) => `- ${h}`).join("\n")}\n` : "") +
     (plan.faqs.length ? `FAQ questions to answer:\n${plan.faqs.map((f) => `- ${f}`).join("\n")}` : "");
-  return complete(system, user, 2048);
+  return complete(system, user, 4096);
 }
 
 export async function selfEdit(
@@ -329,9 +329,44 @@ export async function selfEdit(
     `keep all markdown structure (title first line, ## / ### headings, tables, lists, FAQ), and make sure the keyword "${keyword}" ` +
     `appears naturally in the title, first paragraph and one heading. Return ONLY the edited markdown article, same format.`;
   try {
-    const edited = await complete(system, markdown, 2048);
+    const edited = await complete(system, markdown, 4096);
     // Guard against a model that returns a refusal or a tiny fragment.
     return edited.split("\n").length >= 6 && edited.length > markdown.length * 0.5 ? edited : markdown;
+  } catch {
+    return markdown;
+  }
+}
+
+/**
+ * Expand a draft that came in under the quality floor.
+ *
+ * The 8B model frequently returns ~500 words even when asked for 1200+. Rather
+ * than discard the work (which stranded keywords as `failed`), ask it to deepen
+ * the existing article with concrete, non-repetitive material and keep the
+ * focus keyword intact. Returns the longer of the two so a bad expansion can
+ * never make things worse.
+ */
+export async function expand(
+  complete: Completer,
+  keyword: string,
+  markdown: string,
+  targetWords: number
+): Promise<string> {
+  const system =
+    `You are expanding an existing article about "${keyword}" so it fully covers the topic.\n` +
+    `Return the COMPLETE rewritten article in the same markdown format (title on the first line, ` +
+    `"## " sections, "### " subsections, tables, lists, a "## FAQ" section with "### " questions).\n` +
+    `Requirements:\n` +
+    `- Target at least ${targetWords} words — noticeably longer than the input.\n` +
+    `- Keep every existing section; deepen them with specifics: worked examples, concrete numbers, ` +
+    `edge cases, step-by-step detail, and a comparison table if one fits.\n` +
+    `- Add 2-3 genuinely new "## " sections that a reader searching "${keyword}" would want.\n` +
+    `- Add 2 more FAQ entries.\n` +
+    `- Keep "${keyword}" in the title, the first paragraph and at least one heading.\n` +
+    `- Do NOT pad with repetition, filler or restated sentences. Every added sentence must carry information.`;
+  try {
+    const out = await complete(system, markdown, 4096);
+    return out.trim().length > markdown.trim().length ? out : markdown;
   } catch {
     return markdown;
   }
@@ -434,6 +469,15 @@ export async function generatePost(
   }
   if (!markdown.trim()) return { ok: false, reason: "Model returned no content." };
 
+  // Expansion loop. The 8B model routinely returns ~500 words even when asked
+  // for 1200+, which used to strand the keyword as `failed`. Deepen the draft
+  // instead so every queued keyword yields a usable post.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const probe = markdownToBlocks(markdown.split("\n").slice(1).join("\n"));
+    if (countWords(probe) >= settings.minWordCount) break;
+    markdown = await expand(complete, kw, markdown, Math.max(settings.minWordCount + 300, 900));
+  }
+
   // Title = first non-empty line; body = the rest.
   const all = markdown.split("\n");
   const titleLine = all.shift() ?? "";
@@ -453,11 +497,11 @@ export async function generatePost(
   const mid = Math.max(2, Math.floor(blocks.length / 2));
   blocks = [...blocks.slice(0, mid), cta, ...blocks.slice(mid), cta];
 
-  // Guardrail: quality floor.
+  // Quality floor. After the expansion attempts above, a still-short article is
+  // kept as a DRAFT rather than discarded: the keyword is consumed, the work is
+  // reviewable in the admin, and thin content never auto-publishes.
   const words = countWords(blocks);
-  if (words < settings.minWordCount) {
-    return { ok: false, reason: `Below quality floor (${words} words < ${settings.minWordCount}).` };
-  }
+  const belowFloor = words < settings.minWordCount;
 
   const firstPara = (blocks.find((b) => b.type === "p") as { text: string } | undefined)?.text ?? "";
   const { metaTitle, metaDescription } = buildMeta(title, firstPara, kw);
@@ -485,7 +529,7 @@ export async function generatePost(
       cover: settings.cover,
       body: blocks,
       readMins: Math.max(1, Math.round(words / 200)),
-      status: settings.autoPublish ? "published" : "draft",
+      status: settings.autoPublish && !belowFloor ? "published" : "draft",
       source: "auto",
       keyword: kw,
       metaTitle,
