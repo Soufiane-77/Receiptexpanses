@@ -3,6 +3,7 @@ import {
   insertPost,
   listPostLites,
   nextQueuedKeyword,
+  reclaimStaleProcessing,
   setKeywordStatus,
 } from "./blogStore";
 import {
@@ -30,6 +31,8 @@ export type TickResult = {
   status?: "draft" | "published";
   keyword?: string;
   index?: IndexStatus;
+  /** Keywords put back in the queue after an interrupted previous run. */
+  reclaimed?: number;
 };
 
 function cadenceBlock(s: BlogSettings): string | null {
@@ -60,8 +63,18 @@ export async function runScheduler(
     if (blocked) return { published: false, reason: blocked };
   }
 
+  // Self-heal: a previous tick may have died after claiming a keyword, which
+  // would otherwise strand it in `processing` forever.
+  const reclaimed = await reclaimStaleProcessing(db);
+
   const next = await nextQueuedKeyword(db);
-  if (!next) return { published: false, reason: "Queue is empty — add keywords." };
+  if (!next) {
+    return {
+      published: false,
+      reason: "Queue is empty — add keywords.",
+      reclaimed,
+    };
+  }
 
   await setKeywordStatus(db, next.id, "processing");
 
@@ -71,7 +84,7 @@ export async function runScheduler(
   if (!result.ok) {
     const status = /^Skipped/i.test(result.reason) ? "skipped_duplicate" : "failed";
     await setKeywordStatus(db, next.id, status, { error: result.reason });
-    return { published: false, reason: result.reason, keyword: next.keyword };
+    return { published: false, reason: result.reason, keyword: next.keyword, reclaimed };
   }
 
   await insertPost(db, result.post);
@@ -90,5 +103,6 @@ export async function runScheduler(
     status: result.post.status as "draft" | "published",
     keyword: next.keyword,
     index,
+    reclaimed,
   };
 }

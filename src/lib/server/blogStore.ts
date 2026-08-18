@@ -265,6 +265,34 @@ export async function enqueueKeywords(
 }
 
 /** The next keyword to process (highest priority, oldest first), or null. */
+/**
+ * Reclaim keywords stranded in `processing`.
+ *
+ * A tick flips a keyword to `processing` before generating. If that run dies
+ * mid-flight (Worker CPU limit, AI error, a deploy) the row stays `processing`
+ * forever — and because nextQueuedKeyword() only selects `queued`, the keyword
+ * is never retried and the queue silently stalls. Put anything older than the
+ * stale window back in the queue so the next tick picks it up.
+ */
+export async function reclaimStaleProcessing(
+  db: D1Database,
+  staleMs = 30 * 60_000
+): Promise<number> {
+  const cutoff = Date.now() - staleMs;
+  const res = await db
+    .prepare(
+      `UPDATE blog_keywords
+          SET status = 'queued',
+              processed_at = NULL,
+              error = 'Reclaimed after an interrupted run.'
+        WHERE status = 'processing'
+          AND COALESCE(processed_at, 0) < ?`
+    )
+    .bind(cutoff)
+    .run();
+  return res.meta?.changes ?? 0;
+}
+
 export async function nextQueuedKeyword(db: D1Database): Promise<KeywordRow | null> {
   const row = await db
     .prepare(
