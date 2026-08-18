@@ -33,13 +33,20 @@ export async function generateMetadata({
   const post = await resolvePost(slug);
   if (!post) return { title: "Post not found · ReceiptExpenses" };
 
-  const title = post.metaTitle || `${post.title} · ${SITE_NAME}`;
+  const title = post.metaTitle || post.title;
   const description = post.metaDescription || post.excerpt;
   const url = `${SITE_URL}/blogs/${post.slug}`;
-  const images = post.coverImageUrl ? [{ url: post.coverImageUrl, alt: post.coverImageAlt || post.title }] : [];
+  // Always ship an OG image. Without one, link previews render as a bare text
+  // card and the Twitter card degrades to "summary" — both hurt click-through
+  // from social and from AI answer engines that surface link cards.
+  const image = post.coverImageUrl || `${SITE_URL}/og.png`;
+  const imageAlt = post.coverImageAlt || post.title;
 
   return {
-    title,
+    // `absolute` bypasses the layout's "%s · ReceiptExpenses" template: metaTitle
+    // is already optimised to <=60 chars, and appending the suffix pushed the
+    // <title> to ~82 chars, past the point search results truncate.
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: {
@@ -49,13 +56,13 @@ export async function generateMetadata({
       description,
       siteName: SITE_NAME,
       publishedTime: post.date,
-      images,
+      images: [{ url: image, width: 1200, height: 630, alt: imageAlt }],
     },
     twitter: {
-      card: images.length ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: images.map((i) => i.url),
+      images: [image],
     },
   };
 }
@@ -86,7 +93,7 @@ function buildJsonLd(post: Post): Record<string, unknown>[] {
       author: { "@type": "Organization", name: post.author },
       publisher: { "@type": "Organization", name: SITE_NAME },
       mainEntityOfPage: url,
-      ...(post.coverImageUrl ? { image: post.coverImageUrl } : {}),
+      image: post.coverImageUrl || `${SITE_URL}/og.png`,
     },
     {
       "@context": "https://schema.org",

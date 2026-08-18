@@ -37,15 +37,34 @@ export function workersAiCompleter(ai: Ai, model: string): Completer {
 
 // --- Text helpers ----------------------------------------------------------
 
-export function slugify(s: string): string {
-  return s
+/**
+ * URL-safe slug. Truncates on a word boundary so a long title never yields a
+ * slug ending mid-word (e.g. "...accounting-with-re"), which looks broken in
+ * search results and in shared links.
+ */
+export function slugify(s: string, max = 70): string {
+  const base = s
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .slice(0, 80);
+    .replace(/^-+|-+$/g, "");
+  if (base.length <= max) return base;
+  const cut = base.slice(0, max);
+  const lastDash = cut.lastIndexOf("-");
+  return (lastDash > 20 ? cut.slice(0, lastDash) : cut).replace(/-+$/, "");
 }
+
+/** Trim to `max` chars without cutting a word in half. */
+function truncateAtWord(s: string, max: number): string {
+  const clean = s.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max);
+  const i = cut.lastIndexOf(" ");
+  return (i > max * 0.6 ? cut.slice(0, i) : cut).replace(/[\s,;:.-]+$/, "");
+}
+
 
 function stripMd(s: string): string {
   return s.replace(/\*\*/g, "").replace(/`/g, "").trim();
@@ -340,7 +359,7 @@ export async function draft(
     `You are an expert writer for ${AUDIENCE}\n` +
     `Voice: ${settings.brandVoice}\n` +
     `Write an original, genuinely useful 1200-1700 word article in GitHub markdown. Requirements:\n` +
-    `- First line: the H1 title in plain text (no '#').\n` +
+    `- First line: the H1 title in plain text (no '#'), MAX 60 characters so search results do not truncate it.\n` +
     `- Open with 2-3 sentences that directly answer the query (quotable on its own).\n` +
     `- A "## Key takeaways" bullet list near the top.\n` +
     `- 4-6 "## " sections with logical "### " subsections; use clear, declarative, fact-dense sentences.\n` +
@@ -415,11 +434,12 @@ export async function expand(
 // --- Meta + schema ---------------------------------------------------------
 
 function buildMeta(title: string, firstPara: string, keyword: string): { metaTitle: string; metaDescription: string } {
-  const base = title.length <= 60 ? title : `${title.slice(0, 57).trimEnd()}…`;
-  const metaTitle = base.length <= 60 ? base : base.slice(0, 60);
+  // Cut on word boundaries: a title ending "…Accounting with Re…" reads as
+  // broken in a SERP snippet and in social cards.
+  const metaTitle = truncateAtWord(title, 60);
   let desc = firstPara.replace(/\s+/g, " ").trim();
   if (!new RegExp(keyword.split(/\s+/)[0]!, "i").test(desc)) desc = `${keyword} — ${desc}`;
-  const metaDescription = desc.length <= 158 ? desc : `${desc.slice(0, 155).trimEnd()}…`;
+  const metaDescription = truncateAtWord(desc, 155);
   return { metaTitle, metaDescription };
 }
 
