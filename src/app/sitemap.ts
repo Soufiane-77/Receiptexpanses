@@ -51,21 +51,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Merge static + D1 posts, D1 winning on slug collisions.
-  const bySlug = new Map<string, { url: string; date: string }>();
+  const bySlug = new Map<string, { url: string; date: string; image?: string }>();
   for (const p of POSTS) bySlug.set(p.slug, { url: `${SITE_URL}/blogs/${p.slug}`, date: p.date });
   try {
     const db = await getDB();
     for (const p of await listPublishedPosts(db, 1000)) {
-      bySlug.set(p.slug, { url: `${SITE_URL}/blogs/${p.slug}`, date: p.date });
+      bySlug.set(p.slug, {
+        url: `${SITE_URL}/blogs/${p.slug}`,
+        date: p.date,
+        image: p.coverImageUrl || undefined,
+      });
     }
   } catch {
     // D1 unavailable (e.g. local prerender) — static posts only.
   }
+  // `images` emits <image:image> entries — how Google discovers blog cover art
+  // for Google Images.
   const posts = [...bySlug.values()].map((p) => ({
     url: p.url,
     lastModified: new Date(p.date),
     changeFrequency: "monthly" as const,
     priority: 0.6,
+    ...(p.image ? { images: [p.image] } : {}),
   }));
 
   return [...core, ...receiptTypes, ...guides, ...posts];

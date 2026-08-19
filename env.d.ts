@@ -42,6 +42,17 @@ interface CloudflareEnv {
 
   // --- Google OAuth (legacy: the old custom flow; now handled by Supabase.
   //     Kept for reference — safe to remove once fully migrated) ---
+  /**
+   * Pexels API key for blog cover images. Free key from pexels.com/api.
+   * Set via `wrangler secret put PEXELS_API_KEY`. Images are skipped if unset.
+   */
+  PEXELS_API_KEY?: string;
+  /**
+   * R2 bucket holding self-hosted blog cover images, served at /blog-images/*.
+   * Optional: without it the pipeline hotlinks the Pexels CDN instead.
+   */
+  BLOG_IMAGES?: R2Bucket;
+
   /** Google OAuth client id. */
   GOOGLE_CLIENT_ID?: string;
   /** Google OAuth client secret. */
