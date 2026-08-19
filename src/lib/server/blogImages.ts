@@ -32,10 +32,16 @@ export async function resolveCoverImage(keyword: string, title: string): Promise
   try {
     const env = await getEnv();
     const apiKey = (env.PEXELS_API_KEY ?? "").trim();
-    if (!apiKey) return null;
+    if (!apiKey) {
+      console.log("[cover] PEXELS_API_KEY not set — skipping image.");
+      return null;
+    }
 
     const photo = await searchPexels(apiKey, keyword);
-    if (!photo) return null;
+    if (!photo) {
+      console.log(`[cover] no Pexels result for "${imageQueryFor(keyword)}"`);
+      return null;
+    }
 
     // Pexels' "landscape" rendition is 1200x627 — effectively the OG card size.
     const sourceUrl = photo.src?.landscape || photo.src?.large2x || photo.src?.large || photo.src?.original;
@@ -50,8 +56,10 @@ export async function resolveCoverImage(keyword: string, title: string): Promise
     const key = `${slugForKey(keyword)}-${photo.id}.jpg`;
     const stored = await storeInR2(bucket, key, sourceUrl);
     return { url: stored ? `${SITE_URL}${IMAGE_PATH}/${key}` : sourceUrl, alt };
-  } catch {
-    return null; // never block publishing on an image failure
+  } catch (err) {
+    // Never block publishing on an image failure — but do say why.
+    console.error(`[cover] failed: ${String(err)}`);
+    return null;
   }
 }
 
@@ -62,7 +70,10 @@ async function searchPexels(apiKey: string, keyword: string): Promise<PexelsPhot
     `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}` +
     `&per_page=15&orientation=landscape&size=medium`;
   const res = await fetch(url, { headers: { Authorization: apiKey } });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error(`[cover] Pexels API ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    return null;
+  }
   const data = (await res.json()) as { photos?: PexelsPhoto[] };
   const photos = (data.photos ?? []).filter((p) => p.src?.landscape || p.src?.large);
   if (photos.length === 0) return null;
