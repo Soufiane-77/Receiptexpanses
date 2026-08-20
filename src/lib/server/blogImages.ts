@@ -52,7 +52,10 @@ export async function resolveCoverImages(
     const photos = await searchPexels(apiKey, keyword, count);
     if (photos.length === 0) return [];
 
+    // Prefer R2 for media; fall back to KV so images stay same-origin even
+    // when R2 has not been enabled on the account.
     const bucket = env.BLOG_IMAGES;
+    const kv = env.BLOG_IMAGES_KV;
     const out: CoverImage[] = [];
 
     for (const photo of photos) {
@@ -63,12 +66,14 @@ export async function resolveCoverImages(
       const alt = buildAltText(keyword, title, photo.alt);
       const credit = photo.photographer ? `Photo: ${photo.photographer} / Pexels` : undefined;
 
-      if (!bucket) {
+      if (!bucket && !kv) {
         out.push({ url: sourceUrl, alt, credit });
         continue;
       }
       const key = `${slugForKey(keyword)}-${photo.id}.jpg`;
-      const stored = await storeInR2(bucket, key, sourceUrl);
+      const stored = bucket
+        ? await storeInR2(bucket, key, sourceUrl)
+        : await storeInKV(kv!, key, sourceUrl);
       out.push({ url: stored ? `${SITE_URL}${IMAGE_PATH}/${key}` : sourceUrl, alt, credit });
     }
     return out;
@@ -164,4 +169,26 @@ function slugForKey(s: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 40);
+}
+
+/**
+ * KV fallback for when R2 isn't enabled. KV caps values at 25 MB — far above a
+ * ~200 KB photo — and is read-optimised, which suits images. Content type is
+ * kept in the entry metadata so the serving route can set the right header.
+ */
+async function storeInKV(kv: KVNamespace, key: string, sourceUrl: string): Promise<boolean> {
+  try {
+    const existing = await kv.get(key, "stream");
+    if (existing) return true;
+    const res = await fetch(sourceUrl);
+    if (!res.ok) return false;
+    const bytes = await res.arrayBuffer();
+    await kv.put(key, bytes, {
+      metadata: { contentType: res.headers.get("content-type") ?? "image/jpeg" },
+    });
+    return true;
+  } catch (err) {
+    console.error(`[cover] KV put failed: ${String(err)}`);
+    return false;
+  }
 }

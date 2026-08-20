@@ -52,6 +52,11 @@ interface CloudflareEnv {
    * Optional: without it the pipeline hotlinks the Pexels CDN instead.
    */
   BLOG_IMAGES?: R2Bucket;
+  /**
+   * KV fallback for blog images, used when R2 is not enabled on the account.
+   * Same purpose as BLOG_IMAGES: keep images on our own domain.
+   */
+  BLOG_IMAGES_KV?: KVNamespace;
 
   /** Google OAuth client id. */
   GOOGLE_CLIENT_ID?: string;

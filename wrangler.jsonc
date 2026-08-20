@@ -12,6 +12,12 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Blog cover images live here so they are served from our own domain.
+  // R2 is the better store for media but needs a one-time dashboard
+  // activation; KV works today and the code prefers R2 whenever it is bound.
+  "kv_namespaces": [
+    { "binding": "BLOG_IMAGES_KV", "id": "e05005e28c8545ce9222a2ea890950e4" }
+  ],
   "observability": {
     "enabled": true
   },

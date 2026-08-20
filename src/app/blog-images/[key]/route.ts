@@ -17,18 +17,36 @@ export async function GET(_req: Request, { params }: { params: Promise<{ key: st
 
   try {
     const env = await getEnv();
-    if (!env.BLOG_IMAGES) return new Response("Not configured", { status: 503 });
 
-    const object = await env.BLOG_IMAGES.get(key);
-    if (!object) return new Response("Not found", { status: 404 });
+    // R2 first (better store for media), then KV (works without R2 enabled).
+    if (env.BLOG_IMAGES) {
+      const object = await env.BLOG_IMAGES.get(key);
+      if (object) {
+        return new Response(object.body, {
+          headers: {
+            "Content-Type": object.httpMetadata?.contentType ?? "image/jpeg",
+            "Cache-Control": "public, max-age=31536000, immutable",
+            ETag: object.httpEtag,
+          },
+        });
+      }
+    }
 
-    return new Response(object.body, {
-      headers: {
-        "Content-Type": object.httpMetadata?.contentType ?? "image/jpeg",
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "ETag": object.httpEtag,
-      },
-    });
+    if (env.BLOG_IMAGES_KV) {
+      const { value, metadata } = await env.BLOG_IMAGES_KV.getWithMetadata<{
+        contentType?: string;
+      }>(key, "arrayBuffer");
+      if (value) {
+        return new Response(value, {
+          headers: {
+            "Content-Type": metadata?.contentType ?? "image/jpeg",
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
+      }
+    }
+
+    return new Response("Not found", { status: 404 });
   } catch {
     return new Response("Not found", { status: 404 });
   }
