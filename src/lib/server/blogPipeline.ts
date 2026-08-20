@@ -2,7 +2,7 @@ import { countWords, faqsFromBody, type Block, type FaqItem, type InternalLink }
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import type { BlogSettings } from "./blogSettings";
 import type { NewBlogPost, PostLite } from "./blogStore";
-import { resolveCoverImage } from "./blogImages";
+import { resolveCoverImages, type CoverImage } from "./blogImages";
 
 /**
  * Content generation pipeline for the Autopilot Blog engine. Stages are
@@ -431,6 +431,42 @@ export async function expand(
   }
 }
 
+
+/**
+ * Spread images through the article, each placed just before an h2 so it
+ * introduces a section rather than interrupting a paragraph. Skips the first
+ * heading (the cover already sits above it) and spaces them evenly.
+ */
+export function insertBodyImagesInto(blocks: Block[], images: CoverImage[]): Block[] {
+  const headingIdx = blocks
+    .map((b, i) => (b.type === "h2" ? i : -1))
+    .filter((i) => i > 0);
+  if (headingIdx.length === 0 || images.length === 0) return blocks;
+
+  // Pick evenly spaced headings, skipping the very first section.
+  const chosen: number[] = [];
+  const step = Math.max(1, Math.floor(headingIdx.length / (images.length + 1)));
+  for (let n = 1; n <= images.length; n++) {
+    const at = headingIdx[Math.min(n * step, headingIdx.length - 1)];
+    if (at !== undefined && !chosen.includes(at)) chosen.push(at);
+  }
+
+  // Splice from the end so earlier indices stay valid.
+  const out = [...blocks];
+  chosen
+    .map((idx, n) => ({ idx, img: images[n]! }))
+    .filter((x) => x.img)
+    .sort((a, b) => b.idx - a.idx)
+    .forEach(({ idx, img }) => {
+      out.splice(idx, 0, {
+        type: "image",
+        src: img.url,
+        alt: img.alt,
+        ...(img.credit ? { caption: img.credit } : {}),
+      });
+    });
+  return out;
+}
 // --- Meta + schema ---------------------------------------------------------
 
 function buildMeta(title: string, firstPara: string, keyword: string): { metaTitle: string; metaDescription: string } {
@@ -576,8 +612,11 @@ export async function generatePost(
   let n = 2;
   while (validSlugs.has(slug)) slug = `${slugify(title) || slugify(kw)}-${n++}`;
 
-  // Optional cover image (disabled until a provider is configured — returns null).
-  const cover = await resolveCoverImage(kw, title);
+  // Cover + in-body images. [0] is the cover; the rest are spread between
+  // sections so a long article is not a wall of text.
+  const images = await resolveCoverImages(kw, title, 3);
+  const cover = images[0] ?? null;
+  if (images.length > 1) blocks = insertBodyImagesInto(blocks, images.slice(1));
 
   const faqs = faqsFromBody(blocks);
   const date = new Date().toISOString().slice(0, 10);

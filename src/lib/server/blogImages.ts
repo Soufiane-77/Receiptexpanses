@@ -1,21 +1,21 @@
 /**
  * Image provider for the Autopilot Blog engine.
  *
- * Flow: search Pexels for a photo matching the post's keyword, copy the bytes
- * into R2, and return a URL on our own domain. Self-hosting matters here —
+ * Flow: search Pexels for photos matching the post's keyword, copy the bytes
+ * into R2, and return URLs on our own domain. Self-hosting matters here —
  * same-origin images are crawlable for Google Images, survive the provider
  * changing URLs, and avoid a third-party request on every page view.
  *
  * Degrades in two steps so publishing NEVER blocks on images:
  *   1. No R2 binding (bucket not enabled yet) -> hotlink the Pexels CDN URL.
- *   2. No PEXELS_API_KEY, or any failure at all -> return null, and the post
+ *   2. No PEXELS_API_KEY, or any failure at all -> return [], and the post
  *      falls back to its emoji cover + the site-wide /og.png card.
  */
 
 import { SITE_URL } from "@/lib/seo";
 import { getEnv } from "./db";
 
-export type CoverImage = { url: string; alt: string };
+export type CoverImage = { url: string; alt: string; credit?: string };
 
 /** Public path prefix for R2-served images. Deliberately NOT under /api/, which robots.txt disallows. */
 const IMAGE_PATH = "/blog-images";
@@ -27,64 +27,92 @@ type PexelsPhoto = {
   src?: { landscape?: string; large?: string; large2x?: string; original?: string };
 };
 
-/** Resolve a cover image for a post, or null when nothing is configured/available. */
-export async function resolveCoverImage(keyword: string, title: string): Promise<CoverImage | null> {
+/** Strip whitespace + BOM: `wrangler secret put` fed from a pipe can prepend U+FEFF. */
+function cleanKey(v: string | undefined): string {
+  return (v ?? "").replace(/[\uFEFF\u200B-\u200D]/g, "").trim();
+}
+
+/**
+ * Resolve up to `count` distinct images: [0] becomes the cover, the rest are
+ * placed between body sections. Returns [] when unavailable — never throws.
+ */
+export async function resolveCoverImages(
+  keyword: string,
+  title: string,
+  count = 3
+): Promise<CoverImage[]> {
   try {
     const env = await getEnv();
-    const apiKey = (env.PEXELS_API_KEY ?? "").trim();
+    const apiKey = cleanKey(env.PEXELS_API_KEY);
     if (!apiKey) {
-      console.log("[cover] PEXELS_API_KEY not set — skipping image.");
-      return null;
+      console.log("[cover] PEXELS_API_KEY not set — skipping images.");
+      return [];
     }
 
-    const photo = await searchPexels(apiKey, keyword);
-    if (!photo) {
-      console.log(`[cover] no Pexels result for "${imageQueryFor(keyword)}"`);
-      return null;
-    }
+    const photos = await searchPexels(apiKey, keyword, count);
+    if (photos.length === 0) return [];
 
-    // Pexels' "landscape" rendition is 1200x627 — effectively the OG card size.
-    const sourceUrl = photo.src?.landscape || photo.src?.large2x || photo.src?.large || photo.src?.original;
-    if (!sourceUrl) return null;
-
-    const alt = buildAltText(keyword, title, photo.alt);
-
-    // Prefer self-hosting in R2; fall back to the Pexels CDN if it isn't bound.
     const bucket = env.BLOG_IMAGES;
-    if (!bucket) return { url: sourceUrl, alt };
+    const out: CoverImage[] = [];
 
-    const key = `${slugForKey(keyword)}-${photo.id}.jpg`;
-    const stored = await storeInR2(bucket, key, sourceUrl);
-    return { url: stored ? `${SITE_URL}${IMAGE_PATH}/${key}` : sourceUrl, alt };
+    for (const photo of photos) {
+      const sourceUrl =
+        photo.src?.landscape || photo.src?.large2x || photo.src?.large || photo.src?.original;
+      if (!sourceUrl) continue;
+
+      const alt = buildAltText(keyword, title, photo.alt);
+      const credit = photo.photographer ? `Photo: ${photo.photographer} / Pexels` : undefined;
+
+      if (!bucket) {
+        out.push({ url: sourceUrl, alt, credit });
+        continue;
+      }
+      const key = `${slugForKey(keyword)}-${photo.id}.jpg`;
+      const stored = await storeInR2(bucket, key, sourceUrl);
+      out.push({ url: stored ? `${SITE_URL}${IMAGE_PATH}/${key}` : sourceUrl, alt, credit });
+    }
+    return out;
   } catch (err) {
-    // Never block publishing on an image failure — but do say why.
     console.error(`[cover] failed: ${String(err)}`);
-    return null;
+    return [];
   }
 }
 
-/** Pick a landscape photo for the keyword. Strips filler words that hurt image search. */
-async function searchPexels(apiKey: string, keyword: string): Promise<PexelsPhoto | null> {
+/** Single-image convenience wrapper. */
+export async function resolveCoverImage(keyword: string, title: string): Promise<CoverImage | null> {
+  const [first] = await resolveCoverImages(keyword, title, 1);
+  return first ?? null;
+}
+
+/** Pick `count` distinct landscape photos for the keyword. */
+async function searchPexels(apiKey: string, keyword: string, count: number): Promise<PexelsPhoto[]> {
   const query = imageQueryFor(keyword);
   const url =
     `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}` +
-    `&per_page=15&orientation=landscape&size=medium`;
+    `&per_page=30&orientation=landscape&size=medium`;
   const res = await fetch(url, { headers: { Authorization: apiKey } });
   if (!res.ok) {
     console.error(`[cover] Pexels API ${res.status}: ${(await res.text()).slice(0, 200)}`);
-    return null;
+    return [];
   }
   const data = (await res.json()) as { photos?: PexelsPhoto[] };
   const photos = (data.photos ?? []).filter((p) => p.src?.landscape || p.src?.large);
-  if (photos.length === 0) return null;
-  // Rotate through the result set so consecutive posts don't share one photo.
-  return photos[Math.floor(Math.random() * photos.length)] ?? null;
+  if (photos.length === 0) {
+    console.log(`[cover] no Pexels result for "${query}"`);
+    return [];
+  }
+  // Shuffle so consecutive posts on similar topics don't reuse the same shots.
+  for (let i = photos.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [photos[i], photos[j]] = [photos[j]!, photos[i]!];
+  }
+  return photos.slice(0, count);
 }
 
 /**
  * Turn a target keyword into a sensible photo query. "fake receipt generator"
- * would return junk (or nothing) from a stock library, so map the receipt
- * vocabulary onto imagery that actually exists: desks, bookkeeping, shopping.
+ * returns junk from a stock library, so map receipt vocabulary onto imagery
+ * that actually exists: desks, bookkeeping, shopping.
  */
 export function imageQueryFor(keyword: string): string {
   const k = keyword.toLowerCase();
@@ -97,7 +125,6 @@ export function imageQueryFor(keyword: string): string {
   if (/pharmacy|medical/.test(k)) return "pharmacy counter";
   if (/tax|1099|deduction|accounting|expense/.test(k)) return "accounting desk calculator";
   if (/invoice|freelance|business/.test(k)) return "small business paperwork desk";
-  // Default: generic receipt/bookkeeping imagery rather than the literal phrase.
   return "receipt paper desk bookkeeping";
 }
 
@@ -125,7 +152,8 @@ async function storeInR2(bucket: R2Bucket, key: string, sourceUrl: string): Prom
       },
     });
     return true;
-  } catch {
+  } catch (err) {
+    console.error(`[cover] R2 put failed: ${String(err)}`);
     return false;
   }
 }

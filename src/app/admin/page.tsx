@@ -29,7 +29,9 @@ import {
   SlidersIcon,
   ShieldIcon,
   BarcodeIcon,
+  MonitorIcon,
 } from "@/components/icons";
+import AdminBlogAnalytics from "@/components/admin/AdminBlogAnalytics";
 import AdminCustomCode from "@/components/admin/AdminCustomCode";
 import AdminPayments from "@/components/admin/AdminPayments";
 import AdminUsers from "@/components/admin/AdminUsers";
@@ -58,6 +60,7 @@ type Tab =
   | "templates"
   | "customize"
   | "blog"
+  | "blogstats"
   | "payments"
   | "defaults"
   | "code"
@@ -203,6 +206,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     { id: "templates", label: "Templates", Icon: ReceiptIcon },
     { id: "customize", label: "Customize", Icon: SparklesIcon },
     { id: "blog", label: "Blog", Icon: FileSearchIcon },
+    { id: "blogstats", label: "Blog analytics", Icon: MonitorIcon },
     { id: "payments", label: "Payments", Icon: CartIcon },
     { id: "defaults", label: "Defaults", Icon: SlidersIcon },
     { id: "code", label: "Custom code", Icon: BarcodeIcon },
@@ -501,6 +505,9 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           <AdminPayments />
         </>
       ) : null}
+
+      {/* -------------------------- Blog analytics --------------------------- */}
+      {tab === "blogstats" ? <AdminBlogAnalytics /> : null}
 
       {/* ---------------------------- Custom code ---------------------------- */}
       {tab === "code" ? <AdminCustomCode /> : null}

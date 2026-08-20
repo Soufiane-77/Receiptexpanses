@@ -19,6 +19,8 @@ import {
   setPostStatus,
 } from "@/lib/server/blogStore";
 import { runScheduler } from "@/lib/server/blogScheduler";
+import { backfillPostImages } from "@/lib/server/blogBackfill";
+import { getBlogAnalytics } from "@/lib/server/blogAnalytics";
 import { submitForIndexing } from "@/lib/server/blogIndexing";
 
 export const dynamic = "force-dynamic";
@@ -108,6 +110,20 @@ export async function POST(req: Request) {
     case "post_reindex": {
       const index = await submitForIndexing(db, String(body.slug));
       return NextResponse.json({ ok: true, index });
+    }
+    case "backfill_images": {
+      // Adds images to posts published before the provider existed. Returns a
+      // per-post reason, so it also serves as the image-pipeline diagnostic.
+      const result = await backfillPostImages(db, {
+        limit: Number(body.limit) || 100,
+        perPost: Number(body.perPost) || 3,
+        force: body.force === true,
+      });
+      return NextResponse.json({ ok: true, ...result });
+    }
+    case "analytics": {
+      const data = await getBlogAnalytics(db, Number(body.days) || 30);
+      return NextResponse.json({ ok: true, ...data });
     }
     case "post_delete": {
       await deletePost(db, String(body.slug));

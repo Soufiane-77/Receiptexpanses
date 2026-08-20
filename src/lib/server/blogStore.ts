@@ -332,3 +332,28 @@ export async function retryKeyword(db: D1Database, id: number): Promise<void> {
     .bind(id)
     .run();
 }
+
+/**
+ * Attach images to an existing post: sets the cover and replaces the stored
+ * body (so in-article images can be backfilled onto posts published before the
+ * image provider existed).
+ */
+export async function setPostImages(
+  db: D1Database,
+  slug: string,
+  opts: { coverUrl: string; coverAlt: string; body?: unknown }
+): Promise<void> {
+  if (opts.body !== undefined) {
+    await db
+      .prepare(
+        "UPDATE blog_posts SET cover_image_url = ?, cover_image_alt = ?, body = ? WHERE slug = ?"
+      )
+      .bind(opts.coverUrl, opts.coverAlt, JSON.stringify(opts.body), slug)
+      .run();
+    return;
+  }
+  await db
+    .prepare("UPDATE blog_posts SET cover_image_url = ?, cover_image_alt = ? WHERE slug = ?")
+    .bind(opts.coverUrl, opts.coverAlt, slug)
+    .run();
+}
