@@ -192,3 +192,41 @@ async function storeInKV(kv: KVNamespace, key: string, sourceUrl: string): Promi
     return false;
   }
 }
+
+/** True when a URL points somewhere other than our own domain. */
+export function isExternalImage(url: string): boolean {
+  return /^https?:\/\//i.test(url) && !url.startsWith(`${SITE_URL}${IMAGE_PATH}`);
+}
+
+/**
+ * Copy an already-referenced external image into our own storage and return the
+ * local URL. Used to convert posts that were published while the pipeline was
+ * still hotlinking the provider CDN. Returns null when it cannot be re-hosted,
+ * so the caller can leave the original URL untouched rather than break the post.
+ */
+export async function rehostImage(sourceUrl: string): Promise<string | null> {
+  try {
+    if (!isExternalImage(sourceUrl)) return sourceUrl; // already local
+    const env = await getEnv();
+    const bucket = env.BLOG_IMAGES;
+    const kv = env.BLOG_IMAGES_KV;
+    if (!bucket && !kv) return null;
+
+    const key = keyForSourceUrl(sourceUrl);
+    const stored = bucket
+      ? await storeInR2(bucket, key, sourceUrl)
+      : await storeInKV(kv!, key, sourceUrl);
+    return stored ? `${SITE_URL}${IMAGE_PATH}/${key}` : null;
+  } catch (err) {
+    console.error(`[cover] rehost failed: ${String(err)}`);
+    return null;
+  }
+}
+
+/** Stable key from a provider URL — reuses the photo id when one is present. */
+function keyForSourceUrl(url: string): string {
+  const photoId = url.match(/\/photos\/(\d+)\//)?.[1];
+  if (photoId) return `pexels-${photoId}.jpg`;
+  const tail = url.split("?")[0]!.split("/").pop() || "image";
+  return `img-${tail.toLowerCase().replace(/[^a-z0-9.]+/g, "-")}`.slice(0, 80);
+}

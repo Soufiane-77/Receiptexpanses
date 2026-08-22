@@ -1,5 +1,5 @@
 import type { Block } from "@/lib/blog";
-import { resolveCoverImages } from "./blogImages";
+import { isExternalImage, rehostImage, resolveCoverImages } from "./blogImages";
 import { listAllPosts, setPostImages } from "./blogStore";
 import { insertBodyImagesInto } from "./blogPipeline";
 
@@ -79,4 +79,92 @@ export async function backfillPostImages(
   }
 
   return { scanned: posts.length, updated, skipped, items };
+}
+
+export type RehostResult = {
+  scanned: number;
+  postsChanged: number;
+  imagesRehosted: number;
+  failed: number;
+  items: { slug: string; rehosted: number; detail: string }[];
+};
+
+/**
+ * Pull already-published images off the provider CDN and into our own storage.
+ *
+ * Posts generated before self-hosting existed point at images.pexels.com, which
+ * means Google Images credits that domain, not ours, and the LCP element sits
+ * on a third-party origin. Rewrites both the cover and any in-body image blocks.
+ * A URL that cannot be copied is left as-is rather than broken.
+ */
+export async function rehostPostImages(
+  db: D1Database,
+  opts: { limit?: number } = {}
+): Promise<RehostResult> {
+  const posts = await listAllPosts(db, opts.limit ?? 100);
+  const items: RehostResult["items"] = [];
+  let postsChanged = 0;
+  let imagesRehosted = 0;
+  let failed = 0;
+
+  for (const post of posts) {
+    const cover = post.coverImageUrl ?? "";
+    const body = (post.body as Block[]) ?? [];
+    const bodyExternal = body.filter(
+      (b): b is Extract<Block, { type: "image" }> => b.type === "image" && isExternalImage(b.src)
+    );
+    const coverExternal = cover && isExternalImage(cover);
+    if (!coverExternal && bodyExternal.length === 0) continue;
+
+    let localCover = cover;
+    let changed = 0;
+
+    if (coverExternal) {
+      const moved = await rehostImage(cover);
+      if (moved) {
+        localCover = moved;
+        changed++;
+      } else {
+        failed++;
+      }
+    }
+
+    // Rewrite in-body images, reusing one map so a repeated URL is fetched once.
+    const rewritten = new Map<string, string>();
+    const nextBody: Block[] = [];
+    for (const block of body) {
+      if (block.type !== "image" || !isExternalImage(block.src)) {
+        nextBody.push(block);
+        continue;
+      }
+      let local = rewritten.get(block.src);
+      if (local === undefined) {
+        local = (await rehostImage(block.src)) ?? "";
+        rewritten.set(block.src, local);
+      }
+      if (local) {
+        nextBody.push({ ...block, src: local });
+        changed++;
+      } else {
+        nextBody.push(block);
+        failed++;
+      }
+    }
+
+    if (changed === 0) {
+      items.push({ slug: post.slug, rehosted: 0, detail: "Could not copy — left pointing at the provider." });
+      continue;
+    }
+
+    await setPostImages(db, post.slug, {
+      coverUrl: localCover,
+      coverAlt: post.coverImageAlt ?? post.title,
+      body: nextBody,
+    });
+    postsChanged++;
+    imagesRehosted += changed;
+    items.push({ slug: post.slug, rehosted: changed, detail: `${changed} image(s) now self-hosted` });
+  }
+
+  return { scanned: posts.length, postsChanged, imagesRehosted, failed, items };
 }

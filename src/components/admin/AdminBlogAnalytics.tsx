@@ -120,6 +120,30 @@ export default function AdminBlogAnalytics() {
     setBackfilling(false);
   };
 
+  const runRehost = async () => {
+    setBackfilling(true);
+    setErr("");
+    setBackfill(null);
+    const { ok, status, body } = await call(token, { action: "rehost_images", limit: 100 });
+    if (!ok) {
+      setErr((body.error as string) || `Re-host failed (${status}).`);
+    } else {
+      const items = (body.items as { slug: string; rehosted: number; detail: string }[]) ?? [];
+      setBackfill({
+        updated: Number(body.postsChanged ?? 0),
+        skipped: Number(body.scanned ?? 0) - Number(body.postsChanged ?? 0),
+        items: items.map((i) => ({
+          slug: i.slug,
+          ok: i.rehosted > 0,
+          images: i.rehosted,
+          detail: i.detail,
+        })),
+      });
+      await load(token);
+    }
+    setBackfilling(false);
+  };
+
   const maxDay = Math.max(1, ...(data?.perDay ?? []).map((d) => d.count));
   const s = data?.scheduler;
 
@@ -132,6 +156,9 @@ export default function AdminBlogAnalytics() {
           <>
             <AdminButton onClick={() => load(token)} disabled={loading || backfilling}>
               {loading ? "Refreshing…" : "Refresh"}
+            </AdminButton>
+            <AdminButton onClick={runRehost} disabled={backfilling || !token}>
+              {backfilling ? "Working…" : "Self-host images"}
             </AdminButton>
             <AdminButton tone="primary" onClick={runBackfill} disabled={backfilling || !token}>
               {backfilling ? "Adding images…" : "Backfill images"}

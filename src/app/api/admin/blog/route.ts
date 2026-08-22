@@ -19,7 +19,7 @@ import {
   setPostStatus,
 } from "@/lib/server/blogStore";
 import { runScheduler } from "@/lib/server/blogScheduler";
-import { backfillPostImages } from "@/lib/server/blogBackfill";
+import { backfillPostImages, rehostPostImages } from "@/lib/server/blogBackfill";
 import { getBlogAnalytics } from "@/lib/server/blogAnalytics";
 import { submitForIndexing } from "@/lib/server/blogIndexing";
 
@@ -119,6 +119,12 @@ export async function POST(req: Request) {
         perPost: Number(body.perPost) || 3,
         force: body.force === true,
       });
+      return NextResponse.json({ ok: true, ...result });
+    }
+    case "rehost_images": {
+      // Pull provider-hosted images onto our own domain (Google Images credit +
+      // LCP control). Leaves anything it cannot copy untouched.
+      const result = await rehostPostImages(db, { limit: Number(body.limit) || 100 });
       return NextResponse.json({ ok: true, ...result });
     }
     case "analytics": {
