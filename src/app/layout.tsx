@@ -23,8 +23,10 @@ export const metadata: Metadata = {
     default: "ReceiptExpenses — Make a receipt in seconds",
     template: "%s · ReceiptExpenses",
   },
+  // Fallback description for pages that do not set their own. Kept under 160
+  // characters so Google renders it whole.
   description:
-    "Free online receipt generator — pick a template, fill in details, preview live, and download a pixel-perfect PDF or PNG with a free account. Everything runs in your browser; nothing is uploaded.",
+    "Free online receipt generator: pick a template, fill in details, preview live, and download a pixel-perfect PDF or PNG. Nothing is ever uploaded.",
   keywords: [
     "receipt generator",
     "make a receipt",

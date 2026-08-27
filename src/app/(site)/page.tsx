@@ -23,17 +23,23 @@ import {
 } from "@/components/icons";
 import {
   GENERAL_FAQS,
+  LAST_UPDATED_DISPLAY,
+  LAST_UPDATED_ISO,
   SITE_DEFINITION,
+  SITE_URL,
   faqJsonLd,
   orgJsonLd,
   softwareAppJsonLd,
+  webPageJsonLd,
   websiteJsonLd,
 } from "@/lib/seo";
 
+// Title and description are kept inside Google's render limits (60 / 160 chars)
+// so neither gets truncated in the SERP. Measured, not estimated.
 export const metadata: Metadata = {
-  title: { absolute: "Free Online Receipt Maker — Create & Download | ReceiptExpenses" },
+  title: { absolute: "Free Online Receipt Maker — PDF & PNG | ReceiptExpenses" },
   description:
-    "Free online receipt maker — pick a template styled after Walmart, Airbnb, Uber, Nike, Apple and more, fill in details, preview live, and download a pixel-perfect PDF or PNG. 100% in your browser.",
+    "Free online receipt maker: pick from 24+ templates, add your details, preview live, and download a pixel-perfect PDF or PNG. Runs in your browser.",
   alternates: { canonical: "/" },
 };
 
@@ -101,7 +107,18 @@ const BRANDS = [
 ];
 
 export default function Home() {
-  const jsonLd = [websiteJsonLd(), softwareAppJsonLd(), orgJsonLd(), faqJsonLd(GENERAL_FAQS)];
+  const jsonLd = [
+    websiteJsonLd(),
+    webPageJsonLd({
+      url: `${SITE_URL}/`,
+      name: "Free Online Receipt Maker",
+      description: SITE_DEFINITION,
+      primaryImage: `${SITE_URL}/landing/hero-2000.webp`,
+    }),
+    softwareAppJsonLd(),
+    orgJsonLd(),
+    faqJsonLd(GENERAL_FAQS),
+  ];
 
   return (
     <main className="bg-ink">
@@ -130,9 +147,11 @@ export default function Home() {
             className="mx-auto mt-7 max-w-4xl animate-fade-up font-display text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-6xl lg:text-7xl"
             style={{ animationDelay: "80ms" }}
           >
-            Radically simple
+            {/* The explicit space matters: without it the <br/> makes crawlers
+                and text extractors read the H1 as "simplereceipt". */}
+            Radically simple{" "}
             <br />
-            receipt making
+            receipt maker
           </h1>
 
           <p
@@ -336,21 +355,25 @@ export default function Home() {
                 Read the full FAQ
               </Link>
             </p>
+            {/* Visible freshness signal, paired with dateModified in JSON-LD. */}
+            <p className="mt-3 text-xs text-slate-600">
+              Last reviewed{" "}
+              <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_DISPLAY}</time>
+            </p>
           </Reveal>
         </div>
       </section>
 
       {/* ============================ CLOSING CTA ============================ */}
       <section className="relative overflow-hidden bg-ink-800 py-24">
+        {/* Painted as a CSS background rather than an <img>: it is pure texture
+            with nothing to describe, so it should not appear in the document's
+            image list at all. An <img alt=""> would be correct for screen
+            readers but still shows up as a missing-alt warning in SEO crawlers. */}
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <img
-            src="/landing/cta-1600.webp"
-            alt=""
-            width={1600}
-            height={679}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover"
+          <div
+            className="h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: "url('/landing/cta-1600.webp')" }}
           />
           <div className="absolute left-1/2 top-1/2 h-[26rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(166,169,235,0.10),transparent_65%)]" />
         </div>

@@ -13,6 +13,7 @@ import {
   SITE_URL,
   articleJsonLd,
   breadcrumbJsonLd,
+  clampDescription,
   faqJsonLd,
   howToJsonLd,
 } from "@/lib/seo";
@@ -31,13 +32,16 @@ export async function generateMetadata({
   const { slug } = await params;
   const g = getGuide(slug);
   if (!g) return { title: "Guide not found" };
+  // Several guide descriptions were written past Google's ~160-character render
+  // window and were being truncated mid-word in the SERP.
+  const description = clampDescription(g.metaDescription);
   return {
     title: { absolute: g.metaTitle },
-    description: g.metaDescription,
+    description,
     alternates: { canonical: `/guides/${g.slug}` },
     openGraph: {
       title: g.metaTitle,
-      description: g.metaDescription,
+      description,
       url: `${SITE_URL}/guides/${g.slug}`,
       type: "article",
       images: ["/og.png"],

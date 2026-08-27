@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Blog · ReceiptExpenses",
   description: "Receipt tips, freelancing how-tos, and product updates from ReceiptExpenses.",
+  alternates: { canonical: "/blogs" },
 };
 
 type Card = {

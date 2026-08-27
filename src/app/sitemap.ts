@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { POSTS } from "@/lib/blog";
 import { TEMPLATES, templateSlug } from "@/templates/registry";
 import { GUIDES } from "@/content/guides";
-import { SITE_URL } from "@/lib/seo";
+import { LAST_UPDATED_ISO, SITE_URL } from "@/lib/seo";
 import { getDB } from "@/lib/server/db";
 import { listPublishedPosts } from "@/lib/server/blogStore";
 
@@ -10,9 +10,20 @@ import { listPublishedPosts } from "@/lib/server/blogStore";
 // accurate lastmod (engines discover them on the next crawl / via GSC).
 export const dynamic = "force-dynamic";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+/**
+ * Editorial review date for pages that have no per-page date of their own.
+ *
+ * This used to be `new Date()`, which meant every static URL claimed to have
+ * changed the instant the sitemap was fetched — a new timestamp on every single
+ * request. Google treats demonstrably false lastmod values as a reason to
+ * ignore lastmod for the whole site, so bump LAST_UPDATED_ISO when the copy
+ * actually changes rather than reporting "now".
+ */
+const REVIEWED = new Date(LAST_UPDATED_ISO);
 
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // /login and /signup are deliberately absent: they are utility pages with no
+  // search value and are marked noindex, so listing them only spends crawl budget.
   const core = [
     { path: "", priority: 1.0, freq: "weekly" as const },
     { path: "/create", priority: 0.9, freq: "weekly" as const },
@@ -27,18 +38,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/terms", priority: 0.3, freq: "yearly" as const },
     { path: "/refund", priority: 0.3, freq: "yearly" as const },
     { path: "/cookies", priority: 0.3, freq: "yearly" as const },
-    { path: "/login", priority: 0.3, freq: "yearly" as const },
-    { path: "/signup", priority: 0.4, freq: "yearly" as const },
   ].map((r) => ({
     url: `${SITE_URL}${r.path}`,
-    lastModified: now,
+    lastModified: REVIEWED,
     changeFrequency: r.freq,
     priority: r.priority,
+    // Surface the landing artwork to Google Images from the home entry.
+    ...(r.path === ""
+      ? {
+          images: [
+            `${SITE_URL}/landing/hero-2000.webp`,
+            `${SITE_URL}/landing/step-01-800.webp`,
+            `${SITE_URL}/landing/step-02-800.webp`,
+            `${SITE_URL}/landing/step-03-800.webp`,
+          ],
+        }
+      : {}),
   }));
 
   const receiptTypes = TEMPLATES.map((t) => ({
     url: `${SITE_URL}/${templateSlug(t)}`,
-    lastModified: now,
+    lastModified: REVIEWED,
     changeFrequency: "monthly" as const,
     priority: 0.8,
   }));

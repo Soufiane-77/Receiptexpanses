@@ -9,8 +9,11 @@ export const SITE_NAME = "ReceiptExpenses";
  * pages as a freshness signal for search/answer engines. Bump when you refresh
  * evergreen copy.
  */
-export const LAST_UPDATED_ISO = "2026-07-04";
-export const LAST_UPDATED_DISPLAY = "July 4, 2026";
+export const LAST_UPDATED_ISO = "2026-08-27";
+export const LAST_UPDATED_DISPLAY = "August 27, 2026";
+
+/** First public release. Used as datePublished where a page has no own date. */
+export const SITE_PUBLISHED_ISO = "2026-06-14";
 
 /**
  * Canonical one-sentence definition of the product. Used verbatim in the hero,
@@ -24,6 +27,38 @@ export const SITE_DEFINITION =
 export const PRICING_FACT = PAYMENTS_ENABLED
   ? "Building and previewing receipts is free; downloading, printing and saving require a Pro subscription ($6/month, cancel anytime)."
   : "ReceiptExpenses is free: build and preview without an account, and create a free account (email or Google) to download, print and save.";
+
+/**
+ * Google renders roughly 60 characters of <title> and 160 of description before
+ * truncating and substituting its own text. Body copy is written to be read, so
+ * it routinely runs longer — these two helpers keep the <head> inside the render
+ * window without forcing the on-page copy to be short.
+ */
+export const TITLE_LIMIT = 60;
+export const DESCRIPTION_LIMIT = 160;
+
+/** Trim to `limit`, preferring a sentence boundary, else a word boundary. */
+export function clampDescription(text: string, limit = DESCRIPTION_LIMIT): string {
+  if (text.length <= limit) return text;
+  const head = text.slice(0, limit - 1);
+  const sentence = head.lastIndexOf(". ");
+  if (sentence > limit * 0.55) return head.slice(0, sentence + 1);
+  return `${head.slice(0, head.lastIndexOf(" "))}…`;
+}
+
+/** Trim to `limit` at a word boundary, so a title never breaks mid-word. */
+export function truncateAtWord(text: string, limit: number): string {
+  if (text.length <= limit) return text;
+  const head = text.slice(0, limit);
+  const cut = head.lastIndexOf(" ");
+  return cut > 0 ? head.slice(0, cut) : head;
+}
+
+/** Append " · Brand" only when the result still fits the title window. */
+export function withBrand(title: string, limit = TITLE_LIMIT): string {
+  const full = `${title} · ${SITE_NAME}`;
+  return full.length <= limit ? full : title;
+}
 
 export type Faq = { q: string; a: string };
 
@@ -126,6 +161,18 @@ export function orgJsonLd(): Record<string, unknown> {
     logo: `${SITE_URL}/icon.svg`,
     email: "support@receiptexpenses.com",
     description: SITE_DEFINITION,
+    foundingDate: SITE_PUBLISHED_ISO,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: "support@receiptexpenses.com",
+      url: `${SITE_URL}/contact`,
+      availableLanguage: "English",
+    },
+    // NOTE: `sameAs` is deliberately absent until there are real profiles to
+    // point at. Answer engines use it to corroborate that the entity exists, so
+    // adding verified social/directory URLs here is a genuine GEO win — but
+    // listing URLs that do not exist is worse than listing none.
   };
 }
 
@@ -146,6 +193,40 @@ export function websiteJsonLd(): Record<string, unknown> {
     description: SITE_DEFINITION,
     inLanguage: "en",
     publisher: { "@id": `${SITE_URL}/#organization` },
+  };
+}
+
+/**
+ * WebPage node carrying explicit freshness dates.
+ *
+ * Crawlers and answer engines look for datePublished/dateModified to judge how
+ * current a page is; a page that emits neither reads as undated, which costs it
+ * in "best/latest X" style answers. Static marketing pages have no natural date,
+ * so they inherit the site-wide review date.
+ */
+export function webPageJsonLd(opts: {
+  url: string;
+  name: string;
+  description?: string;
+  datePublished?: string;
+  dateModified?: string;
+  primaryImage?: string;
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${opts.url}#webpage`,
+    url: opts.url,
+    name: opts.name,
+    ...(opts.description ? { description: opts.description } : {}),
+    datePublished: opts.datePublished ?? SITE_PUBLISHED_ISO,
+    dateModified: opts.dateModified ?? LAST_UPDATED_ISO,
+    inLanguage: "en",
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    about: { "@id": `${SITE_URL}/#organization` },
+    ...(opts.primaryImage
+      ? { primaryImageOfPage: { "@type": "ImageObject", url: opts.primaryImage } }
+      : {}),
   };
 }
 

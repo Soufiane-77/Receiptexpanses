@@ -7,7 +7,7 @@ import { SITE_URL, breadcrumbJsonLd } from "@/lib/seo";
 export const metadata: Metadata = {
   title: { absolute: "Receipt & Expense Guides — ReceiptExpenses" },
   description:
-    "Plain-English guides to receipts, invoices and expense records: how to write a receipt, receipt vs invoice, replacing lost receipts for taxes, rent receipts by state, 1099 and gig-worker records, and more.",
+    "Plain-English guides to receipts, invoices and expense records: how to write a receipt, receipt vs invoice, replacing lost receipts for taxes, and more.",
   alternates: { canonical: "/guides" },
 };
 

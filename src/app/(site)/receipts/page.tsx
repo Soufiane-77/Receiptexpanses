@@ -7,9 +7,11 @@ import { ArrowRightIcon } from "@/components/icons";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Receipt Types — Free Receipt Maker for Every Kind of Receipt",
+  // Kept inside Google's 60/160 render windows. The layout appends
+  // " · ReceiptExpenses", so `absolute` is needed to control the full string.
+  title: { absolute: "Receipt Types — 24+ Free Templates | ReceiptExpenses" },
   description:
-    "Browse all 24+ receipt templates ReceiptExpenses can generate — sales, restaurant, café, grocery, fuel, taxi, parking, hotel and more, across Business, Retail, Food & Drink, Travel and Services. Free to build; download PDF/PNG with a free account.",
+    "Browse 24+ free receipt templates: sales, restaurant, café, grocery, fuel, taxi, parking, hotel and more, across five categories.",
   alternates: { canonical: "/receipts" },
   openGraph: {
     title: "Receipt Types — ReceiptExpenses",

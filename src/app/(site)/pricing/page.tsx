@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description: PAYMENTS_ENABLED
     ? "Preview receipts for free. Subscribe to Pro to download, print and save them — watermark-free, cancel anytime."
     : "ReceiptExpenses is free. Build and preview receipts without an account; download, print and save them with a free account (email or Google sign-up).",
+  alternates: { canonical: "/pricing" },
 };
 
 export default function PricingPage() {

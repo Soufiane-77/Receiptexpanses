@@ -5,7 +5,13 @@ import { getPost, faqsFromBody, type Post } from "@/lib/blog";
 import NewsletterForm from "@/components/NewsletterForm";
 import JsonLd from "@/components/JsonLd";
 import PostBody from "@/components/PostBody";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import {
+  SITE_NAME,
+  SITE_URL,
+  TITLE_LIMIT,
+  clampDescription,
+  truncateAtWord,
+} from "@/lib/seo";
 import { getDB } from "@/lib/server/db";
 import { getPublishedPost } from "@/lib/server/blogStore";
 
@@ -33,8 +39,12 @@ export async function generateMetadata({
   const post = await resolvePost(slug);
   if (!post) return { title: "Post not found · ReceiptExpenses" };
 
-  const title = post.metaTitle || post.title;
-  const description = post.metaDescription || post.excerpt;
+  // Titles and excerpts come from the generation pipeline and older posts
+  // predate its length rules, so clamp at render time too — that fixes what is
+  // already in the database without a backfill.
+  const rawTitle = post.metaTitle || post.title;
+  const title = rawTitle.length > TITLE_LIMIT ? truncateAtWord(rawTitle, TITLE_LIMIT) : rawTitle;
+  const description = clampDescription(post.metaDescription || post.excerpt);
   const url = `${SITE_URL}/blogs/${post.slug}`;
   // Always ship an OG image. Without one, link previews render as a bare text
   // card and the Twitter card degrades to "summary" — both hurt click-through

@@ -13,12 +13,15 @@ import JsonLd from "@/components/JsonLd";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { ArrowRightIcon, CheckIcon, EyeIcon, ShieldIcon, ZapIcon } from "@/components/icons";
 import {
+  DESCRIPTION_LIMIT,
   SITE_URL,
   breadcrumbJsonLd,
   faqJsonLd,
   faqsForType,
   howToJsonLd,
   softwareAppJsonLd,
+  webPageJsonLd,
+  withBrand,
 } from "@/lib/seo";
 
 // The known template slugs are prerendered (SSG) via generateStaticParams;
@@ -37,10 +40,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const t = getTemplateBySlug(slug);
   if (!t) return { title: "Receipt type not found" };
-  const title = `${t.name} Maker — Online ${titleCase(t.seo.keyword)} Generator`;
+  // The old pattern was `${t.name} Maker — Online ${keyword} Generator`, which
+  // restated the keyword twice (producing "Online Online Order Receipt
+  // Generator") and pushed every one of these titles past 60 characters, so
+  // Google truncated and rewrote them. Lead with the keyword instead.
+  const title = withBrand(`Free ${titleCase(t.seo.keyword)} Generator`);
+  // The blurb is body copy and can run to ~300 chars; only use it verbatim when
+  // it already fits, so the short bespoke ones stay unique in the SERP.
+  const description =
+    t.seo.blurb.length <= DESCRIPTION_LIMIT
+      ? t.seo.blurb
+      : `Free ${t.seo.keyword} generator. Add your details, preview live, then download a pixel-perfect PDF or PNG — no watermark, nothing uploaded.`;
   return {
-    title,
-    description: t.seo.blurb,
+    title: { absolute: title },
+    description,
     keywords: [
       `${t.seo.keyword} maker`,
       `${t.seo.keyword} generator`,
@@ -55,7 +68,7 @@ export async function generateMetadata({
     alternates: { canonical: `/${slug}` },
     openGraph: {
       title,
-      description: t.seo.blurb,
+      description,
       url: `${SITE_URL}/${slug}`,
       type: "website",
       images: ["/og.png"],
@@ -106,6 +119,11 @@ export default async function TemplateLandingPage({
     : TEMPLATES.filter((x) => x.id !== t.id).slice(0, 3);
 
   const jsonLd = [
+    webPageJsonLd({
+      url: pageUrl,
+      name: `${t.name} Maker`,
+      description: t.seo.blurb,
+    }),
     softwareAppJsonLd({
       name: `${t.name} Maker`,
       description: t.seo.blurb,
