@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import TemplateGrid from "@/components/TemplateGrid";
-import { ButtonLink } from "@/components/Button";
 import FaqList from "@/components/FaqList";
 import JsonLd from "@/components/JsonLd";
 import Reveal from "@/components/Reveal";
@@ -38,8 +37,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const TRUST = ["100% in your browser", "Free live preview", "Free account to download"];
-
 const WHY = [
   {
     icon: EyeIcon,
@@ -64,197 +61,263 @@ const WHY = [
 ];
 
 const STEPS = [
-  { title: "Choose a template", text: "Pick from sales, restaurant, fuel, taxi, parking, hotel and more." },
-  { title: "Customise it", text: "Add your logo, items, currency and tax. Watch the live preview update." },
-  { title: "Download or print", text: "Export a private PDF or PNG, or print — nothing leaves your browser." },
+  {
+    title: "Choose a template",
+    text: "Pick from sales, restaurant, fuel, taxi, parking, hotel and more.",
+  },
+  {
+    title: "Customise it",
+    text: "Add your logo, items, currency and tax. Watch the live preview update.",
+  },
+  {
+    title: "Download or print",
+    text: "Export a private PDF or PNG, or print — nothing leaves your browser.",
+  },
+];
+
+const STATS = [
+  { value: "24+", label: "Receipt templates" },
+  { value: "5", label: "Categories covered" },
+  { value: "100%", label: "Runs in your browser" },
+  { value: "$0", label: "Cost to use" },
+];
+
+const BRANDS = [
+  { Icon: WalmartLogoIcon, name: "Walmart" },
+  { Icon: AirbnbLogoIcon, name: "airbnb" },
+  { Icon: AmazonLogoIcon, name: null },
+  { Icon: UberLogoIcon, name: null },
+  { Icon: StarbucksLogoIcon, name: "Starbucks" },
+  { Icon: NikeLogoIcon, name: null },
+  { Icon: AdidasLogoIcon, name: "Adidas" },
+  { Icon: AppleLogoIcon, name: null },
+  { Icon: JordanLogoIcon, name: null },
 ];
 
 export default function Home() {
-  const jsonLd = [websiteJsonLd(), orgJsonLd(), softwareAppJsonLd(), faqJsonLd(GENERAL_FAQS)];
+  const jsonLd = [websiteJsonLd(), softwareAppJsonLd(), orgJsonLd(), faqJsonLd(GENERAL_FAQS)];
 
   return (
-    <main>
+    <main className="bg-ink">
       <JsonLd data={jsonLd} />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        {/* Animated gradient backdrop (decorative) */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -left-24 top-0 h-72 w-72 rounded-full bg-brand-200/40 blur-3xl animate-blob" />
-          <div className="absolute right-0 top-10 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl animate-blob [animation-delay:4s]" />
-          <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-indigo-200/40 blur-3xl animate-blob [animation-delay:8s]" />
+      {/* ============================ HERO (dark) ============================ */}
+      <section className="relative overflow-hidden bg-ink">
+        {/* Atmospheric backdrop: layered radial washes rather than a stock photo,
+            so there is no extra image request on the LCP path. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-[-18rem] h-[42rem] w-[72rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(166,169,235,0.20),transparent_65%)]" />
+          <div className="absolute bottom-[-14rem] left-[-10rem] h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.14),transparent_70%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ink" />
         </div>
 
-        <div className="mx-auto max-w-6xl px-4 py-24 text-center">
+        <div className="relative mx-auto max-w-6xl px-6 pb-28 pt-24 text-center sm:pt-32">
           <span
-            className="inline-flex animate-fade-up items-center gap-2 rounded-full border border-brand-100 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700 backdrop-blur"
+            className="inline-flex animate-fade-up items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-halo-200 backdrop-blur"
             style={{ animationDelay: "0ms" }}
           >
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Free, private receipt generator
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Free · No watermark · Nothing uploaded
           </span>
+
           <h1
-            className="mx-auto mt-5 max-w-3xl animate-fade-up text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl"
+            className="mx-auto mt-7 max-w-4xl animate-fade-up font-display text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-6xl lg:text-7xl"
             style={{ animationDelay: "80ms" }}
           >
-            Free online receipt maker
+            Radically simple
+            <br />
+            receipt making
           </h1>
+
           <p
-            className="mx-auto mt-5 max-w-2xl animate-fade-up text-lg text-slate-600"
+            className="mx-auto mt-6 max-w-xl animate-fade-up text-base leading-relaxed text-slate-400 sm:text-lg"
             style={{ animationDelay: "160ms" }}
           >
-            {SITE_DEFINITION} Pick from 24+ templates, fill in your business and items, watch it
-            build live, and download — with a free account.
+            {SITE_DEFINITION}
           </p>
+
           <div
-            className="mt-8 flex animate-fade-up flex-col justify-center gap-3 sm:flex-row"
+            className="mt-9 flex animate-fade-up flex-col items-center justify-center gap-3 sm:flex-row"
             style={{ animationDelay: "240ms" }}
           >
-            <ButtonLink href="/create" size="md" className="px-6 py-3 text-base">
-              Start creating
-              <ArrowRightIcon className="h-5 w-5" />
-            </ButtonLink>
-            <ButtonLink href="#templates" variant="secondary" size="md" className="px-6 py-3 text-base">
-              Browse templates
-            </ButtonLink>
-          </div>
-          <ul
-            className="mx-auto mt-8 flex max-w-2xl animate-fade-up flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-500"
-            style={{ animationDelay: "320ms" }}
-          >
-            {TRUST.map((t) => (
-              <li key={t} className="inline-flex items-center gap-1.5">
-                <CheckIcon className="h-4 w-4 text-brand-600" />
-                {t}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Brand styles showcase */}
-      <section className="border-y border-slate-100 bg-slate-50/50 py-10">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Receipt templates styled after popular U.S. companies — independent &amp; customizable,
-            for reconstructing your own lost receipts
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 opacity-60 grayscale transition-all duration-300 hover:opacity-90 hover:grayscale-0">
-            <div className="flex items-center gap-1 select-none">
-              <WalmartLogoIcon className="h-5 w-5 text-[#0071CE]" />
-              <span className="font-bold text-slate-800 text-sm tracking-tight">Walmart</span>
-            </div>
-            <div className="flex items-center gap-1 select-none">
-              <AirbnbLogoIcon className="h-5 w-5 text-[#FF5A5F]" />
-              <span className="font-bold text-slate-800 text-sm tracking-tight">airbnb</span>
-            </div>
-            <div className="flex flex-col items-center select-none">
-              <AmazonLogoIcon className="h-6 text-[#FF9900]" />
-            </div>
-            <div className="flex items-center select-none">
-              <UberLogoIcon className="h-5 text-slate-900" />
-            </div>
-            <div className="flex items-center gap-1 select-none">
-              <StarbucksLogoIcon className="h-6 w-6 text-[#00704A]" />
-              <span className="font-bold text-slate-800 text-sm tracking-tight">Starbucks</span>
-            </div>
-            <div className="flex items-center gap-1 select-none">
-              <NikeLogoIcon className="h-5 text-[#111111]" />
-              <span className="font-bold text-slate-800 text-sm tracking-tight uppercase">Nike</span>
-            </div>
-            <div className="flex items-center gap-1 select-none">
-              <AdidasLogoIcon className="h-5 text-[#000000]" />
-              <span className="font-bold text-slate-800 text-sm tracking-tight">Adidas</span>
-            </div>
-            <div className="flex items-center gap-1 select-none">
-              <AppleLogoIcon className="h-5 text-[#000000]" />
-              <span className="font-bold text-slate-800 text-sm tracking-tight">Apple</span>
-            </div>
-            <div className="flex items-center gap-1 select-none">
-              <JordanLogoIcon className="h-6 text-[#E32636]" />
-              <span className="font-bold text-slate-800 text-sm tracking-tight uppercase">Jordan</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Template grid */}
-      <section id="templates" className="mx-auto max-w-6xl px-4 pb-16">
-        <Reveal>
-          <h2 className="mb-2 text-2xl font-bold text-slate-900">Choose a template</h2>
-          <p className="mb-6 text-slate-600">
-            Twenty-four receipt types across five categories — including Airbnb, Walmart, Amazon, Uber, Nike &amp; Apple.{" "}
-            <Link href="/receipts" className="font-medium text-brand-600 hover:underline">
-              See all receipt types →
+            <Link
+              href="/create"
+              className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-ink transition-colors hover:bg-halo-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-halo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto"
+            >
+              Create a receipt
+              <ArrowRightIcon className="h-4 w-4" />
             </Link>
-          </p>
-        </Reveal>
-        <TemplateGrid />
-      </section>
+            <Link
+              href="/receipts"
+              className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-white/15 px-7 text-sm font-semibold text-white transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-halo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto"
+            >
+              Browse templates
+            </Link>
+          </div>
 
-      {/* Why ReceiptExpenses */}
-      <section className="border-t border-slate-200 bg-white py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <h2 className="text-2xl font-bold text-slate-900">Why ReceiptExpenses</h2>
-            <p className="mt-2 max-w-2xl text-slate-600">
-              A modern, privacy-first alternative to dated receipt generators.
+          {/* Brand wall */}
+          <div className="mt-20">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-600">
+              Templates styled after formats you know
             </p>
-          </Reveal>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {WHY.map((w, i) => (
-              <Reveal key={w.title} delay={i * 90}>
-                <div className="group rounded-2xl p-1">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-transform duration-300 group-hover:-translate-y-1 group-hover:bg-brand-100">
-                    <w.icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-4 font-semibold text-slate-900">{w.title}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{w.text}</p>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 opacity-45 grayscale transition duration-500 hover:opacity-70">
+              {BRANDS.map(({ Icon, name }, i) => (
+                <div key={i} className="flex select-none items-center gap-1.5 text-white">
+                  <Icon className="h-5 w-auto" />
+                  {name ? (
+                    <span className="text-sm font-semibold tracking-tight">{name}</span>
+                  ) : null}
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <h2 className="text-2xl font-bold text-slate-900">How it works</h2>
-          </Reveal>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <Reveal key={s.title} delay={i * 100}>
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 font-bold text-white">
-                    {i + 1}
-                  </div>
-                  <h3 className="mt-4 font-semibold text-slate-900">{s.title}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{s.text}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="border-t border-slate-200 bg-white py-16">
-        <div className="mx-auto max-w-3xl px-4">
-          <Reveal>
-            <h2 className="text-2xl font-bold text-slate-900">Frequently asked questions</h2>
-            <div className="mt-6">
-              <FaqList faqs={GENERAL_FAQS} />
+              ))}
             </div>
-            <p className="mt-6 text-sm text-slate-500">
-              More questions? Visit the{" "}
-              <Link href="/faq" className="font-medium text-brand-600 hover:underline">
-                full FAQ
+          </div>
+        </div>
+      </section>
+
+      {/* ========================= STATS BAND (dark) ========================= */}
+      <section className="border-y border-white/[0.06] bg-ink-800">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-10 px-6 py-14 lg:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.label} className="text-center">
+              <div className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                {s.value}
+              </div>
+              <div className="mt-1.5 text-sm text-slate-500">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================== TEMPLATES (light) ======================== */}
+      <section id="templates" className="bg-cream py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <Reveal>
+            <h2 className="max-w-2xl font-display text-3xl font-semibold tracking-[-0.02em] text-ink sm:text-4xl">
+              Every kind of receipt, ready to go
+            </h2>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+              Twenty-four templates across five categories. Pick one, make it yours, and download
+              in under a minute.{" "}
+              <Link
+                href="/receipts"
+                className="font-medium text-ink underline decoration-slate-400 underline-offset-4 hover:decoration-ink"
+              >
+                See all receipt types
               </Link>
-              .
             </p>
           </Reveal>
+          <div className="mt-12">
+            <TemplateGrid />
+          </div>
+        </div>
+      </section>
+
+      {/* ============================ WHY (dark) ============================ */}
+      <section className="bg-ink py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <Reveal>
+            <h2 className="max-w-2xl font-display text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">
+              Built to stay out of your way
+            </h2>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-400">
+              A privacy-first alternative to dated receipt generators.
+            </p>
+          </Reveal>
+
+          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-white/[0.07] sm:grid-cols-2">
+            {WHY.map((w, i) => (
+              <Reveal key={w.title} delay={i * 80}>
+                <div className="group h-full bg-ink-800 p-8 transition-colors hover:bg-ink-700">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.06] text-halo-300 transition-colors group-hover:bg-halo-400/15">
+                    <w.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-5 font-display text-lg font-semibold text-white">{w.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{w.text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================== HOW IT WORKS (light) ===================== */}
+      <section className="bg-cream py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <Reveal>
+            <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-ink sm:text-4xl">
+              Three steps. Under a minute.
+            </h2>
+          </Reveal>
+          <ol className="mt-12 grid gap-6 sm:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <Reveal key={s.title} delay={i * 90}>
+                <li className="h-full rounded-2xl border border-black/[0.06] bg-white p-8">
+                  <span className="font-display text-sm font-semibold tabular-nums text-slate-400">
+                    0{i + 1}
+                  </span>
+                  <h3 className="mt-4 font-display text-lg font-semibold text-ink">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.text}</p>
+                </li>
+              </Reveal>
+            ))}
+          </ol>
+
+          <Reveal delay={280}>
+            <ul className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-slate-600">
+              {["No account to preview", "No watermark", "Nothing uploaded"].map((t) => (
+                <li key={t} className="inline-flex items-center gap-2">
+                  <CheckIcon className="h-4 w-4 text-emerald-600" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============================= FAQ (dark) ============================ */}
+      <section className="bg-ink py-24">
+        <div className="mx-auto max-w-3xl px-6">
+          <Reveal>
+            <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">
+              Frequently asked questions
+            </h2>
+            <div className="mt-10">
+              <FaqList faqs={GENERAL_FAQS} dark />
+            </div>
+            <p className="mt-8 text-sm text-slate-500">
+              More questions?{" "}
+              <Link
+                href="/faq"
+                className="font-medium text-halo-300 underline decoration-halo-400/40 underline-offset-4 hover:decoration-halo-300"
+              >
+                Read the full FAQ
+              </Link>
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============================ CLOSING CTA ============================ */}
+      <section className="relative overflow-hidden bg-ink-800 py-24">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-1/2 h-[26rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(166,169,235,0.16),transparent_65%)]" />
+        </div>
+        <div className="relative mx-auto max-w-3xl px-6 text-center">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-white sm:text-5xl">
+            Make your first receipt now
+          </h2>
+          <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-slate-400">
+            Free to build and preview. Create a free account only when you want to download, print
+            or save.
+          </p>
+          <Link
+            href="/create"
+            className="mt-9 inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-white px-8 text-sm font-semibold text-ink transition-colors hover:bg-halo-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-halo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-800"
+          >
+            Start creating
+            <ArrowRightIcon className="h-4 w-4" />
+          </Link>
         </div>
       </section>
     </main>

@@ -23,6 +23,28 @@ const config: Config = {
           800: "#3730a3",
           900: "#312e81",
         },
+        // Dark-premium surfaces for the marketing site. Near-black rather than
+        // pure #000 so elevated cards can separate from the page without
+        // resorting to heavy borders.
+        ink: {
+          DEFAULT: "#0B0B10",
+          800: "#121218",
+          700: "#1A1A22",
+          600: "#24242E",
+          500: "#33333F",
+        },
+        // Warm off-white for the light bands between dark sections.
+        cream: {
+          DEFAULT: "#F7F6F3",
+          200: "#EFEDE8",
+        },
+        // Soft periwinkle reads as an accent on near-black without the glare
+        // pure indigo has at large sizes.
+        halo: {
+          200: "#DDDEF9",
+          300: "#C4C6F2",
+          400: "#A6A9EB",
+        },
       },
       boxShadow: {
         card: "0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06)",

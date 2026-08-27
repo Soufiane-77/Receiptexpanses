@@ -74,8 +74,8 @@ export default function Logo({
       />
       {withWordmark ? (
         <span className={`font-display font-bold tracking-tight ${s.text}`}>
-          <span className="text-slate-900">Receipt</span>
-          <span className="text-brand-600">Expenses</span>
+          <span className="text-white">Receipt</span>
+          <span className="text-halo-300">Expenses</span>
         </span>
       ) : null}
     </span>

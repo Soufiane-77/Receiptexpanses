@@ -35,7 +35,7 @@ const COLS: { heading: string; links: { href: string; label: string }[] }[] = [
 
 export default function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-slate-200 bg-white">
+    <footer className="border-t border-white/[0.07] bg-ink">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 sm:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
           <span className="group inline-block">
@@ -47,11 +47,11 @@ export default function SiteFooter() {
         </div>
         {COLS.map((col) => (
           <div key={col.heading}>
-            <h3 className="text-sm font-semibold text-slate-900">{col.heading}</h3>
+            <h3 className="text-sm font-semibold text-white">{col.heading}</h3>
             <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-500">
               {col.links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="transition-colors hover:text-slate-900">
+                  <Link href={l.href} className="transition-colors hover:text-white">
                     {l.label}
                   </Link>
                 </li>
@@ -60,7 +60,7 @@ export default function SiteFooter() {
           </div>
         ))}
       </div>
-      <div className="border-t border-slate-100 py-4 text-center text-xs text-slate-400">
+      <div className="border-t border-slate-100 py-4 text-center text-xs text-slate-500">
         For generating receipts for your own business or records. © {new Date().getFullYear()}{" "}
         ReceiptExpenses.
       </div>
