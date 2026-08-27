@@ -12,3 +12,7 @@ next-env.d.ts.bak
 .wrangler
 .dev.vars
 cloudflare-env.d.ts
+
+# Generated landing artwork sources (6 MB of PNGs).
+# Archived in R2 instead: node scripts/landing-assets.mjs pull
+.assets-src

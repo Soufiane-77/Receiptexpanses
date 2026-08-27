@@ -3,14 +3,28 @@
  *
  *   node scripts/landing-assets.mjs generate   # calls Nano Banana Pro, writes .assets-src/*.png
  *   node scripts/landing-assets.mjs optimize   # writes public/landing/*.webp + public/og.png
+ *   node scripts/landing-assets.mjs upload     # archives .assets-src/*.png to R2
+ *   node scripts/landing-assets.mjs pull       # restores .assets-src/*.png from R2
  *
- * "generate" needs NANO_BANANA_API_KEY in the environment and costs money, so the
- * full-resolution PNGs it produces are kept under .assets-src/ and the optimize step
- * can be re-run offline. Pass asset names after "generate" to re-roll just those.
+ * "generate" needs NANO_BANANA_API_KEY in the environment and costs real money, and
+ * re-rolling is non-deterministic — you get different art, not the same art again.
+ * So the full-resolution PNGs are worth keeping, but they are 6 MB of binaries that
+ * do not belong in git: .assets-src/ is gitignored and archived in R2 instead.
+ *
+ * Run "pull" after a fresh clone if you need to re-run "optimize" (different crops,
+ * new sizes). Nothing in the build depends on it — public/landing/*.webp is committed.
+ *
+ * Pass asset names after "generate" to re-roll just those.
  */
-import { writeFileSync, mkdirSync, statSync } from "node:fs";
+import { writeFileSync, mkdirSync, statSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { execFileSync } from "node:child_process";
 import sharp from "sharp";
+
+/** R2 bucket holding the generated source PNGs. Create once with:
+ *    npx wrangler r2 bucket create receiptexpenses-assets           */
+const BUCKET = process.env.ASSETS_BUCKET || "receiptexpenses-assets";
+const R2_PREFIX = "landing-src";
 
 const MODEL = "gemini-3-pro-image"; // Nano Banana Pro
 const SRC = ".assets-src";
@@ -201,7 +215,48 @@ async function optimize() {
   console.log(`  og.png  ${kb("public/og.png")}`);
 }
 
+/* ------------------------------------------------------------- R2 archive */
+
+function wrangler(args) {
+  // A stray user-level CLOUDFLARE_API_TOKEN belonging to another account
+  // overrides the wrangler OAuth login, so clear it for these child processes.
+  execFileSync("npx", ["wrangler", ...args], {
+    stdio: "inherit",
+    shell: process.platform === "win32",
+    env: { ...process.env, CLOUDFLARE_API_TOKEN: "" },
+  });
+}
+
+function upload() {
+  if (!existsSync(SRC)) throw new Error(`${SRC}/ does not exist — nothing to upload`);
+  const files = readdirSync(SRC).filter((f) => f.endsWith(".png"));
+  if (!files.length) throw new Error(`${SRC}/ has no PNGs`);
+  for (const f of files) {
+    console.log(`↑ ${f} (${kb(join(SRC, f))})`);
+    wrangler([
+      "r2", "object", "put", `${BUCKET}/${R2_PREFIX}/${f}`,
+      "--file", join(SRC, f), "--content-type", "image/png", "--remote",
+    ]);
+  }
+  console.log(`\n${files.length} files archived to r2://${BUCKET}/${R2_PREFIX}/`);
+}
+
+function pull() {
+  mkdirSync(SRC, { recursive: true });
+  for (const a of ASSETS) {
+    const f = `${a.name}.png`;
+    console.log(`↓ ${f}`);
+    wrangler([
+      "r2", "object", "get", `${BUCKET}/${R2_PREFIX}/${f}`,
+      "--file", join(SRC, f), "--remote",
+    ]);
+  }
+  console.log(`\n${ASSETS.length} files restored to ${SRC}/`);
+}
+
 const cmd = process.argv[2];
 if (cmd === "generate") await generate();
 else if (cmd === "optimize") await optimize();
-else console.log("usage: node scripts/landing-assets.mjs generate|optimize [names...]");
+else if (cmd === "upload") upload();
+else if (cmd === "pull") pull();
+else console.log("usage: node scripts/landing-assets.mjs generate|optimize|upload|pull [names...]");
