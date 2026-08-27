@@ -64,14 +64,20 @@ const STEPS = [
   {
     title: "Choose a template",
     text: "Pick from sales, restaurant, fuel, taxi, parking, hotel and more.",
+    img: "step-01",
+    alt: "A fanned stack of blank receipt templates, with the top one lifted to be chosen",
   },
   {
     title: "Customise it",
     text: "Add your logo, items, currency and tax. Watch the live preview update.",
+    img: "step-02",
+    alt: "A blank receipt lying flat with a stylus resting across it, fields being filled in",
   },
   {
     title: "Download or print",
     text: "Export a private PDF or PNG, or print — nothing leaves your browser.",
+    img: "step-03",
+    alt: "A finished receipt curling upward off the surface as it is exported",
   },
 ];
 
@@ -153,6 +159,29 @@ export default function Home() {
             >
               Browse templates
             </Link>
+          </div>
+
+          {/* Hero artwork. Eager + high priority because this is the LCP element. */}
+          <div
+            className="relative mt-16 animate-fade-up"
+            style={{ animationDelay: "320ms" }}
+          >
+            <img
+              src="/landing/hero-1200.webp"
+              srcSet="/landing/hero-1200.webp 1200w, /landing/hero-2000.webp 2000w"
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              width={2000}
+              height={1116}
+              alt="Blank receipt papers and an invoice card floating in dark space, lit from above"
+              fetchPriority="high"
+              decoding="async"
+              className="mx-auto w-full max-w-4xl select-none"
+            />
+            {/* Melt the artwork's lower edge into the section background. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-ink"
+            />
           </div>
 
           {/* Brand wall */}
@@ -251,12 +280,25 @@ export default function Home() {
           <ol className="mt-12 grid gap-6 sm:grid-cols-3">
             {STEPS.map((s, i) => (
               <Reveal key={s.title} delay={i * 90}>
-                <li className="h-full rounded-2xl border border-black/[0.06] bg-white p-8">
-                  <span className="font-display text-sm font-semibold tabular-nums text-slate-400">
-                    0{i + 1}
-                  </span>
-                  <h3 className="mt-4 font-display text-lg font-semibold text-ink">{s.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.text}</p>
+                <li className="flex h-full flex-col overflow-hidden rounded-2xl border border-black/[0.06] bg-white">
+                  <img
+                    src={`/landing/${s.img}-400.webp`}
+                    srcSet={`/landing/${s.img}-400.webp 400w, /landing/${s.img}-800.webp 800w`}
+                    sizes="(max-width: 640px) 100vw, 380px"
+                    width={800}
+                    height={597}
+                    alt={s.alt}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-[3/2] w-full select-none border-b border-black/[0.04] object-cover"
+                  />
+                  <div className="p-8">
+                    <span className="font-display text-sm font-semibold tabular-nums text-slate-400">
+                      0{i + 1}
+                    </span>
+                    <h3 className="mt-4 font-display text-lg font-semibold text-ink">{s.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.text}</p>
+                  </div>
                 </li>
               </Reveal>
             ))}
@@ -301,7 +343,16 @@ export default function Home() {
       {/* ============================ CLOSING CTA ============================ */}
       <section className="relative overflow-hidden bg-ink-800 py-24">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[26rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(166,169,235,0.16),transparent_65%)]" />
+          <img
+            src="/landing/cta-1600.webp"
+            alt=""
+            width={1600}
+            height={679}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute left-1/2 top-1/2 h-[26rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(166,169,235,0.10),transparent_65%)]" />
         </div>
         <div className="relative mx-auto max-w-3xl px-6 text-center">
           <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-white sm:text-5xl">
