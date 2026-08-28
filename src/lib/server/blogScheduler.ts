@@ -13,6 +13,7 @@ import {
   type BlogSettings,
 } from "./blogSettings";
 import { submitForIndexing, type IndexStatus } from "./blogIndexing";
+import { rehostPostImages } from "./blogBackfill";
 
 /**
  * One scheduler tick. Pops the next queued keyword, runs the generation
@@ -33,6 +34,8 @@ export type TickResult = {
   index?: IndexStatus;
   /** Keywords put back in the queue after an interrupted previous run. */
   reclaimed?: number;
+  /** Provider-hosted images copied onto our own domain this tick. */
+  rehosted?: number;
 };
 
 function cadenceBlock(s: BlogSettings): string | null {
@@ -58,9 +61,27 @@ export async function runScheduler(
   const db = env.DB;
   const settings = await loadSettings(db);
 
+  // Self-heal: posts published before the pipeline self-hosted images still
+  // point at the provider CDN. Those URLs carry query strings, and an
+  // unescaped "&" in <image:loc> invalidates the entire sitemap — so leaving
+  // them is not cosmetic.
+  //
+  // This runs BEFORE the cadence gate on purpose. Publishing is capped at
+  // 4/day, but the cron fires hourly and no-ops the rest of the time; hanging
+  // the sweep off the publish cadence would drain the backlog 6x slower for no
+  // reason. A small batch per tick keeps any single run fast, and the whole
+  // thing is a no-op once every image is local.
+  let rehosted = 0;
+  try {
+    const swept = await rehostPostImages(db, { limit: 5 });
+    rehosted = swept.imagesRehosted;
+  } catch (err) {
+    console.error(`[scheduler] rehost sweep failed: ${String(err)}`);
+  }
+
   if (!opts.force) {
     const blocked = cadenceBlock(settings);
-    if (blocked) return { published: false, reason: blocked };
+    if (blocked) return { published: false, reason: blocked, rehosted };
   }
 
   // Self-heal: a previous tick may have died after claiming a keyword, which
@@ -73,6 +94,7 @@ export async function runScheduler(
       published: false,
       reason: "Queue is empty — add keywords.",
       reclaimed,
+      rehosted,
     };
   }
 
@@ -84,7 +106,7 @@ export async function runScheduler(
   if (!result.ok) {
     const status = /^Skipped/i.test(result.reason) ? "skipped_duplicate" : "failed";
     await setKeywordStatus(db, next.id, status, { error: result.reason });
-    return { published: false, reason: result.reason, keyword: next.keyword, reclaimed };
+    return { published: false, reason: result.reason, keyword: next.keyword, reclaimed, rehosted };
   }
 
   await insertPost(db, result.post);
@@ -104,5 +126,6 @@ export async function runScheduler(
     keyword: next.keyword,
     index,
     reclaimed,
+    rehosted,
   };
 }

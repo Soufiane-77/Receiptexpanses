@@ -87,12 +87,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   // `images` emits <image:image> entries — how Google discovers blog cover art
   // for Google Images.
+  //
+  // Only our own URLs go in. Two reasons, and the first one is a hard bug:
+  // Next.js escapes <loc> but NOT <image:loc>, so a provider URL carrying a
+  // query string ("...jpeg?auto=compress&cs=tinysrgb") emits a bare "&" and the
+  // whole document fails to parse — one hotlinked cover image invalidates the
+  // entire sitemap, not just its own entry. Second, an image sitemap is a claim
+  // that you host the image; Google credits it to whoever serves it, so listing
+  // a Pexels CDN URL does nothing for us anyway. Posts still hotlinking are
+  // simply listed without an image until the re-host sweep moves them over.
+  const ownImage = (url: string) => url.startsWith(`${SITE_URL}/`) && !/[&<>"']/.test(url);
+
   const posts = [...bySlug.values()].map((p) => ({
     url: p.url,
     lastModified: new Date(p.date),
     changeFrequency: "monthly" as const,
     priority: 0.6,
-    ...(p.image ? { images: [p.image] } : {}),
+    ...(p.image && ownImage(p.image) ? { images: [p.image] } : {}),
   }));
 
   return [...core, ...receiptTypes, ...guides, ...posts];
