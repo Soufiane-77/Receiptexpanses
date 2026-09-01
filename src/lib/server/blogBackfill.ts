@@ -99,7 +99,7 @@ export type RehostResult = {
  */
 export async function rehostPostImages(
   db: D1Database,
-  opts: { limit?: number } = {}
+  opts: { limit?: number; maxChanges?: number } = {}
 ): Promise<RehostResult> {
   const posts = await listAllPosts(db, opts.limit ?? 100);
   const items: RehostResult["items"] = [];
@@ -108,6 +108,11 @@ export async function rehostPostImages(
   let failed = 0;
 
   for (const post of posts) {
+    // Budget the expensive work (a fetch + store per image), not the cheap scan.
+    // Capping `limit` instead would re-read the same first N posts every run and
+    // never reach the backlog once those N are already local.
+    if (opts.maxChanges && postsChanged >= opts.maxChanges) break;
+
     const cover = post.coverImageUrl ?? "";
     const body = (post.body as Block[]) ?? [];
     const bodyExternal = body.filter(

@@ -73,7 +73,7 @@ export async function runScheduler(
   // thing is a no-op once every image is local.
   let rehosted = 0;
   try {
-    const swept = await rehostPostImages(db, { limit: 5 });
+    const swept = await rehostPostImages(db, { limit: 200, maxChanges: 5 });
     rehosted = swept.imagesRehosted;
   } catch (err) {
     console.error(`[scheduler] rehost sweep failed: ${String(err)}`);
