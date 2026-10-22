@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPost, faqsFromBody, type Post } from "@/lib/blog";
 import NewsletterForm from "@/components/NewsletterForm";
+import { PreferredSourceLink } from "@/components/PreferredSource";
 import JsonLd from "@/components/JsonLd";
 import PostBody from "@/components/PostBody";
 import {
@@ -184,6 +185,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
         <PostBody body={post.body} />
       </article>
+
+      <PreferredSourceLink />
 
       <div className="mt-12 rounded-2xl bg-slate-900 p-8 text-center text-white">
         <h3 className="text-xl font-bold">Ready to make your own receipt?</h3>

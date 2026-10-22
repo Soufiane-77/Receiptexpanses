@@ -9,6 +9,7 @@ import { ArrowRightIcon, SparklesIcon } from "@/components/icons";
 import { GUIDES, getGuide } from "@/content/guides";
 import { guideFaqs } from "@/lib/guides";
 import { getTemplate, templateSlug } from "@/templates/registry";
+import { PreferredSourceLink } from "@/components/PreferredSource";
 import {
   SITE_URL,
   articleJsonLd,
@@ -133,6 +134,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       <article>
         <PostBody body={g.body} />
       </article>
+
+      <PreferredSourceLink />
 
       {/* Related templates */}
       {relatedTemplates.length ? (

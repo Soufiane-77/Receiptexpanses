@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "./Logo";
+import { PreferredSourceButton } from "./PreferredSource";
 
 const COLS: { heading: string; links: { href: string; label: string }[] }[] = [
   {
@@ -44,6 +45,11 @@ export default function SiteFooter() {
           <p className="mt-2 text-sm text-slate-500">
             A private online receipt maker. Everything runs in your browser.
           </p>
+          {/* The footer lives in the persistent layout, so this is the one place
+              Google's auto-initialising button is guaranteed to be found. */}
+          <div className="mt-5">
+            <PreferredSourceButton theme="dark" />
+          </div>
         </div>
         {COLS.map((col) => (
           <div key={col.heading}>
@@ -60,7 +66,7 @@ export default function SiteFooter() {
           </div>
         ))}
       </div>
-      <div className="border-t border-slate-100 py-4 text-center text-xs text-slate-500">
+      <div className="border-t border-white/[0.07] py-4 text-center text-xs text-slate-500">
         For generating receipts for your own business or records. © {new Date().getFullYear()}{" "}
         ReceiptExpenses.
       </div>

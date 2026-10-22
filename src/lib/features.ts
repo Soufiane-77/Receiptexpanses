@@ -14,3 +14,12 @@
  * "Pricing" nav link all read this flag, so no other code needs to change.
  */
 export const PAYMENTS_ENABLED = false;
+
+/**
+ * Google "Preferred Sources" prompts (footer button + end-of-article link).
+ *
+ * The site must appear in Google's source-preferences tool for a click to
+ * succeed; an ineligible site gets an "ineligible" result instead. Flip to
+ * `false` to remove every prompt at once if that turns out to be the case.
+ */
+export const PREFERRED_SOURCE_ENABLED = true;
